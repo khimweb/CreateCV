@@ -11,8 +11,9 @@ import {
 } from '../professional-cv/professional-cv.component';
 import { ClassicBlueCvComponent } from '../classic-blue-cv/classic-blue-cv.component';
 import { ExecutiveNavyCvComponent } from '../executive-navy-cv/executive-navy-cv.component';
+import { SlatePortfolioCvComponent } from '../slate-portfolio-cv/slate-portfolio-cv.component';
 
-export const CV_LAYOUTS = ['professional', 'classic-blue', 'executive-navy'] as const;
+export const CV_LAYOUTS = ['professional', 'classic-blue', 'executive-navy', 'slate-portfolio'] as const;
 
 export type CvLayout = (typeof CV_LAYOUTS)[number];
 
@@ -24,9 +25,33 @@ export function normalizeLayout(value: unknown): CvLayout {
 @Component({
   selector: 'app-cv-renderer',
   standalone: true,
-  imports: [CommonModule, ProfessionalCvComponent, ClassicBlueCvComponent, ExecutiveNavyCvComponent],
+  imports: [
+    CommonModule,
+    ProfessionalCvComponent,
+    ClassicBlueCvComponent,
+    ExecutiveNavyCvComponent,
+    SlatePortfolioCvComponent,
+  ],
   template: `
-    @if (layout === 'executive-navy') {
+    @if (layout === 'slate-portfolio') {
+      <app-slate-portfolio-cv
+        [accent]="accent"
+        [name]="name"
+        [jobTitle]="jobTitle"
+        [email]="email"
+        [phone]="phone"
+        [location]="location"
+        [linkedin]="linkedin"
+        [summary]="summary"
+        [photoUrl]="photoUrl"
+        [education]="education"
+        [experience]="experience"
+        [skills]="skills"
+        [languages]="languages"
+        [certifications]="certifications"
+        [projects]="projects"
+      />
+    } @else if (layout === 'executive-navy') {
       <app-executive-navy-cv
         [accent]="accent"
         [name]="name"

@@ -22,6 +22,13 @@ const DEFAULT_TEMPLATES = [
     layout: 'executive-navy',
     colors: ['#03374F', '#0B4A6F', '#123A5E', '#1B5E7E'],
   },
+  {
+    name: 'Slate Portfolio',
+    description: 'White A4 sheet with an angled slate rail, ringed portrait and year-column experience.',
+    category: 'Minimal',
+    layout: 'slate-portfolio',
+    colors: ['#323A4D', '#2F3E46', '#3E4C59', '#45526B'],
+  },
 ];
 
 /** Older databases predate the `layout` column — add it before seeding. */
