@@ -15,6 +15,13 @@ const DEFAULT_TEMPLATES = [
     layout: 'classic-blue',
     colors: ['#01334C', '#123A5E', '#22577A', '#0F4C5C'],
   },
+  {
+    name: 'Executive Navy',
+    description: 'Navy page with a white content panel, profile rail and icon-led timeline sections.',
+    category: 'Modern',
+    layout: 'executive-navy',
+    colors: ['#03374F', '#0B4A6F', '#123A5E', '#1B5E7E'],
+  },
 ];
 
 /** Older databases predate the `layout` column — add it before seeding. */
