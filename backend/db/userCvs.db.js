@@ -2,7 +2,7 @@ const { query } = require('./pool');
 
 async function findById(id, userId) {
     const { rows } = await query(
-      `SELECT uc.*, t.name AS template_name, t.default_colors
+      `SELECT uc.*, t.name AS template_name, t.default_colors, t.layout AS template_layout
        FROM user_cvs uc JOIN cv_templates t ON t.id = uc.template_id
        WHERE uc.id = ? AND uc.user_id = ?`,
       [id, userId]
@@ -23,7 +23,7 @@ async function createDraft({ userId, templateId, selectedColor }) {
   
   async function findByUser(userId) {
     const { rows } = await query(
-      `SELECT uc.*, t.name AS template_name, t.thumbnail_url
+      `SELECT uc.*, t.name AS template_name, t.thumbnail_url, t.layout AS template_layout
        FROM user_cvs uc JOIN cv_templates t ON t.id = uc.template_id
        WHERE uc.user_id = ? ORDER BY uc.updated_at DESC`,
       [userId]

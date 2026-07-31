@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { LucideAngularModule, Save, Download, Pencil, Trash2 } from 'lucide-angular';
-import { ProfessionalCvComponent } from '../../shared/components/professional-cv/professional-cv.component';
+import { CvRendererComponent, normalizeLayout } from '../../shared/components/cv-renderer/cv-renderer.component';
 
 interface CvDetail {
   id: string;
   title: string;
   template_name: string;
+  template_layout?: string;
   selected_color: string;
   default_colors: string[];
   content: any;
@@ -18,7 +19,7 @@ interface CvDetail {
 @Component({
   selector: 'app-my-cv-detail',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ProfessionalCvComponent],
+  imports: [CommonModule, LucideAngularModule, CvRendererComponent],
   template: `
     @if (cv(); as c) {
       <section class="max-w-5xl mx-auto px-4 pt-32 pb-16">
@@ -76,7 +77,8 @@ interface CvDetail {
           [style.borderTop]="'6px solid ' + c.selected_color"
         >
           <div class="print-root a4-wrap mx-auto">
-            <app-professional-cv
+            <app-cv-renderer
+              [layout]="layoutOf(c)"
               [accent]="c.selected_color"
               [photoUrl]="c.content?.photoUrl || null"
               [name]="c.content?.fullName || c.title"
@@ -135,6 +137,10 @@ export class MyCvDetailComponent implements OnInit {
 
   arr(v: any): any[] {
     return Array.isArray(v) ? v : [];
+  }
+
+  layoutOf(c: CvDetail) {
+    return normalizeLayout(c.template_layout);
   }
 
   setColor(c: CvDetail, color: string) {

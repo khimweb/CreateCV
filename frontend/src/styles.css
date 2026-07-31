@@ -17,11 +17,14 @@ body {
   --------------------------------
   Previous bug: html/body height locked to 297mm → browser only emitted 1 page.
   Fix: height:auto, no overflow clip, only .print-root is shown.
+
+  The page box itself has no margin so full-bleed sheets (.cv-sheet) cover the
+  whole A4; layouts that expect a white border add their own padding below.
 */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 12mm;
+    margin: 0;
   }
 
   html,
@@ -49,32 +52,36 @@ body {
     visibility: visible !important;
   }
 
-  /* Overlay must not clip pages */
-  .print-overlay {
-    position: static !important;
-    inset: auto !important;
-    overflow: visible !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    max-height: none !important;
-    visibility: visible !important;
+  /* Drop the app chrome out of the flow so the sheet starts on page 1 and
+     nothing hidden pushes extra blank pages. */
+  body :not(:has(.print-root)):not(.print-root):not(.print-root *) {
+    display: none !important;
   }
 
-  .print-overlay > *:not(.print-root) {
-    display: none !important;
+  /* Ancestors of the sheet only exist to carry it: strip their box. */
+  body :has(.print-root) {
+    position: static !important;
+    display: block !important;
+    inset: auto !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: visible !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+    zoom: 1 !important;
   }
 
   .print-root,
   .print-target {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    right: auto !important;
-    bottom: auto !important;
-    width: 186mm !important; /* A4 width minus page margins */
-    max-width: 186mm !important;
+    position: static !important;
+    width: 210mm !important; /* full A4 width */
+    max-width: 210mm !important;
     min-height: 0 !important;
     height: auto !important;
     max-height: none !important;
@@ -87,12 +94,23 @@ body {
   }
 
   .cv-paper {
+    box-sizing: border-box !important;
     width: 100% !important;
     min-height: 0 !important;
     height: auto !important;
     max-height: none !important;
+    padding: 12mm !important; /* the page box is edge-to-edge, so inset the ink */
     box-shadow: none !important;
     overflow: visible !important;
+  }
+
+  /* Full-bleed sheets are already exactly A4 — never pad or resize them. */
+  .cv-sheet {
+    width: 210mm !important;
+    height: 297mm !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
   }
 
   .cv-body {

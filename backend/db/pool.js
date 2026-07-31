@@ -18,8 +18,9 @@ db.run('PRAGMA foreign_keys = ON');
 async function query(text, params = []) {
   return new Promise((resolve, reject) => {
     const start = Date.now();
-    // Use `all` for SELECT queries and `run` for INSERT/UPDATE/DELETE
-    const isSelect = text.trim().toUpperCase().startsWith('SELECT');
+    // Use `all` for row-returning statements and `run` for INSERT/UPDATE/DELETE
+    const head = text.trim().toUpperCase();
+    const isSelect = head.startsWith('SELECT') || head.startsWith('PRAGMA TABLE_INFO');
     const method = isSelect ? 'all' : 'run';
 
     db[method](text, params, function (err, rows) {

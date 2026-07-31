@@ -18,7 +18,7 @@ async function findMany({ category, search, activeOnly = true } = {}) {
   
     const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     const { rows } = await query(
-      `SELECT id, name, description, category, thumbnail_url, default_colors,
+      `SELECT id, name, description, category, layout, thumbnail_url, default_colors,
               price_cents, is_active, sold_count, avg_rating
        FROM cv_templates ${where}
        ORDER BY created_at DESC`,
@@ -34,9 +34,9 @@ async function findMany({ category, search, activeOnly = true } = {}) {
   
   async function create(data) {
     const result = await query(
-      `INSERT INTO cv_templates (name, description, category, thumbnail_url, preview_html, default_colors, price_cents)
-       VALUES (?,?,?,?,?,?,?)`,
-      [data.name, data.description, data.category, data.thumbnailUrl, data.previewHtml,
+      `INSERT INTO cv_templates (name, description, category, layout, thumbnail_url, preview_html, default_colors, price_cents)
+       VALUES (?,?,?,?,?,?,?,?)`,
+      [data.name, data.description, data.category, data.layout || 'professional', data.thumbnailUrl, data.previewHtml,
        JSON.stringify(data.defaultColors || []), data.priceCents ?? 300]
     );
     const { lastID } = result;
@@ -49,6 +49,7 @@ async function findMany({ category, search, activeOnly = true } = {}) {
          name = COALESCE(?, name),
          description = COALESCE(?, description),
          category = COALESCE(?, category),
+         layout = COALESCE(?, layout),
          thumbnail_url = COALESCE(?, thumbnail_url),
          preview_html = COALESCE(?, preview_html),
          default_colors = COALESCE(?, default_colors),
@@ -56,7 +57,7 @@ async function findMany({ category, search, activeOnly = true } = {}) {
          is_active = COALESCE(?, is_active),
          updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`,
-      [data.name, data.description, data.category, data.thumbnailUrl, data.previewHtml,
+      [data.name, data.description, data.category, data.layout, data.thumbnailUrl, data.previewHtml,
        data.defaultColors ? JSON.stringify(data.defaultColors) : null, data.priceCents, data.isActive, id]
     );
     return findById(id);
