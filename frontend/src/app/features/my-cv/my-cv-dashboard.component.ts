@@ -3,12 +3,14 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { LucideAngularModule, Trash2, Pencil } from 'lucide-angular';
-import { ProfessionalCvComponent } from '../../shared/components/professional-cv/professional-cv.component';
+import { CvRendererComponent, normalizeLayout } from '../../shared/components/cv-renderer/cv-renderer.component';
+import { FitWidthDirective } from '../../shared/directives/fit-width.directive';
 
 interface SavedCv {
   id: string;
   title: string;
   template_name: string;
+  template_layout?: string;
   thumbnail_url: string;
   updated_at: string;
   content?: any;
@@ -18,7 +20,7 @@ interface SavedCv {
 @Component({
   selector: 'app-my-cv-dashboard',
   standalone: true,
-  imports: [CommonModule, ProfessionalCvComponent, LucideAngularModule],
+  imports: [CommonModule, CvRendererComponent, LucideAngularModule, FitWidthDirective],
   template: `
     <section class="max-w-6xl mx-auto px-4 pt-32 pb-16">
       <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
@@ -39,9 +41,10 @@ interface SavedCv {
           <div
             class="group relative rounded-2xl overflow-hidden bg-white/70 dark:bg-slate-900/60 backdrop-blur-md border border-white/40 dark:border-sky-500/20 shadow-md transition-all duration-300 ease-in-out hover:scale-[1.02]"
           >
-            <div class="h-64 overflow-hidden bg-slate-100">
-              <div class="w-[210mm] origin-top-left scale-[0.32]">
-                <app-professional-cv
+            <div appFitWidth class="aspect-[210/297] overflow-hidden bg-slate-100">
+              <div class="cv-thumb w-[210mm] origin-top-left">
+                <app-cv-renderer
+                  [layout]="layoutOf(cv)"
                   [accent]="cv.selected_color || '#667b97'"
                   [photoUrl]="contentOf(cv).photoUrl || null"
                   [name]="contentOf(cv).fullName || cv.title"
@@ -89,6 +92,14 @@ interface SavedCv {
       </div>
     </section>
   `,
+  styles: [
+    `
+      /* --fit-scale comes from appFitWidth: card width ÷ A4 width. */
+      .cv-thumb {
+        transform: scale(var(--fit-scale, 0.32));
+      }
+    `,
+  ],
 })
 export class MyCvDashboardComponent implements OnInit {
   Pencil = Pencil;
@@ -133,6 +144,10 @@ export class MyCvDashboardComponent implements OnInit {
 
   asArray(v: any): any[] {
     return Array.isArray(v) ? v : [];
+  }
+
+  layoutOf(cv: SavedCv) {
+    return normalizeLayout(cv.template_layout);
   }
 
   edit(cv: SavedCv) {

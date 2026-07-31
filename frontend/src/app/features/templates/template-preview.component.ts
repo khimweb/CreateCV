@@ -2,8 +2,12 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { LucideAngularModule, Star, ArrowLeft } from 'lucide-angular';
-import { ProfessionalCvComponent } from '../../shared/components/professional-cv/professional-cv.component';
+import { LucideAngularModule, Star, ArrowLeft, Printer } from 'lucide-angular';
+import {
+  CvLayout,
+  CvRendererComponent,
+  normalizeLayout,
+} from '../../shared/components/cv-renderer/cv-renderer.component';
 import { DEMO_CV } from '../../shared/demo-cv-data';
 
 interface CvTemplate {
@@ -13,12 +17,13 @@ interface CvTemplate {
   thumbnailUrl: string;
   defaultColors: string[];
   avgRating: number;
+  layout: CvLayout;
 }
 
 @Component({
   selector: 'app-template-preview',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ProfessionalCvComponent],
+  imports: [CommonModule, LucideAngularModule, CvRendererComponent],
   template: `
     @if (template(); as t) {
       <section class="max-w-6xl mx-auto px-4 pt-28 pb-16">
@@ -35,9 +40,10 @@ interface CvTemplate {
           <div
             class="rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-sky-500/20 shadow-md"
           >
-            <div class="h-[min(78vh,820px)] overflow-auto p-4 flex justify-center">
-              <div class="origin-top" [style.zoom]="0.72">
-                <app-professional-cv
+            <div class="h-[min(78vh,820px)] overflow-auto p-4 flex justify-center print-overlay">
+              <div class="origin-top print-root" [style.zoom]="0.72">
+                <app-cv-renderer
+                  [layout]="t.layout"
                   [accent]="selectedColor()"
                   [name]="demo.name"
                   [jobTitle]="demo.jobTitle"
@@ -117,6 +123,14 @@ interface CvTemplate {
             >
               Use This Template
             </button>
+
+            <button
+              type="button"
+              (click)="print()"
+              class="w-full py-3 rounded-2xl border border-slate-300 dark:border-sky-500/40 text-slate-700 dark:text-sky-100 font-medium inline-flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+            >
+              <lucide-icon [img]="Printer" class="w-4 h-4" /> Print / Save as A4 PDF
+            </button>
           </div>
         </div>
       </section>
@@ -126,6 +140,7 @@ interface CvTemplate {
 export class TemplatePreviewComponent implements OnInit {
   readonly Star = Star;
   readonly ArrowLeft = ArrowLeft;
+  readonly Printer = Printer;
   readonly demo = DEMO_CV;
 
   template = signal<CvTemplate | null>(null);
@@ -154,6 +169,7 @@ export class TemplatePreviewComponent implements OnInit {
         thumbnailUrl: template.thumbnail_url || template.thumbnailUrl,
         defaultColors: Array.isArray(colors) && colors.length ? colors : ['#667B97', '#163E63', '#0284C7', '#334155'],
         avgRating: template.avg_rating ?? template.avgRating ?? 0,
+        layout: normalizeLayout(template.layout),
       };
       this.template.set(normalized);
 
@@ -167,6 +183,10 @@ export class TemplatePreviewComponent implements OnInit {
 
   back() {
     this.router.navigate(['/templates']);
+  }
+
+  print() {
+    window.print();
   }
 
   rate(stars: number) {

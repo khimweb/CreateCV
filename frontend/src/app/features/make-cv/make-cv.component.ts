@@ -24,7 +24,11 @@ import {
   Minus,
   AlignJustify,
 } from 'lucide-angular';
-import { ProfessionalCvComponent } from '../../shared/components/professional-cv/professional-cv.component';
+import {
+  CvLayout,
+  CvRendererComponent,
+  normalizeLayout,
+} from '../../shared/components/cv-renderer/cv-renderer.component';
 import {
   DEGREES,
   FIELDS_OF_STUDY,
@@ -45,7 +49,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
 @Component({
   selector: 'app-make-cv',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule, ProfessionalCvComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule, CvRendererComponent],
   template: `
     <main class="min-h-screen bg-[#f7faff] dark:bg-slate-950 pt-24 pb-28 px-4">
       <div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[84px_minmax(0,1fr)] xl:grid-cols-[84px_minmax(0,1fr)_430px] gap-7">
@@ -506,7 +510,8 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
     }
 
     <ng-template #cvPreview>
-      <app-professional-cv
+      <app-cv-renderer
+        [layout]="layout()"
         [photoUrl]="photoUrl()"
         [name]="form.value.fullName || 'Your Name'"
         [jobTitle]="form.value.jobTitle || ''"
@@ -804,6 +809,7 @@ export class MakeCvComponent implements OnInit {
   lineHeight = signal(1.4);
   sectionLines = signal(true);
   accentColor = signal('#667b97');
+  layout = signal<CvLayout>('professional');
   cvId: string | null = null;
   templateId: string | null = null;
 
@@ -854,7 +860,13 @@ export class MakeCvComponent implements OnInit {
           const content = typeof cv.content === 'string' ? JSON.parse(cv.content || '{}') : cv.content || {};
           this.patchFromContent(content);
           if (cv.selected_color) this.accentColor.set(cv.selected_color);
+          this.layout.set(normalizeLayout(cv.template_layout));
         },
+        error: () => {},
+      });
+    } else if (this.templateId) {
+      this.http.get<{ template: any }>(`/api/v1/templates/${this.templateId}`).subscribe({
+        next: ({ template }) => this.layout.set(normalizeLayout(template?.layout)),
         error: () => {},
       });
     }

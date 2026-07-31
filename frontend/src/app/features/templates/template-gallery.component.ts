@@ -2,7 +2,8 @@ import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Search } from 'lucide-angular';
-import { ProfessionalCvComponent } from '../../shared/components/professional-cv/professional-cv.component';
+import { CvLayout, CvRendererComponent, normalizeLayout } from '../../shared/components/cv-renderer/cv-renderer.component';
+import { FitWidthDirective } from '../../shared/directives/fit-width.directive';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { DEMO_CV } from '../../shared/demo-cv-data';
@@ -11,6 +12,7 @@ interface CvTemplate {
   id: string;
   name: string;
   category: string;
+  layout: CvLayout;
   accent: string;
   colors: string[];
   hasPhoto: boolean;
@@ -20,7 +22,7 @@ interface CvTemplate {
 @Component({
   selector: 'app-template-gallery',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ProfessionalCvComponent],
+  imports: [CommonModule, LucideAngularModule, CvRendererComponent, FitWidthDirective],
   template: `
     <section class="max-w-6xl mx-auto px-4 pt-28 pb-14 text-slate-900 dark:text-sky-50">
       <header class="mb-8">
@@ -67,9 +69,10 @@ interface CvTemplate {
         @for (t of filtered(); track t.id) {
           <article class="group">
             <!-- Fixed A4 card: aspect ratio locks the CV frame -->
-            <div class="cv-card group-hover:shadow-xl group-hover:-translate-y-0.5">
+            <div appFitWidth class="cv-card group-hover:shadow-xl group-hover:-translate-y-0.5">
               <div class="cv-thumb pointer-events-none" aria-hidden="true">
-                <app-professional-cv
+                <app-cv-renderer
+                  [layout]="t.layout"
                   [accent]="accentFor(t)"
                   [name]="demo.name"
                   [jobTitle]="demo.jobTitle"
@@ -187,15 +190,12 @@ interface CvTemplate {
         position: relative;
         width: 100%;
         aspect-ratio: 210 / 297;
-        max-height: 400px;
         overflow: hidden;
         border-radius: 1rem;
         border: 1px solid #e2e8f0;
         background: #e8eef4;
         box-shadow: 0 1px 3px rgb(15 23 42 / 0.06);
         transition: box-shadow 0.3s ease, transform 0.3s ease;
-        /* Fixed frame: A4 paper always fills the card edge-to-edge */
-        container-type: size;
       }
       .cv-thumb {
         position: absolute;
@@ -204,8 +204,8 @@ interface CvTemplate {
         width: 210mm;
         min-height: 297mm;
         transform-origin: top left;
-        /* 210mm ≈ 793.7px — scale card width into full A4 */
-        transform: scale(calc(100cqw / 793.7));
+        /* --fit-scale comes from appFitWidth: card width ÷ A4 width. */
+        transform: scale(var(--fit-scale, 0.45));
       }
       .cv-card-overlay {
         position: absolute;
@@ -279,6 +279,7 @@ export class TemplateGalleryComponent implements OnInit {
             id: String(t.id),
             name: t.name,
             category: t.category || 'Professional',
+            layout: normalizeLayout(t.layout),
             accent: colors[0],
             colors,
             hasPhoto: true,

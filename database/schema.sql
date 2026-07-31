@@ -32,6 +32,7 @@ CREATE TABLE cv_templates (
   name              TEXT              NOT NULL,
   description       TEXT,
   category          TEXT              NOT NULL DEFAULT 'general',
+  layout            TEXT              NOT NULL DEFAULT 'professional',
   thumbnail_url     TEXT,
   preview_html      TEXT,
   default_colors    TEXT              NOT NULL DEFAULT '["#0284C7","#0369A1","#E0F2FE","#0F172A"]',
