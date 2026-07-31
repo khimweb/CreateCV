@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/*
+  Multi-page A4 download/print
+  --------------------------------
+  Previous bug: html/body height locked to 297mm → browser only emitted 1 page.
+  Fix: height:auto, no overflow clip, only .print-root is shown.
+*/
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide everything by default */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Show CV tree only */
+  .print-root,
+  .print-root * {
+    visibility: visible !important;
+  }
+
+  /* Overlay must not clip pages */
+  .print-overlay {
+    position: static !important;
+    inset: auto !important;
+    overflow: visible !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    visibility: visible !important;
+  }
+
+  .print-overlay > *:not(.print-root) {
+    display: none !important;
+  }
+
+  .print-root,
+  .print-target {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 186mm !important; /* A4 width minus page margins */
+    max-width: 186mm !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    zoom: 1 !important;
+    transform: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .cv-paper {
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .cv-body {
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Prefer keeping entries whole across page breaks when possible */
+  .cv-header,
+  .job,
+  h2 {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
