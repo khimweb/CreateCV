@@ -79,6 +79,12 @@ router.patch('/customers/:id', async (req, res) => {
   res.status(400).json({ error: 'NO_SUPPORTED_FIELDS' });
 });
 
+// DELETE /api/v1/admin/customers/:id — remove user
+router.delete('/customers/:id', async (req, res) => {
+  await db.users.remove(req.params.id);
+  res.status(204).send();
+});
+
 // ---------- Templates ----------
 
 // GET /api/v1/admin/templates — includes inactive, for management table
@@ -92,6 +98,12 @@ router.get('/templates', async (req, res) => {
 router.patch('/templates/:id/toggle-active', async (req, res) => {
   const template = await db.templates.toggleActive(req.params.id);
   res.json({ template });
+});
+
+// DELETE /api/v1/admin/templates/:id
+router.delete('/templates/:id', async (req, res) => {
+  await db.templates.remove(req.params.id);
+  res.status(204).send();
 });
 
 // ---------- Reports ----------
@@ -111,14 +123,14 @@ router.get('/reports', async (req, res) => {
 router.get('/settings/profile', async (req, res) => {
   const user = await db.users.findById(req.user.id);
   res.json({
-    user: { id: user.id, fullName: user.full_name, email: user.email, avatarUrl: user.avatar_url, themePreference: user.theme_preference },
+    user: { id: user.id, fullName: user.full_name, email: user.email, avatarUrl: user.avatar_url, coverUrl: user.cover_url, bio: user.bio, themePreference: user.theme_preference },
   });
 });
 
 // PUT /api/v1/admin/settings/profile
 router.put('/settings/profile', async (req, res) => {
-  const { fullName, avatarUrl, themePreference } = req.body;
-  const user = await db.users.updateProfile(req.user.id, { fullName, avatarUrl, themePreference });
+  const { fullName, avatarUrl, coverUrl, bio, themePreference } = req.body;
+  const user = await db.users.updateProfile(req.user.id, { fullName, avatarUrl, coverUrl, bio, themePreference });
   res.json({ user });
 });
 
@@ -145,6 +157,44 @@ router.post('/settings/users', async (req, res) => {
 // DELETE /api/v1/admin/settings/users/:id
 router.delete('/settings/users/:id', async (req, res) => {
   await db.users.remove(req.params.id);
+  res.status(204).send();
+});
+
+// DELETE /api/v1/admin/settings/account — admin deletes their own account
+router.delete('/settings/account', async (req, res) => {
+  await db.users.remove(req.user.id);
+  res.status(204).send();
+});
+
+// ---------- Security / Activity Log ----------
+
+// GET /api/v1/admin/security/logs
+router.get('/security/logs', async (req, res) => {
+  const { page, pageSize, search, action } = req.query;
+  const result = await db.activityLog.list({
+    page: Number(page) || 1,
+    pageSize: Number(pageSize) || 50,
+    search: search || '',
+    action: action || '',
+  });
+  res.json(result);
+});
+
+// GET /api/v1/admin/security/online-users
+router.get('/security/online-users', async (req, res) => {
+  const users = await db.users.getOnlineUsers(10);
+  res.json({ users });
+});
+
+// DELETE /api/v1/admin/security/logs/:id
+router.delete('/security/logs/:id', async (req, res) => {
+  await db.activityLog.deleteLog(req.params.id);
+  res.status(204).send();
+});
+
+// DELETE /api/v1/admin/security/logs — clear all
+router.delete('/security/logs', async (req, res) => {
+  await db.activityLog.deleteAll();
   res.status(204).send();
 });
 

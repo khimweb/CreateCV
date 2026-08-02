@@ -3,76 +3,113 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   LucideAngularModule, Search, LayoutDashboard, Users, LayoutTemplate,
-  BarChart3, Settings, Info, LogOut,
+  Settings, LogOut, Shield, UserCircle, Menu, X,
 } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth.service';
+import { signal } from '@angular/core';
 
 @Component({
   selector: 'app-admin-shell',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet, LucideAngularModule],
   template: `
-    <div class="min-h-screen bg-sky-50 dark:bg-[#0F172A] flex">
+    <div class="min-h-screen bg-slate-50 dark:bg-[#0F172A] flex">
+
+      <!-- Mobile overlay -->
+      @if (mobileOpen()) {
+        <div class="fixed inset-0 z-40 bg-black/40 md:hidden" (click)="mobileOpen.set(false)"></div>
+      }
 
       <!-- Left sidebar -->
-      <aside class="w-64 shrink-0 hidden md:flex flex-col justify-between p-4
-                    bg-white/70 dark:bg-slate-900/60 backdrop-blur-md
-                    border-r border-white/40 dark:border-sky-500/20">
-        <nav class="space-y-1">
-          @for (item of navItems; track item.path) {
-            <a [routerLink]="item.path" routerLinkActive="bg-sky-100/80 dark:bg-sky-500/20"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-                      text-slate-700 dark:text-sky-100 hover:scale-[1.02] active:scale-95
-                      transition-all duration-300 ease-in-out">
-              <lucide-icon [img]="item.icon" class="w-4 h-4" /> {{ item.label }}
-            </a>
-          }
-        </nav>
+      <aside class="fixed md:sticky top-0 left-0 z-50 md:z-auto w-[260px] h-screen shrink-0 flex flex-col justify-between
+                    bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700
+                    transform transition-transform duration-300 ease-in-out
+                    md:translate-x-0"
+             [class.-translate-x-full]="!mobileOpen()"
+             [class.translate-x-0]="mobileOpen()">
 
-        <button type="button" (click)="auth.logout()"
-                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-                       text-red-500 hover:scale-[1.02] active:scale-95
-                       transition-all duration-300 ease-in-out">
-          <lucide-icon [img]="LogOut" class="w-4 h-4" /> Logout
-        </button>
+        <!-- Brand -->
+        <div>
+          <div class="flex items-center gap-3 px-5 py-5 border-b border-slate-100 dark:border-slate-800">
+            <span class="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-lg">CV</span>
+            <div>
+              <p class="font-bold text-slate-800 dark:text-white text-sm">CV Creator</p>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500">Admin Panel</p>
+            </div>
+          </div>
+
+          <!-- Navigation -->
+          <nav class="mt-4 px-3 space-y-1">
+            <p class="px-3 mb-2 text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500">Main</p>
+            @for (item of mainNav; track item.path) {
+              <a [routerLink]="item.path" routerLinkActive="!bg-indigo-50 !dark:bg-indigo-500/10 !text-indigo-600 !dark:text-indigo-400"
+                 (click)="mobileOpen.set(false)"
+                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium
+                        text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800
+                        transition-all duration-200">
+                <lucide-icon [img]="item.icon" class="w-[18px] h-[18px]" /> {{ item.label }}
+              </a>
+            }
+
+            <p class="px-3 mt-5 mb-2 text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500">Account</p>
+            @for (item of accountNav; track item.path) {
+              <a [routerLink]="item.path" routerLinkActive="!bg-indigo-50 !dark:bg-indigo-500/10 !text-indigo-600 !dark:text-indigo-400"
+                 (click)="mobileOpen.set(false)"
+                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium
+                        text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800
+                        transition-all duration-200">
+                <lucide-icon [img]="item.icon" class="w-[18px] h-[18px]" /> {{ item.label }}
+              </a>
+            }
+          </nav>
+        </div>
+
+        <!-- Logout -->
+        <div class="px-3 pb-5">
+          <button type="button" (click)="auth.logout()"
+                  class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-medium
+                         text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10
+                         transition-all duration-200">
+            <lucide-icon [img]="LogOut" class="w-[18px] h-[18px]" /> Logout
+          </button>
+        </div>
       </aside>
 
+      <!-- Main content -->
       <div class="flex-1 flex flex-col min-w-0">
-        <!-- Top nav -->
-        <header class="sticky top-0 z-30 flex items-center gap-4 px-6 py-3
-                       bg-white/70 dark:bg-slate-900/60 backdrop-blur-md
-                       border-b border-white/40 dark:border-sky-500/20">
-          <div class="flex items-center gap-2 font-semibold text-slate-800 dark:text-sky-100">
-            <span class="h-8 w-8 rounded-xl bg-sky-600 dark:bg-sky-400 flex items-center justify-center text-white text-sm font-bold">CV</span>
-            Admin
+        <!-- Top bar -->
+        <header class="sticky top-0 z-30 flex items-center gap-4 px-4 md:px-6 py-3
+                       bg-white/80 dark:bg-slate-900/80 backdrop-blur-md
+                       border-b border-slate-200 dark:border-slate-700">
+          <!-- Mobile menu button -->
+          <button type="button" (click)="mobileOpen.set(!mobileOpen())" class="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+            <lucide-icon [img]="mobileOpen() ? X : Menu" class="w-5 h-5 text-slate-600 dark:text-slate-300" />
+          </button>
+
+          <!-- Search -->
+          <div class="flex-1 flex items-center gap-2 max-w-md">
+            <div class="relative w-full">
+              <lucide-icon [img]="Search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input placeholder="Search..."
+                     class="w-full pl-9 pr-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800
+                            border border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900
+                            text-sm focus:outline-none transition-all duration-200" />
+            </div>
           </div>
 
-          <div class="flex-1 flex items-center gap-2 max-w-xl">
-            <input placeholder="Search users, templates, orders..."
-                   class="w-full px-4 py-2 rounded-xl bg-white/80 dark:bg-slate-800/70
-                          border border-sky-200 dark:border-sky-500/30
-                          focus:outline-none focus:ring-2 focus:ring-sky-500
-                          transition-all duration-300 ease-in-out" />
-            <button class="p-2 rounded-xl bg-sky-700 text-white hover:scale-105 active:scale-95
-                           transition-all duration-300 ease-in-out">
-              <lucide-icon [img]="Search" class="w-4 h-4" />
-            </button>
-          </div>
-
-          <div class="relative group">
-            <img [src]="auth.currentUser()?.avatarUrl || '/assets/default-avatar.png'" alt=""
-                 class="h-9 w-9 rounded-full object-cover cursor-pointer" />
-            <div class="absolute right-0 mt-2 w-40 rounded-xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md
-                        border border-white/40 dark:border-sky-500/20 shadow-lg opacity-0 invisible
-                        group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out">
-              <a routerLink="/admin/settings" class="block px-4 py-2 text-sm hover:bg-sky-50 dark:hover:bg-sky-500/10">Settings</a>
-              <a routerLink="/admin/dashboard" class="block px-4 py-2 text-sm hover:bg-sky-50 dark:hover:bg-sky-500/10">Layout</a>
-              <a routerLink="/admin/about" class="block px-4 py-2 text-sm hover:bg-sky-50 dark:hover:bg-sky-500/10">About</a>
+          <!-- Admin avatar -->
+          <div class="flex items-center gap-3 ml-auto">
+            <div class="text-right hidden sm:block">
+              <p class="text-xs font-medium text-slate-700 dark:text-slate-200">{{ auth.currentUser()?.fullName }}</p>
+              <p class="text-[10px] text-slate-400">Administrator</p>
+            </div>
+            <div class="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow">
+              {{ auth.currentUser()?.fullName?.slice(0,1) || 'A' }}
             </div>
           </div>
         </header>
 
-        <main class="flex-1 p-6">
+        <main class="flex-1 p-4 md:p-6 overflow-auto">
           <router-outlet />
         </main>
       </div>
@@ -82,14 +119,21 @@ import { AuthService } from '../../core/services/auth.service';
 export class AdminShellComponent {
   readonly Search = Search;
   readonly LogOut = LogOut;
+  readonly Menu = Menu;
+  readonly X = X;
 
-  readonly navItems = [
+  mobileOpen = signal(false);
+
+  readonly mainNav = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/admin/customers', label: 'Customers', icon: Users },
+    { path: '/admin/customers', label: 'Users', icon: Users },
     { path: '/admin/templates', label: 'Templates', icon: LayoutTemplate },
-    { path: '/admin/reports', label: 'Reports', icon: BarChart3 },
+    { path: '/admin/security', label: 'Security', icon: Shield },
+  ];
+
+  readonly accountNav = [
+    { path: '/admin/profile', label: 'Profile', icon: UserCircle },
     { path: '/admin/settings', label: 'Settings', icon: Settings },
-    { path: '/admin/about', label: 'About', icon: Info },
   ];
 
   constructor(public auth: AuthService) {}

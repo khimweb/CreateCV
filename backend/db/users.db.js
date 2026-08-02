@@ -32,15 +32,17 @@ async function touchLastLogin(id) {
   await query('UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
 }
 
-async function updateProfile(id, { fullName, avatarUrl, themePreference }) {
+async function updateProfile(id, { fullName, avatarUrl, coverUrl, bio, themePreference }) {
   await query(
     `UPDATE users SET
        full_name = COALESCE(?, full_name),
        avatar_url = COALESCE(?, avatar_url),
+       cover_url = COALESCE(?, cover_url),
+       bio = COALESCE(?, bio),
        theme_preference = COALESCE(?, theme_preference),
        updated_at = CURRENT_TIMESTAMP
      WHERE id = ?`,
-    [fullName, avatarUrl, themePreference, id]
+    [fullName, avatarUrl, coverUrl, bio, themePreference, id]
   );
   return findById(id);
 }
@@ -54,15 +56,30 @@ async function list({ page = 1, pageSize = 20, search = '' } = {}) {
   const offset = (page - 1) * pageSize;
   const searchTerm = `%${search}%`;
   const { rows } = await query(
-    `SELECT id, full_name, email, role, is_active, last_login_at, created_at
-     FROM users
-     WHERE full_name LIKE ? OR email LIKE ?
-     ORDER BY created_at DESC
+    `SELECT u.id, u.full_name, u.email, u.role, u.is_active, u.last_login_at, u.created_at,
+            (SELECT COUNT(*) FROM user_cvs WHERE user_id = u.id) AS cv_count
+     FROM users u
+     WHERE u.full_name LIKE ? OR u.email LIKE ?
+     ORDER BY u.created_at DESC
      LIMIT ? OFFSET ?`,
     [searchTerm, searchTerm, pageSize, offset]
   );
-  const { rows: countRows } = await query('SELECT COUNT(*) AS total FROM users');
+  const { rows: countRows } = await query(
+    'SELECT COUNT(*) AS total FROM users WHERE full_name LIKE ? OR email LIKE ?',
+    [searchTerm, searchTerm]
+  );
   return { users: rows, total: countRows[0].total };
+}
+
+async function getOnlineUsers(minutesThreshold = 5) {
+  const { rows } = await query(
+    `SELECT id, full_name, email, last_login_at,
+            CASE WHEN last_login_at > datetime('now', ?) THEN 1 ELSE 0 END AS is_online
+     FROM users
+     ORDER BY last_login_at DESC`,
+    [`-${minutesThreshold} minutes`]
+  );
+  return rows;
 }
 
 async function setActive(id, isActive) {
@@ -91,6 +108,7 @@ module.exports = {
   updateProfile,
   updatePassword,
   list,
+  getOnlineUsers,
   setActive,
   remove,
   count,

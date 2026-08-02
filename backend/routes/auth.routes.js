@@ -69,15 +69,21 @@ router.post('/login', async (req, res) => {
   const user = email ? await db.users.findByEmail(email.toLowerCase()) : null;
 
   if (!user || !user.is_active) {
+    // Log failed login attempt
+    if (email) {
+      db.activityLog.log({ userId: user?.id || null, email: email.toLowerCase(), action: 'login_failed', ipAddress: req.ip, userAgent: req.headers['user-agent'] });
+    }
     return res.status(401).json({ error: 'INVALID_CREDENTIALS' });
   }
 
   const valid = await db.users.verifyPassword(user, password || '');
   if (!valid) {
+    db.activityLog.log({ userId: user.id, email: user.email, action: 'login_failed', ipAddress: req.ip, userAgent: req.headers['user-agent'] });
     return res.status(401).json({ error: 'INVALID_CREDENTIALS' });
   }
 
   await db.users.touchLastLogin(user.id);
+  await db.activityLog.log({ userId: user.id, email: user.email, action: 'login', ipAddress: req.ip, userAgent: req.headers['user-agent'] });
   const token = signAccessToken(user);
   const refreshToken = signRefreshToken(user);
 
@@ -87,6 +93,10 @@ router.post('/login', async (req, res) => {
 // POST /api/v1/auth/logout — stateless JWT: client just discards the token.
 // Kept as a real endpoint so refresh-token revocation can be added later.
 router.post('/logout', requireAuth, async (req, res) => {
+  const user = await db.users.findById(req.user.id);
+  if (user) {
+    await db.activityLog.log({ userId: user.id, email: user.email, action: 'logout', ipAddress: req.ip, userAgent: req.headers['user-agent'] });
+  }
   res.status(204).send();
 });
 

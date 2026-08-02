@@ -4,4 +4,5 @@ module.exports = {
   userCvs: require('./userCvs.db'),
   reviews: require('./reviews.db'),
   orders: require('./orders.db'),
+  activityLog: require('./activityLog.db'),
 };

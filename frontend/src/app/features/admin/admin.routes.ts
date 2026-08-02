@@ -22,12 +22,20 @@ export const adminRoutes: Routes = [
         loadComponent: () => import('./templates/admin-templates.component').then(m => m.AdminTemplatesComponent),
       },
       {
-        path: 'reports',
-        loadComponent: () => import('./reports/admin-reports.component').then(m => m.AdminReportsComponent),
+        path: 'security',
+        loadComponent: () => import('./security/admin-security.component').then(m => m.AdminSecurityComponent),
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./profile/admin-profile.component').then(m => m.AdminProfileComponent),
       },
       {
         path: 'settings',
         loadComponent: () => import('./settings/admin-settings.component').then(m => m.AdminSettingsComponent),
+      },
+      {
+        path: 'reports',
+        loadComponent: () => import('./reports/admin-reports.component').then(m => m.AdminReportsComponent),
       },
       {
         path: 'about',
