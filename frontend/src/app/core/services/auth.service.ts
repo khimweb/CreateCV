@@ -55,6 +55,15 @@ export class AuthService {
     this.router.navigate(['/']);
   }
 
+  /** Update user data in memory and localStorage after profile edits */
+  updateUser(partial: Partial<AuthUser>) {
+    const current = this.currentUser();
+    if (!current) return;
+    const updated = { ...current, ...partial };
+    localStorage.setItem(USER_KEY, JSON.stringify(updated));
+    this.currentUser.set(updated);
+  }
+
   getToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
   }

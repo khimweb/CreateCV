@@ -113,4 +113,26 @@ router.post('/refresh-token', async (req, res) => {
   }
 });
 
+// PUT /api/v1/auth/profile — update user profile (name, avatar)
+router.put('/profile', requireAuth, async (req, res) => {
+  const { fullName, avatarUrl, coverUrl } = req.body;
+  const user = await db.users.updateProfile(req.user.id, { fullName, avatarUrl, themePreference: undefined });
+  res.json({ user: toPublicUser(user) });
+});
+
+// PUT /api/v1/auth/change-password
+router.put('/change-password', requireAuth, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword || newPassword.length < 8) {
+    return res.status(400).json({ error: 'INVALID_INPUT', message: 'Current password and a new 8+ char password are required.' });
+  }
+  const user = await db.users.findById(req.user.id);
+  const valid = await db.users.verifyPassword(user, currentPassword);
+  if (!valid) {
+    return res.status(401).json({ error: 'WRONG_PASSWORD', message: 'Current password is incorrect.' });
+  }
+  await db.users.updatePassword(req.user.id, newPassword);
+  res.json({ message: 'Password changed successfully.' });
+});
+
 module.exports = router;

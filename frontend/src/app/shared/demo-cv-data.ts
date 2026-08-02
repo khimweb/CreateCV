@@ -74,4 +74,19 @@ export const DEMO_CV = {
       link: '',
     },
   ],
+  references: [
+    {
+      name: 'Reference Full Name',
+      position: 'Job position goes here',
+      company: 'Company name goes here',
+      phone: '00 123 456 789',
+      email: 'demo@gmail.com',
+    },
+  ],
+  hobbies: [
+    { name: 'Music' },
+    { name: 'Travel' },
+    { name: 'Coding' },
+    { name: 'Reading' },
+  ],
 };

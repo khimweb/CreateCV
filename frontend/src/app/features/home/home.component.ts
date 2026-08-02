@@ -1,90 +1,25 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, Sparkles, Palette, Download, Star } from 'lucide-angular';
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  selector: 'app-home', standalone: true, imports: [RouterLink],
   template: `
-    <!-- Hero -->
-    <section class="pt-40 pb-20 px-4 text-center max-w-3xl mx-auto">
-      <h1 class="text-4xl sm:text-5xl font-semibold text-slate-800 dark:text-sky-100 mb-4">
-        Build a CV that gets you the interview.
-      </h1>
-      <p class="text-slate-600 dark:text-sky-300 mb-8">
-        Pick a template, fill it in, and download a polished PDF — all in one place.
-      </p>
-      <a routerLink="/templates"
-         class="inline-block px-8 py-3 rounded-2xl bg-sky-700 dark:bg-sky-600 text-white font-medium
-                shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out">
-        Browse Templates
-      </a>
-    </section>
-
-    <!-- Features -->
-    <section class="max-w-6xl mx-auto px-4 py-16 grid grid-cols-1 sm:grid-cols-3 gap-6">
-      @for (f of features; track f.title) {
-        <div class="p-6 rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-md
-                    border border-white/40 dark:border-sky-500/20 shadow-md
-                    hover:scale-105 transition-all duration-300 ease-in-out">
-          <lucide-icon [img]="f.icon" class="w-6 h-6 text-sky-600 dark:text-sky-400 mb-3" />
-          <p class="font-medium text-slate-800 dark:text-sky-100 mb-1">{{ f.title }}</p>
-          <p class="text-sm text-slate-500 dark:text-sky-300">{{ f.desc }}</p>
-        </div>
-      }
-    </section>
-
-    <!-- Stats -->
-    <section class="max-w-5xl mx-auto px-4 py-16 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
-      @for (s of stats; track s.label) {
-        <div>
-          <p class="text-3xl font-semibold text-sky-700 dark:text-sky-300">{{ s.value }}</p>
-          <p class="text-sm text-slate-500 dark:text-sky-400">{{ s.label }}</p>
-        </div>
-      }
-    </section>
-
-    <!-- Testimonials -->
-    <section class="max-w-6xl mx-auto px-4 py-16 grid grid-cols-1 sm:grid-cols-3 gap-6">
-      @for (t of testimonials; track t.name) {
-        <div class="p-6 rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-md
-                    border border-white/40 dark:border-sky-500/20 shadow-md">
-          <p class="text-sm text-slate-600 dark:text-sky-200 mb-4">&ldquo;{{ t.quote }}&rdquo;</p>
-          <p class="text-sm font-medium text-slate-800 dark:text-sky-100">{{ t.name }}</p>
-        </div>
-      }
-    </section>
-
-    <!-- CTA -->
-    <section class="max-w-3xl mx-auto px-4 py-20 text-center">
-      <h2 class="text-2xl font-semibold text-slate-800 dark:text-sky-100 mb-4">Ready to get started?</h2>
-      <a routerLink="/templates"
-         class="inline-block px-8 py-3 rounded-2xl bg-sky-700 dark:bg-sky-600 text-white font-medium
-                shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out">
-        Create Your CV
-      </a>
-    </section>
+    <main class="home-page">
+      <div class="ambient a-one"></div><div class="ambient a-two"></div>
+      <section class="hero">
+        <div class="hero-copy"><p class="kicker">PROFESSIONAL CV BUILDER</p><h1>Create a CV that gets you <span>noticed.</span></h1><p class="lead">Build a beautiful, job-ready CV with professional templates, a simple editor, and a live preview that makes every detail count.</p><div class="actions"><a routerLink="/templates" class="primary">Create my CV <span>→</span></a><a routerLink="/templates" class="secondary">Browse templates</a></div><div class="proof"><div><b>Professional</b><span>templates</span></div><i></i><div><b>Easy</b><span>to customise</span></div><i></i><div><b>Ready</b><span>to download</span></div></div></div>
+        <div class="hero-visual" aria-hidden="true"><div class="visual-blob"></div><div class="dot dot-a"></div><div class="dot dot-b"></div><article class="cv-sheet"><div class="cv-top"><div class="cv-photo">P</div><div><b>PHRON SOKKHIM</b><small>Software Developer</small></div></div><div class="cv-contact">phron.sokkhim&#64;example.com &nbsp; · &nbsp; Phnom Penh, Cambodia</div><p class="doc-heading">PROFILE</p><div class="doc-line full"></div><div class="doc-line"></div><p class="doc-heading">EXPERIENCE</p><div class="job"><b>Senior Developer</b><small>2020 — Present</small></div><div class="doc-line full"></div><div class="doc-line medium"></div><div class="job"><b>Full Stack Developer</b><small>2017 — 2020</small></div><div class="doc-line full"></div><div class="doc-line short"></div><p class="doc-heading">SKILLS</p><div class="skills"><span>JavaScript</span><span>React</span><span>Node.js</span></div></article><div class="ready-chip"><span>✓</span><div><b>Ready to apply</b><small>Your CV looks great</small></div></div></div>
+      </section>
+      <section class="benefits"><div class="benefit-intro"><p class="kicker">EVERYTHING YOU NEED</p><h2>Make a great first impression.</h2><p>CV Creator helps you focus on your story while we take care of the design.</p></div><div class="benefit-grid">@for (benefit of benefits; track benefit.title) {<article><span>{{ benefit.icon }}</span><h3>{{ benefit.title }}</h3><p>{{ benefit.text }}</p></article>}</div></section>
+      <section class="templates"><div class="templates-head"><div><p class="kicker">CHOOSE YOUR STYLE</p><h2>Templates made for real opportunities.</h2></div><a routerLink="/templates">See all templates →</a></div><div class="template-grid">@for (template of templates; track template.name) {<a routerLink="/templates" class="template"><div class="template-paper" [class.dark-paper]="template.dark"><div class="t-side" [style.background]="template.color"></div><div class="t-content"><div class="t-name">{{ template.person }}</div><div class="t-rule" [style.background]="template.color"></div><div class="t-label">EXPERIENCE</div><div class="t-line full"></div><div class="t-line"></div><div class="t-line short"></div><div class="t-label">SKILLS</div><div class="t-tags"><i></i><i></i><i></i></div></div></div><div class="template-info"><div><h3>{{ template.name }}</h3><p>{{ template.description }}</p></div><span>↗</span></div></a>}</div></section>
+      <section class="final-cta"><p class="kicker">START TODAY</p><h2>Your next opportunity starts with one great CV.</h2><p>Choose a template and turn your experience into a CV you are proud to share.</p><a routerLink="/templates">Build my CV <span>→</span></a></section>
+    </main>
   `,
+  styles: [`
+    .home-page{min-height:100vh;overflow:hidden;padding-top:92px;background:linear-gradient(135deg,#f3f6ff,#e3ecff 53%,#f9fbff);font-family:Inter,system-ui,sans-serif;color:#1a2e66;position:relative}.ambient{position:absolute;border-radius:50%;pointer-events:none}.a-one{width:540px;height:540px;background:#b8c9f4;opacity:.35;right:-210px;top:60px}.a-two{width:340px;height:340px;background:#c2d3ff;opacity:.35;left:-170px;top:600px}.hero,.benefits,.templates{max-width:1120px;margin:auto;position:relative;z-index:1}.hero{min-height:570px;padding:38px 32px 70px;display:grid;grid-template-columns:1fr .88fr;gap:45px;align-items:center}.kicker{font-size:.69rem;letter-spacing:.15em;font-weight:800;color:#486dcc;margin:0 0 15px}.hero h1{font-size:clamp(2.8rem,5vw,4.5rem);line-height:1.05;letter-spacing:-.06em;margin:0;max-width:620px}.hero h1 span{color:#4167ca}.lead{font-size:1.03rem;max-width:530px;color:#697790;line-height:1.7;margin:23px 0 30px}.actions{display:flex;flex-wrap:wrap;gap:13px}.actions a,.final-cta a{font-size:.85rem;font-weight:800;border-radius:10px;text-decoration:none;padding:13px 20px;transition:.2s}.primary,.final-cta a{background:#4167ca;color:#fff;box-shadow:0 9px 18px #4167ca3d}.primary:hover,.final-cta a:hover{background:#3158bb;transform:translateY(-2px)}.primary span,.final-cta span{margin-left:6px;font-size:1.1rem}.secondary{background:#fff;color:#4167ca;border:1px solid #ccd8f3}.proof{display:flex;align-items:center;gap:17px;margin-top:43px;color:#8290a8}.proof div{display:grid;gap:3px}.proof b{font-size:.82rem;color:#365bb9}.proof span{font-size:.7rem}.proof i{height:28px;width:1px;background:#c8d5ef}.hero-visual{height:425px;position:relative;display:grid;place-items:center}.visual-blob{position:absolute;width:365px;height:365px;border-radius:45% 55% 50% 50%;background:linear-gradient(145deg,#abc5ff,#6789df);transform:rotate(-18deg)}.cv-sheet{position:relative;z-index:2;box-sizing:border-box;width:254px;min-height:348px;background:#fff;border-radius:12px;padding:21px;box-shadow:0 25px 45px #24458a3b;transform:rotate(5deg);font-family:Arial,sans-serif;color:#152343}.cv-top{display:flex;align-items:center;gap:10px}.cv-photo{display:grid;place-items:center;width:39px;height:39px;border-radius:50%;background:#4167ca;color:#fff;font-size:.86rem;font-weight:800}.cv-top b{display:block;font-size:.8rem}.cv-top small,.ready-chip small,.job small{display:block;font-size:.55rem;color:#8490a7;margin-top:3px}.cv-contact{font-size:.48rem;color:#64748b;padding:12px 0;border-bottom:1px solid #e8edf5}.doc-heading{font-size:.57rem;font-weight:800;color:#4167ca;letter-spacing:.08em;margin:16px 0 7px}.doc-line{height:5px;width:70%;background:#e8edf5;border-radius:8px;margin-top:7px}.doc-line.full{width:100%}.doc-line.medium{width:82%}.doc-line.short{width:48%}.job{display:flex;justify-content:space-between;align-items:start;font-size:.58rem;margin-top:10px}.job small{margin:0;font-size:.48rem}.skills{display:flex;gap:5px}.skills span{border-radius:5px;padding:3px 5px;background:#eaf0ff;color:#4167ca;font-size:.45rem;font-weight:700}.dot{position:absolute;border-radius:50%;z-index:3}.dot-a{width:70px;height:70px;right:14px;top:30px;background:radial-gradient(circle at 28% 25%,#e7f0ff,#759de8 58%,#3558ad);box-shadow:10px 13px 20px #27468745}.dot-b{width:44px;height:44px;left:36px;bottom:47px;background:radial-gradient(circle at 28% 25%,#8dabff,#173476 76%)}.ready-chip{position:absolute;z-index:4;right:-7px;bottom:48px;display:flex;align-items:center;gap:9px;background:#fff;padding:11px 14px;border-radius:11px;box-shadow:0 15px 30px #22427828}.ready-chip>span{display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#e4f5ec;color:#2a9863;font-weight:800}.ready-chip b{font-size:.66rem}.benefits{padding:68px 32px 82px}.benefit-intro{max-width:570px;text-align:center;margin:0 auto 31px}.benefit-intro h2,.templates-head h2{font-size:clamp(2rem,3.6vw,3rem);letter-spacing:-.045em;line-height:1.1;margin:0 0 14px}.benefit-intro>p:last-child{color:#718099;font-size:.94rem;line-height:1.65;margin:0}.benefit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.benefit-grid article{background:#fff;padding:26px;border-radius:17px;border:1px solid #e2e9f7;box-shadow:0 12px 35px #4167ca0d}.benefit-grid span{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:#eaf0ff;color:#4167ca;font-weight:800;font-size:1.2rem}.benefit-grid h3{font-size:1rem;margin:17px 0 8px}.benefit-grid p{font-size:.83rem;color:#758197;line-height:1.6;margin:0}.templates{padding:15px 32px 85px}.templates-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:29px}.templates-head h2{max-width:580px}.templates-head>a{margin-bottom:13px;color:#4167ca;text-decoration:none;font-size:.82rem;font-weight:800;white-space:nowrap}.template-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.template{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 12px 30px #4167ca18;text-decoration:none;color:inherit;transition:.2s}.template:hover{transform:translateY(-5px)}.template-paper{height:280px;padding:22px;box-sizing:border-box;display:grid;grid-template-columns:30% 1fr;gap:15px}.t-side{border-radius:5px}.t-content{padding-top:4px}.t-name{font-size:.74rem;font-weight:800}.t-rule{height:3px;margin:8px 0 19px;border-radius:4px}.t-label{font-size:.51rem;color:#4167ca;font-weight:800;letter-spacing:.08em;margin:13px 0 7px}.t-line{height:5px;background:#e9edf5;border-radius:5px;width:75%;margin:7px 0}.t-line.full{width:100%}.t-line.short{width:48%}.t-tags{display:flex;gap:4px}.t-tags i{width:25px;height:8px;background:#e8efff;border-radius:3px}.dark-paper{background:#20365f;color:#fff}.dark-paper .t-line{background:#526987}.dark-paper .t-label{color:#b9ccff}.dark-paper .t-tags i{background:#4b6390}.template-info{padding:15px 18px;display:flex;align-items:center;justify-content:space-between}.template-info h3{font-size:.88rem;margin:0 0 4px}.template-info p{font-size:.72rem;color:#7b889f;margin:0}.template-info>span{font-size:1.2rem;color:#4167ca}.final-cta{position:relative;z-index:1;max-width:1056px;margin:0 auto 65px;padding:67px 32px;border-radius:24px;text-align:center;background:linear-gradient(125deg,#3d62bd,#24468f);color:#fff}.final-cta .kicker{color:#d4e1ff}.final-cta h2{max-width:600px;margin:0 auto 14px;font-size:clamp(2rem,3.5vw,3rem);line-height:1.1;letter-spacing:-.045em}.final-cta p:not(.kicker){max-width:520px;margin:0 auto 28px;color:#dbe6ff;font-size:.92rem;line-height:1.65}.final-cta a{display:inline-block;background:#fff;color:#365bb9;box-shadow:none}@media(max-width:760px){.home-page{padding-top:75px}.hero{grid-template-columns:1fr;padding:42px 24px 60px}.hero h1{font-size:2.85rem}.hero-visual{height:320px}.cv-sheet{transform:scale(.85) rotate(5deg)}.visual-blob{transform:scale(.8) rotate(-18deg)}.ready-chip{right:2px;bottom:23px}.benefits,.templates{padding:55px 24px}.benefit-grid,.template-grid{grid-template-columns:1fr}.templates-head{align-items:start;flex-direction:column;gap:8px}.templates-head>a{margin:0}.final-cta{margin:0 16px 40px;padding:52px 24px}.proof{gap:11px}}
+  `]
 })
 export class HomeComponent {
-  readonly features = [
-    { icon: Sparkles, title: 'Modern templates', desc: 'Dozens of designs built for real hiring pipelines.' },
-    { icon: Palette, title: 'Live color themes', desc: 'Switch accent colors instantly and see the change live.' },
-    { icon: Download, title: 'One-click PDF', desc: 'Export a print-ready PDF whenever you\'re ready.' },
-  ];
-
-  readonly stats = [
-    { value: '12k+', label: 'CVs created' },
-    { value: '48', label: 'Templates' },
-    { value: '4.8', label: 'Avg. rating' },
-    { value: '9k+', label: 'Downloads' },
-  ];
-
-  readonly testimonials = [
-    { name: 'Dara K.', quote: 'Had a finished CV in ten minutes and landed an interview the same week.' },
-    { name: 'Sophea L.', quote: 'The live preview made it so easy to see exactly what I was sending.' },
-    { name: 'Vibol S.', quote: 'Clean templates that don\'t look like everyone else\'s.' },
-  ];
+  readonly benefits = [{icon:'✦',title:'Professional templates',text:'Choose a layout designed to make your experience easy to scan.'},{icon:'↗',title:'Live editing',text:'See every change in real time while you build your CV.'},{icon:'↓',title:'Ready to download',text:'Create a polished document when you are ready to apply.'}];
+  readonly templates = [{name:'Modern Professional',description:'Clean and confident',person:'PHRON SOKKHIM',color:'#173e68',dark:false},{name:'Elegant Frame',description:'Structured and refined',person:'PHRON SOKKHIM',color:'#5579d2',dark:false},{name:'Classic Dark',description:'Bold and focused',person:'PHRON SOKKHIM',color:'#8eaddf',dark:true}];
 }

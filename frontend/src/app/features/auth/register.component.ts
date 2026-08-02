@@ -4,85 +4,13 @@ import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormGroup } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 
-@Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  template: `
-    <section class="min-h-screen flex items-center justify-center px-4
-                     bg-sky-50 dark:bg-[#0F172A] transition-all duration-300 ease-in-out">
-      <form
-        [formGroup]="form"
-        (ngSubmit)="submit()"
-        class="w-full max-w-md p-8 rounded-2xl
-               bg-white/70 dark:bg-slate-900/60 backdrop-blur-md
-               border border-white/40 dark:border-sky-500/20
-               shadow-[0_8px_32px_rgba(2,132,199,0.15)]"
-      >
-        <h1 class="text-2xl font-semibold text-slate-800 dark:text-sky-100 mb-1">Create an Account</h1>
-        <p class="text-sm text-slate-500 dark:text-sky-300 mb-6">
-          Sign up to start creating your professional CV.
-        </p>
-
-        <label class="block text-sm text-slate-600 dark:text-sky-200 mb-1">Full Name</label>
-        <input formControlName="fullName" type="text"
-               class="w-full mb-4 px-4 py-2.5 rounded-xl bg-white/80 dark:bg-slate-800/70
-                      border border-sky-200 dark:border-sky-500/30
-                      focus:outline-none focus:ring-2 focus:ring-sky-500
-                      transition-all duration-300 ease-in-out" />
-
-        <label class="block text-sm text-slate-600 dark:text-sky-200 mb-1">Email</label>
-        <input formControlName="email" type="email"
-               class="w-full mb-4 px-4 py-2.5 rounded-xl bg-white/80 dark:bg-slate-800/70
-                      border border-sky-200 dark:border-sky-500/30
-                      focus:outline-none focus:ring-2 focus:ring-sky-500
-                      transition-all duration-300 ease-in-out" />
-
-        <label class="block text-sm text-slate-600 dark:text-sky-200 mb-1">Password</label>
-        <input formControlName="password" type="password"
-               class="w-full mb-6 px-4 py-2.5 rounded-xl bg-white/80 dark:bg-slate-800/70
-                      border border-sky-200 dark:border-sky-500/30
-                      focus:outline-none focus:ring-2 focus:ring-sky-500
-                      transition-all duration-300 ease-in-out" />
-
-        @if (error()) {
-          <p class="text-sm text-red-500 mb-4">{{ error() }}</p>
-        }
-
-        <button type="submit" [disabled]="form.invalid"
-                class="w-full py-2.5 rounded-xl bg-sky-700 dark:bg-sky-600 text-white font-medium
-                       shadow-md hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100
-                       transition-all duration-300 ease-in-out">
-          Create Account
-        </button>
-
-        <p class="text-center text-sm text-slate-600 dark:text-sky-300 mt-6">
-          Already have an account?
-          <a routerLink="/login" class="font-medium text-sky-600 hover:underline">Log in</a>
-        </p>
-      </form>
-    </section>
-  `,
+@Component({ selector: 'app-register', standalone: true, imports: [CommonModule, ReactiveFormsModule, RouterModule], template: `
+  <section class="auth-page"><div class="auth-orb auth-orb--top"></div><div class="auth-orb auth-orb--bottom"></div><div class="auth-layout">
+    <aside class="auth-showcase" aria-hidden="true"><div class="showcase-shape showcase-shape--one"></div><div class="showcase-shape showcase-shape--two"></div><div class="showcase-ball showcase-ball--one"></div><div class="showcase-ball showcase-ball--two"></div><div class="showcase-ball showcase-ball--three"></div><div class="showcase-copy"><span class="eyebrow">CV CREATOR</span><h1>Your next chapter starts here.</h1><p>Create a polished CV in minutes, then make every application count.</p></div><a routerLink="/login" class="showcase-switch">Already a member? <strong>Sign in</strong></a></aside>
+    <main class="auth-card"><a routerLink="/" class="back-link"><span>‹</span> Back to home</a><div class="auth-heading"><p class="eyebrow">GET STARTED</p><h2>Create your account</h2><p>Start building your professional CV today.</p></div><form [formGroup]="form" (ngSubmit)="submit()"><label>Full name<input formControlName="fullName" type="text" placeholder="Your full name" autocomplete="name" /></label><label>Email address<input formControlName="email" type="email" placeholder="you@example.com" autocomplete="email" /></label><label>Password<input formControlName="password" type="password" placeholder="At least 8 characters" autocomplete="new-password" /></label><label class="check-label terms"><input type="checkbox" /> <span>I agree to the <a href="mailto:support@cvcreator.com">Terms of Service</a></span></label>@if (error()) { <p class="form-error">{{ error() }}</p> }<button type="submit" [disabled]="form.invalid">Create account <span>→</span></button></form><div class="divider"><span>or continue with</span></div><div class="socials"><button type="button" aria-label="Continue with Google">G</button><button type="button" aria-label="Continue with Facebook">f</button><button type="button" aria-label="Continue with Apple">●</button></div><p class="account-link">Already have an account? <a routerLink="/login">Sign in</a></p></main>
+  </div></section>`,
+  styles: [`
+    .auth-page{min-height:100vh;display:grid;place-items:center;overflow:hidden;position:relative;padding:32px;background:linear-gradient(120deg,#eaf0ff,#cbd7f5 55%,#edf2ff);font-family:Inter,system-ui,sans-serif;color:#162344}.auth-layout{width:min(1120px,100%);min-height:650px;display:grid;grid-template-columns:1.08fr .92fr;position:relative;z-index:1;border-radius:28px;overflow:hidden;box-shadow:0 30px 80px rgba(50,70,130,.25)}.auth-showcase{position:relative;overflow:hidden;padding:56px;background:linear-gradient(145deg,#5378d7,#2d4c9f 80%);color:#fff}.auth-showcase:before{content:"";position:absolute;width:620px;height:620px;border-radius:43% 57% 58% 42%;background:linear-gradient(135deg,#9db4fb 0%,#6f8ee6 60%,transparent 61%);right:-200px;top:-230px;opacity:.85}.auth-showcase:after{content:"";position:absolute;width:650px;height:350px;border-radius:54% 46% 0 0;background:linear-gradient(140deg,#152e72,#3858ad);left:-160px;bottom:-220px}.showcase-shape,.showcase-ball{position:absolute;border-radius:50%;z-index:1}.showcase-shape--one{width:270px;height:270px;right:-25px;top:-72px;border:44px solid rgba(255,255,255,.62);border-left-color:transparent;transform:rotate(-32deg)}.showcase-shape--two{width:300px;height:220px;left:-80px;top:120px;border-radius:48%;background:rgba(36,66,157,.36);transform:rotate(28deg)}.showcase-ball--one{width:96px;height:96px;top:36px;left:-35px;background:radial-gradient(circle at 30% 25%,#5277db,#102257 72%);box-shadow:15px 20px 30px #15317177}.showcase-ball--two{width:82px;height:82px;right:95px;top:162px;background:radial-gradient(circle at 32% 22%,#e1edff,#6e99e8 62%,#3154ad);box-shadow:8px 12px 22px #26418b88}.showcase-ball--three{width:118px;height:118px;left:82px;bottom:55px;background:radial-gradient(circle at 30% 25%,#537be0,#152b69 70%);box-shadow:15px 18px 25px #172a6288}.showcase-copy{position:absolute;z-index:2;left:56px;bottom:146px;max-width:340px}.eyebrow{font-size:.69rem;letter-spacing:.14em;font-weight:800;margin:0 0 13px;color:#5679dd}.showcase-copy .eyebrow{color:#d8e4ff}.showcase-copy h1{font-size:2.5rem;line-height:1.1;margin:0 0 15px}.showcase-copy p{margin:0;line-height:1.6;color:#e2eaff;font-size:.98rem}.showcase-switch{position:absolute;z-index:2;left:56px;bottom:54px;color:#fff;text-decoration:none;font-size:.9rem}.showcase-switch strong{margin-left:7px;border-bottom:1px solid #fff;padding-bottom:2px}.auth-card{background:#fff;padding:52px 58px;display:flex;flex-direction:column;justify-content:center}.back-link{position:absolute;top:26px;color:#63718e;text-decoration:none;font-size:.8rem;font-weight:600}.back-link span{font-size:1.35rem;vertical-align:-2px;margin-right:5px}.auth-heading h2{font-size:2rem;line-height:1.15;margin:0 0 9px;color:#1a2e66}.auth-heading>p:last-child{font-size:.9rem;color:#7b869d;margin:0 0 27px}form label:not(.check-label){display:block;font-size:.76rem;font-weight:700;color:#45516a;margin:0 0 14px}input:not([type=checkbox]){box-sizing:border-box;display:block;width:100%;padding:11px 13px;margin-top:7px;border:1px solid #dfe4ef;border-radius:9px;color:#1d2b4d;font:inherit;font-size:.87rem;outline:none;transition:.2s}input:not([type=checkbox]):focus{border-color:#4c70d5;box-shadow:0 0 0 3px #dce6ff}.check-label{display:flex;gap:7px;align-items:center;color:#788397;font-size:.73rem}.check-label input{accent-color:#4268ca}.terms{margin:2px 0 20px}.terms a{color:#4167ca;font-weight:700;text-decoration:none}.form-error{font-size:.8rem;color:#c1354d;margin:-8px 0 15px}form>button{width:100%;border:0;border-radius:9px;padding:13px;background:#4167ca;color:#fff;font-weight:700;box-shadow:0 8px 16px #4167ca42;cursor:pointer;transition:.2s}form>button:hover:not(:disabled){background:#3158bb;transform:translateY(-1px)}form>button:disabled{opacity:.5;cursor:not-allowed}form>button span{margin-left:7px;font-size:1.1rem}.divider{display:flex;align-items:center;gap:12px;color:#a2aabc;font-size:.72rem;margin:25px 0 17px}.divider:before,.divider:after{content:"";height:1px;background:#edf0f5;flex:1}.socials{display:flex;justify-content:center;gap:13px}.socials button{width:36px;height:36px;border:1px solid #e2e7f0;background:#fff;border-radius:50%;cursor:pointer;font-weight:800;color:#4167ca;font-size:1rem}.socials button:first-child{color:#dd4b39}.socials button:last-child{color:#1f2937;font-size:.72rem}.account-link{text-align:center;color:#7b869d;font-size:.8rem;margin:20px 0 0}.account-link a{color:#4167ca;font-weight:800;text-decoration:none}.auth-orb{position:absolute;border-radius:50%;filter:blur(2px);opacity:.5}.auth-orb--top{height:310px;width:310px;right:-100px;top:-110px;background:#fff}.auth-orb--bottom{height:240px;width:240px;left:-110px;bottom:-100px;background:#9bb1ee}@media(max-width:760px){.auth-page{padding:0;background:#fff;align-items:stretch}.auth-layout{min-height:100vh;border-radius:0;display:block;box-shadow:none}.auth-showcase{display:none}.auth-card{min-height:100vh;box-sizing:border-box;padding:80px 28px 36px}.back-link{position:static;margin-bottom:38px}.auth-heading h2{font-size:1.75rem}}
+  `]
 })
-export class RegisterComponent {
-  form: FormGroup;
-  error = signal<string | null>(null);
-
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
-    this.form = this.fb.group({
-      fullName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-    });
-  }
-
-  submit() {
-    if (this.form.invalid) return;
-    const { fullName, email, password } = this.form.getRawValue();
-
-    this.auth.register(fullName!, email!, password!).subscribe({
-      next: () => this.router.navigate(['/my-cv']),
-      error: (err) => this.error.set(err.error?.message || 'Registration failed.'),
-    });
-  }
-}
+export class RegisterComponent { form: FormGroup; error = signal<string | null>(null); constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) { this.form = this.fb.group({ fullName: ['', Validators.required], email: ['', [Validators.required, Validators.email]], password: ['', [Validators.required, Validators.minLength(8)]] }); } submit() { if (this.form.invalid) return; const { fullName, email, password } = this.form.getRawValue(); this.auth.register(fullName!, email!, password!).subscribe({ next: () => this.router.navigate(['/my-cv']), error: err => this.error.set(err.error?.message || 'Registration failed.') }); } }

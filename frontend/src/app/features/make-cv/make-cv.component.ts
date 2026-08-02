@@ -25,9 +25,16 @@ import {
   AlignJustify,
 } from 'lucide-angular';
 import { ProfessionalCvComponent } from '../../shared/components/professional-cv/professional-cv.component';
+import { ModernSplitCvComponent } from '../../shared/components/modern-split-cv/modern-split-cv.component';
+import { CleanSidebarCvComponent } from '../../shared/components/clean-sidebar-cv/clean-sidebar-cv.component';
+import { ElegantFrameCvComponent } from '../../shared/components/elegant-frame-cv/elegant-frame-cv.component';
+import { ClassicDarkCvComponent } from '../../shared/components/classic-dark-cv/classic-dark-cv.component';
+import { FormalClassicCvComponent } from '../../shared/components/formal-classic-cv/formal-classic-cv.component';
+import { CoverLetterCvComponent } from '../../shared/components/cover-letter-cv/cover-letter-cv.component';
 import {
   DEGREES,
   FIELDS_OF_STUDY,
+  FONT_FAMILIES,
   FONT_WEIGHTS,
   INSTITUTIONS,
   JOB_TITLES,
@@ -45,7 +52,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
 @Component({
   selector: 'app-make-cv',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule, ProfessionalCvComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, FormalClassicCvComponent, CoverLetterCvComponent],
   template: `
     <main class="min-h-screen bg-[#f7faff] dark:bg-slate-950 pt-24 pb-28 px-4">
       <div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[84px_minmax(0,1fr)] xl:grid-cols-[84px_minmax(0,1fr)_430px] gap-7">
@@ -70,6 +77,23 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
               <div class="flex items-center gap-4 mb-2">
                 <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="UserRound" /></span>
                 <h2 class="text-2xl font-bold dark:text-white">Personal Information</h2>
+              </div>
+              <div class="font-toolbar">
+                <button type="button" class="ft-btn" (click)="bumpFont(-1)" title="Decrease font size">A−</button>
+                <span class="ft-val">{{ fontSize() }}px</span>
+                <button type="button" class="ft-btn" (click)="bumpFont(1)" title="Increase font size">A+</button>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" title="Font family">
+                  @for (f of fontFamilies; track f.value) {
+                    <option [value]="f.value">{{ f.label }}</option>
+                  }
+                </select>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" title="Weight">
+                  @for (w of fontWeights; track w.value) {
+                    <option [value]="w.value">{{ w.label }}</option>
+                  }
+                </select>
               </div>
               <div class="flex items-center gap-4 mb-4">
                 <div class="h-20 w-20 rounded-full overflow-hidden bg-slate-100 grid place-items-center border-2 border-sky-900 shrink-0">
@@ -108,6 +132,19 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
               <div class="flex items-center gap-4">
                 <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="GraduationCap" /></span>
                 <h2 class="text-2xl font-bold dark:text-white">Education</h2>
+              </div>
+              <div class="font-toolbar">
+                <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
+                <span class="ft-val">{{ fontSize() }}px</span>
+                <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                  @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
+                </select>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                  @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
+                </select>
               </div>
               <div formArrayName="education" class="space-y-4">
                 @for (ed of education.controls; track $index; let i = $index) {
@@ -179,6 +216,19 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
               <div class="flex items-center gap-4">
                 <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="BriefcaseBusiness" /></span>
                 <h2 class="text-2xl font-bold dark:text-white">Work Experience</h2>
+              </div>
+              <div class="font-toolbar">
+                <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
+                <span class="ft-val">{{ fontSize() }}px</span>
+                <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                  @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
+                </select>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                  @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
+                </select>
               </div>
               <div formArrayName="experience" class="space-y-4">
                 @for (job of experience.controls; track $index; let i = $index) {
@@ -258,6 +308,19 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="Star" /></span>
                 <h2 class="text-2xl font-bold dark:text-white">Skills <span class="opt">Optional</span></h2>
               </div>
+              <div class="font-toolbar">
+                <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
+                <span class="ft-val">{{ fontSize() }}px</span>
+                <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                  @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
+                </select>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                  @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
+                </select>
+              </div>
               <div class="card-block">
                 <div class="grid sm:grid-cols-2 gap-4 items-start">
                   <label
@@ -292,6 +355,19 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
               <div class="flex items-center gap-4">
                 <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="Languages" /></span>
                 <h2 class="text-2xl font-bold dark:text-white">Languages <span class="opt">Optional</span></h2>
+              </div>
+              <div class="font-toolbar">
+                <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
+                <span class="ft-val">{{ fontSize() }}px</span>
+                <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                  @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
+                </select>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                  @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
+                </select>
               </div>
               <div class="card-block">
                 <div class="grid sm:grid-cols-2 gap-4 items-start">
@@ -337,6 +413,19 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="Award" /></span>
                 <h2 class="text-2xl font-bold dark:text-white">Certifications <span class="opt">Optional</span></h2>
               </div>
+              <div class="font-toolbar">
+                <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
+                <span class="ft-val">{{ fontSize() }}px</span>
+                <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                  @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
+                </select>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                  @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
+                </select>
+              </div>
               <div formArrayName="certifications" class="space-y-4">
                 @for (c of certifications.controls; track $index; let i = $index) {
                   <div [formGroupName]="i" class="card-block">
@@ -358,6 +447,19 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="FolderKanban" /></span>
                 <h2 class="text-2xl font-bold dark:text-white">Projects <span class="opt">Optional</span></h2>
               </div>
+              <div class="font-toolbar">
+                <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
+                <span class="ft-val">{{ fontSize() }}px</span>
+                <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                  @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
+                </select>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                  @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
+                </select>
+              </div>
               <div formArrayName="projects" class="space-y-4">
                 @for (p of projects.controls; track $index; let i = $index) {
                   <div [formGroupName]="i" class="card-block">
@@ -374,6 +476,80 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 }
               </div>
               <button type="button" class="add-dashed" (click)="addProject()"><lucide-icon [img]="Plus" class="w-4 h-4" /> Add Project</button>
+            }
+
+            @if (active() === 'References') {
+              <div class="flex items-center gap-4">
+                <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="UserRound" /></span>
+                <h2 class="text-2xl font-bold dark:text-white">References <span class="opt">Optional</span></h2>
+              </div>
+              <div class="font-toolbar">
+                <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
+                <span class="ft-val">{{ fontSize() }}px</span>
+                <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                  @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
+                </select>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                  @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
+                </select>
+              </div>
+              <div formArrayName="references" class="space-y-4">
+                @for (r of references.controls; track $index; let i = $index) {
+                  <div [formGroupName]="i" class="card-block">
+                    <div class="flex justify-between mb-3">
+                      <h3 class="font-bold">Reference {{ i + 1 }}</h3>
+                      <button type="button" class="text-red-600" (click)="removeReference(i)"><lucide-icon [img]="Trash2" class="w-4 h-4" /></button>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-4">
+                      <label>Full Name *<input formControlName="name" placeholder="Reference Full Name" /></label>
+                      <label>Position<input formControlName="position" placeholder="Job position" /></label>
+                    </div>
+                    <label class="block mt-3">Company<input formControlName="company" placeholder="Company name" /></label>
+                    <div class="grid sm:grid-cols-2 gap-4 mt-3">
+                      <label>Phone<input formControlName="phone" placeholder="00 123 456 789" /></label>
+                      <label>Email<input formControlName="email" type="email" placeholder="ref@example.com" /></label>
+                    </div>
+                  </div>
+                }
+              </div>
+              <button type="button" class="add-dashed" (click)="addReference()"><lucide-icon [img]="Plus" class="w-4 h-4" /> Add Reference</button>
+            }
+
+            @if (active() === 'Hobbies') {
+              <div class="flex items-center gap-4">
+                <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="Star" /></span>
+                <h2 class="text-2xl font-bold dark:text-white">Hobbies <span class="opt">Optional</span></h2>
+              </div>
+              <div class="font-toolbar">
+                <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
+                <span class="ft-val">{{ fontSize() }}px</span>
+                <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                  @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
+                </select>
+                <span class="ft-sep"></span>
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                  @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
+                </select>
+              </div>
+              <div class="card-block">
+                <label>Hobby Name
+                  <input [(ngModel)]="hobbyDraft" [ngModelOptions]="{ standalone: true }" placeholder="e.g. Music, Travel, Reading…" />
+                </label>
+                <button type="button" class="add-solid mt-4" (click)="addHobby()"><lucide-icon [img]="Plus" class="w-4 h-4" /> Add Hobby</button>
+              </div>
+              <div formArrayName="hobbies" class="space-y-3">
+                @for (h of hobbies.controls; track $index; let i = $index) {
+                  <div [formGroupName]="i" class="card-block flex justify-between items-center">
+                    <p class="font-bold">{{ h.value.name }}</p>
+                    <button type="button" class="text-red-600" (click)="removeHobby(i)"><lucide-icon [img]="Trash2" class="w-4 h-4" /></button>
+                  </div>
+                }
+              </div>
             }
           </form>
 
@@ -435,6 +611,14 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <button type="button" class="typo-btn" (click)="bumpFont(-1)" title="Decrease font size">A−</button>
                 <span class="typo-val">{{ fontSize() }}px</span>
                 <button type="button" class="typo-btn" (click)="bumpFont(1)" title="Increase font size">A+</button>
+              </div>
+              <div class="typo-group">
+                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><text x="3" y="18" font-size="16" font-weight="400" stroke="none" fill="#94a3b8">F</text></svg>
+                <select class="typo-select font-sel" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" title="Font family">
+                  @for (f of fontFamilies; track f.value) {
+                    <option [value]="f.value" [style.font-family]="f.value">{{ f.label }}</option>
+                  }
+                </select>
               </div>
               <div class="typo-group">
                 <lucide-icon [img]="Bold" class="w-3.5 h-3.5 text-slate-400" />
@@ -506,27 +690,147 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
     }
 
     <ng-template #cvPreview>
-      <app-professional-cv
-        [photoUrl]="photoUrl()"
-        [name]="form.value.fullName || 'Your Name'"
-        [jobTitle]="form.value.jobTitle || ''"
-        [email]="form.value.email || ''"
-        [phone]="form.value.phone || ''"
-        [location]="form.value.location || ''"
-        [linkedin]="form.value.linkedin || ''"
-        [summary]="form.value.summary || defaultSummary"
-        [education]="form.value.education || []"
-        [experience]="mappedExperience()"
-        [skills]="form.value.skills || []"
-        [languages]="form.value.languages || []"
-        [certifications]="form.value.certifications || []"
-        [projects]="form.value.projects || []"
-        [fontSize]="fontSize()"
-        [fontWeight]="fontWeight()"
-        [lineHeight]="lineHeight()"
-        [sectionLines]="sectionLines()"
-        [accent]="accentColor()"
-      />
+      @if (layout() === 'modern-split') {
+        <app-modern-split-cv
+          [photoUrl]="photoUrl()"
+          [name]="form.value.fullName || 'Your Name'"
+          [jobTitle]="form.value.jobTitle || ''"
+          [email]="form.value.email || ''"
+          [phone]="form.value.phone || ''"
+          [location]="form.value.location || ''"
+          [summary]="form.value.summary || defaultSummary"
+          [education]="form.value.education || []"
+          [experience]="mappedExperience()"
+          [skills]="form.value.skills || []"
+          [languages]="form.value.languages || []"
+          [references]="form.value.references || []"
+          [hobbies]="form.value.hobbies || []"
+          [fontSize]="fontSize()"
+          [fontWeight]="fontWeight()"
+          [lineHeight]="lineHeight()"
+          [fontFamily]="fontFamily()"
+          [accent]="accentColor()"
+        />
+      } @else if (layout() === 'clean-sidebar') {
+        <app-clean-sidebar-cv
+          [photoUrl]="photoUrl()"
+          [name]="form.value.fullName || 'Your Name'"
+          [jobTitle]="form.value.jobTitle || ''"
+          [email]="form.value.email || ''"
+          [phone]="form.value.phone || ''"
+          [location]="form.value.location || ''"
+          [summary]="form.value.summary || defaultSummary"
+          [education]="form.value.education || []"
+          [experience]="mappedExperience()"
+          [skills]="form.value.skills || []"
+          [languages]="form.value.languages || []"
+          [references]="form.value.references || []"
+          [fontSize]="fontSize()"
+          [fontWeight]="fontWeight()"
+          [lineHeight]="lineHeight()"
+          [fontFamily]="fontFamily()"
+          [accent]="accentColor()"
+        />
+      } @else if (layout() === 'elegant-frame') {
+        <app-elegant-frame-cv
+          [photoUrl]="photoUrl()"
+          [name]="form.value.fullName || 'Your Name'"
+          [jobTitle]="form.value.jobTitle || ''"
+          [email]="form.value.email || ''"
+          [phone]="form.value.phone || ''"
+          [location]="form.value.location || ''"
+          [linkedin]="form.value.linkedin || ''"
+          [summary]="form.value.summary || defaultSummary"
+          [education]="form.value.education || []"
+          [experience]="mappedExperience()"
+          [skills]="form.value.skills || []"
+          [languages]="form.value.languages || []"
+          [references]="form.value.references || []"
+          [fontSize]="fontSize()"
+          [fontWeight]="fontWeight()"
+          [lineHeight]="lineHeight()"
+          [fontFamily]="fontFamily()"
+          [accent]="accentColor()"
+        />
+      } @else if (layout() === 'classic-dark') {
+        <app-classic-dark-cv
+          [photoUrl]="photoUrl()"
+          [name]="form.value.fullName || 'Your Name'"
+          [jobTitle]="form.value.jobTitle || ''"
+          [email]="form.value.email || ''"
+          [phone]="form.value.phone || ''"
+          [location]="form.value.location || ''"
+          [linkedin]="form.value.linkedin || ''"
+          [summary]="form.value.summary || defaultSummary"
+          [education]="form.value.education || []"
+          [experience]="mappedExperience()"
+          [skills]="form.value.skills || []"
+          [languages]="form.value.languages || []"
+          [references]="form.value.references || []"
+          [fontSize]="fontSize()"
+          [fontWeight]="fontWeight()"
+          [lineHeight]="lineHeight()"
+          [fontFamily]="fontFamily()"
+          [accent]="accentColor()"
+        />
+      } @else if (layout() === 'formal-classic') {
+        <app-formal-classic-cv
+          [photoUrl]="photoUrl()"
+          [name]="form.value.fullName || 'Your Name'"
+          [jobTitle]="form.value.jobTitle || ''"
+          [email]="form.value.email || ''"
+          [phone]="form.value.phone || ''"
+          [location]="form.value.location || ''"
+          [linkedin]="form.value.linkedin || ''"
+          [summary]="form.value.summary || defaultSummary"
+          [education]="form.value.education || []"
+          [experience]="mappedExperience()"
+          [skills]="form.value.skills || []"
+          [languages]="form.value.languages || []"
+          [references]="form.value.references || []"
+          [projects]="form.value.projects || []"
+          [fontSize]="fontSize()"
+          [fontWeight]="fontWeight()"
+          [lineHeight]="lineHeight()"
+          [fontFamily]="fontFamily()"
+        />
+      } @else if (layout() === 'cover-letter') {
+        <app-cover-letter-cv
+          [accent]="accentColor()"
+          [name]="form.value.fullName || 'Your Name'"
+          [phone]="form.value.phone || ''"
+          [email]="form.value.email || ''"
+          [location]="form.value.location || ''"
+          [bodyText]="form.value.summary || ''"
+          [fontSize]="fontSize()"
+          [fontWeight]="fontWeight()"
+          [lineHeight]="lineHeight()"
+          [fontFamily]="fontFamily()"
+        />
+      } @else {
+        <app-professional-cv
+          [photoUrl]="photoUrl()"
+          [name]="form.value.fullName || 'Your Name'"
+          [jobTitle]="form.value.jobTitle || ''"
+          [email]="form.value.email || ''"
+          [phone]="form.value.phone || ''"
+          [location]="form.value.location || ''"
+          [linkedin]="form.value.linkedin || ''"
+          [summary]="form.value.summary || defaultSummary"
+          [education]="form.value.education || []"
+          [experience]="mappedExperience()"
+          [skills]="form.value.skills || []"
+          [languages]="form.value.languages || []"
+          [certifications]="form.value.certifications || []"
+          [projects]="form.value.projects || []"
+          [fontSize]="fontSize()"
+          [fontWeight]="fontWeight()"
+          [lineHeight]="lineHeight()"
+          [fontFamily]="fontFamily()"
+          [sectionLines]="sectionLines()"
+          [accent]="accentColor()"
+        />
+      }
     </ng-template>
   `,
   styles: [
@@ -755,6 +1059,59 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
         width: auto;
         min-width: 0;
       }
+
+      /* ── Per-section font toolbar ── */
+      .font-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.55rem 0.9rem;
+        margin-bottom: 0.5rem;
+        background: #f0f4f9;
+        border: 1px solid #dde4ee;
+        border-radius: 0.9rem;
+      }
+      .ft-btn {
+        border: 1px solid #c8d4e0;
+        background: #fff;
+        border-radius: 0.4rem;
+        padding: 0.22rem 0.55rem;
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: #334155;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+      }
+      .ft-btn:hover { background: #062b50; color: #fff; border-color: #062b50; }
+      .ft-val {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #475569;
+        min-width: 2.2rem;
+        text-align: center;
+        background: #fff;
+        border: 1px solid #c8d4e0;
+        border-radius: 0.4rem;
+        padding: 0.22rem 0.3rem;
+      }
+      .ft-select {
+        padding: 0.22rem 0.4rem;
+        font-size: 0.72rem;
+        border-radius: 0.4rem;
+        border: 1px solid #c8d4e0;
+        background: #fff;
+        color: #334155;
+        cursor: pointer;
+        margin: 0;
+        width: auto;
+      }
+      .ft-sep {
+        width: 1px;
+        height: 20px;
+        background: #c8d4e0;
+        flex-shrink: 0;
+      }
     `,
   ],
 })
@@ -789,6 +1146,7 @@ export class MakeCvComponent implements OnInit {
   years = yearOptions();
   fontWeights = FONT_WEIGHTS;
   lineHeights = LINE_HEIGHTS;
+  fontFamilies = FONT_FAMILIES;
 
   skillLevels = SKILL_LEVELS;
   langLevels = LANG_LEVELS;
@@ -802,10 +1160,13 @@ export class MakeCvComponent implements OnInit {
   fontSize = signal(10);
   fontWeight = signal(400);
   lineHeight = signal(1.4);
+  fontFamily = signal('Arial, Helvetica, sans-serif');
   sectionLines = signal(true);
   accentColor = signal('#667b97');
+  layout = signal<'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter'>('professional');
   cvId: string | null = null;
   templateId: string | null = null;
+  hobbyDraft = '';
 
   defaultSummary = 'Goal-oriented, adaptable, and always striving to learn, grow, and deliver the best results.';
 
@@ -817,6 +1178,8 @@ export class MakeCvComponent implements OnInit {
     { label: 'Languages', icon: Languages },
     { label: 'Certifications', icon: Award },
     { label: 'Projects', icon: FolderKanban },
+    { label: 'References', icon: UserRound },
+    { label: 'Hobbies', icon: Star },
   ];
 
   form: FormGroup;
@@ -840,11 +1203,20 @@ export class MakeCvComponent implements OnInit {
       languages: this.fb.array([]),
       certifications: this.fb.array([]),
       projects: this.fb.array([this.newProject()]),
+      references: this.fb.array([]),
+      hobbies: this.fb.array([]),
     });
     this.cvId = this.route.snapshot.queryParamMap.get('cvId');
     this.templateId = this.route.snapshot.queryParamMap.get('templateId');
     const color = this.route.snapshot.queryParamMap.get('color');
     if (color) this.accentColor.set(color);
+    const layoutParam = this.route.snapshot.queryParamMap.get('layout');
+    if (layoutParam === 'modern-split') this.layout.set('modern-split');
+    else if (layoutParam === 'clean-sidebar') this.layout.set('clean-sidebar');
+    else if (layoutParam === 'elegant-frame') this.layout.set('elegant-frame');
+    else if (layoutParam === 'classic-dark') this.layout.set('classic-dark');
+    else if (layoutParam === 'formal-classic') this.layout.set('formal-classic');
+    else if (layoutParam === 'cover-letter') this.layout.set('cover-letter');
   }
 
   ngOnInit() {
@@ -877,6 +1249,12 @@ export class MakeCvComponent implements OnInit {
   }
   get projects() {
     return this.form.get('projects') as FormArray;
+  }
+  get references() {
+    return this.form.get('references') as FormArray;
+  }
+  get hobbies() {
+    return this.form.get('hobbies') as FormArray;
   }
 
   responsibilities(jobIndex: number) {
@@ -988,6 +1366,26 @@ export class MakeCvComponent implements OnInit {
     if (this.projects.length > 1) this.projects.removeAt(i);
   }
 
+  newReference() {
+    return this.fb.group({ name: [''], position: [''], company: [''], phone: [''], email: [''] });
+  }
+  addReference() {
+    this.references.push(this.newReference());
+  }
+  removeReference(i: number) {
+    this.references.removeAt(i);
+  }
+
+  addHobby() {
+    const name = this.hobbyDraft.trim();
+    if (!name) return;
+    this.hobbies.push(this.fb.group({ name: [name] }));
+    this.hobbyDraft = '';
+  }
+  removeHobby(i: number) {
+    this.hobbies.removeAt(i);
+  }
+
   onCurrentEdu(i: number) {
     const g = this.education.at(i);
     if (g.get('current')?.value) g.patchValue({ endYear: '' });
@@ -1039,13 +1437,17 @@ export class MakeCvComponent implements OnInit {
       languages: (raw.languages || []).filter((l: any) => l.name),
       certifications: (raw.certifications || []).filter((c: any) => c.name),
       projects: (raw.projects || []).filter((p: any) => p.name || p.description),
+      references: (raw.references || []).filter((r: any) => r.name),
+      hobbies: (raw.hobbies || []).filter((h: any) => h.name),
       typography: {
         fontSize: this.fontSize(),
         fontWeight: this.fontWeight(),
         lineHeight: this.lineHeight(),
         sectionLines: this.sectionLines(),
+        fontFamily: this.fontFamily(),
       },
       accent: this.accentColor(),
+      layout: this.layout(),
     };
   }
 
@@ -1067,6 +1469,7 @@ export class MakeCvComponent implements OnInit {
       if (content.typography.fontWeight) this.fontWeight.set(content.typography.fontWeight);
       if (content.typography.lineHeight) this.lineHeight.set(content.typography.lineHeight);
       if (typeof content.typography.sectionLines === 'boolean') this.sectionLines.set(content.typography.sectionLines);
+      if (content.typography.fontFamily) this.fontFamily.set(content.typography.fontFamily);
     }
 
     this.education.clear();
@@ -1146,6 +1549,26 @@ export class MakeCvComponent implements OnInit {
     } else {
       this.projects.push(this.newProject());
     }
+
+    this.references.clear();
+    if (Array.isArray(content.references)) {
+      content.references.forEach((r: any) =>
+        this.references.push(this.fb.group({
+          name: [r.name || ''], position: [r.position || ''],
+          company: [r.company || ''], phone: [r.phone || ''], email: [r.email || ''],
+        })),
+      );
+    }
+
+    this.hobbies.clear();
+    if (Array.isArray(content.hobbies)) {
+      content.hobbies.forEach((h: any) => {
+        const name = typeof h === 'string' ? h : h.name || '';
+        if (name) this.hobbies.push(this.fb.group({ name: [name] }));
+      });
+    }
+
+    if (content.layout) this.layout.set(content.layout);
   }
 
   splitDate(value?: string): { month: string; year: string } {

@@ -1,67 +1,23 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, signal } from '@angular/core';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { ThemeSwitcherComponent } from '../theme-switcher/theme-switcher.component';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-navbar',
-  standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, ThemeSwitcherComponent],
+  selector: 'app-navbar', standalone: true, imports: [RouterLink, RouterLinkActive, ThemeSwitcherComponent],
   template: `
-    <header class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[min(94vw,1100px)]">
-      <nav
-        class="flex items-center justify-between gap-4 px-5 py-3 rounded-2xl
-               bg-white/70 dark:bg-slate-900/60 backdrop-blur-md
-               border border-white/40 dark:border-sky-500/20
-               shadow-[0_8px_32px_rgba(2,132,199,0.12)]
-               transition-all duration-300 ease-in-out"
-      >
-        <a routerLink="/" class="flex items-center gap-2 font-semibold text-slate-800 dark:text-sky-100">
-          <span class="h-8 w-8 rounded-xl bg-sky-600 dark:bg-sky-400 flex items-center justify-center text-white text-sm font-bold">CV</span>
-          CV Creator
-        </a>
-
-        <div class="hidden md:flex items-center gap-1">
-          <a routerLink="/" routerLinkActive="bg-sky-100/80 dark:bg-sky-500/20" [routerLinkActiveOptions]="{exact: true}"
-             class="px-3 py-1.5 rounded-xl text-sm font-medium text-slate-700 dark:text-sky-100 hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out">Home</a>
-          <a routerLink="/templates" routerLinkActive="bg-sky-100/80 dark:bg-sky-500/20"
-             class="px-3 py-1.5 rounded-xl text-sm font-medium text-slate-700 dark:text-sky-100
-                    hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out">Templates</a>
-          <a routerLink="/my-cv" routerLinkActive="bg-sky-100/80 dark:bg-sky-500/20"
-             class="px-3 py-1.5 rounded-xl text-sm font-medium text-slate-700 dark:text-sky-100
-                    hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out">My CV</a>
-          <a routerLink="/about" routerLinkActive="bg-sky-100/80 dark:bg-sky-500/20"
-             class="px-3 py-1.5 rounded-xl text-sm font-medium text-slate-700 dark:text-sky-100
-                    hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out">About</a>
-          <a routerLink="/contact" routerLinkActive="bg-sky-100/80 dark:bg-sky-500/20"
-             class="px-3 py-1.5 rounded-xl text-sm font-medium text-slate-700 dark:text-sky-100
-                    hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out">Contact</a>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <app-theme-switcher />
-
-          @if (auth.currentUser(); as user) {
-            <button class="flex items-center gap-2 pl-1 pr-3 py-1 rounded-xl
-                           bg-sky-50/80 dark:bg-slate-800/70 hover:scale-105 active:scale-95
-                           transition-all duration-300 ease-in-out">
-              <img [src]="user.avatarUrl || '/assets/default-avatar.png'" alt=""
-                   class="h-7 w-7 rounded-full object-cover" />
-              <span class="text-sm text-slate-700 dark:text-sky-100">{{ user.fullName }}</span>
-            </button>
-          } @else {
-            <a routerLink="/login"
-               class="px-4 py-2 rounded-xl bg-sky-700 dark:bg-sky-600 text-white text-sm font-medium
-                      shadow-md hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out">
-              Log in
-            </a>
-          }
-        </div>
-      </nav>
-    </header>
+    <header class="site-header"><nav class="nav-bar">
+      <a routerLink="/" class="brand" aria-label="CQ-Professional home"><span class="brand-mark"><i>C</i><b>V</b></span><span class="brand-copy"><strong>CQ-Professional</strong><small>Creative CV Builder</small></span></a>
+      <div class="nav-links"><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a><a routerLink="/templates" routerLinkActive="active">Templates</a><a routerLink="/my-cv" routerLinkActive="active">My CV</a><a routerLink="/about" routerLinkActive="active">About</a><a routerLink="/contact" routerLinkActive="active">Contact</a></div>
+      <div class="nav-right"><app-theme-switcher /> @if (auth.currentUser(); as user) {<button type="button" class="profile" (click)="showDropdown.set(!showDropdown())">@if (user.avatarUrl) {<img [src]="user.avatarUrl" alt="Profile photo">} @else {<span>{{ user.fullName.slice(0,1) }}</span>}{{ user.fullName }}⌄</button>@if(showDropdown()){<div class="menu"><a routerLink="/settings" (click)="showDropdown.set(false)">Settings</a><button type="button" (click)="logout()">Log out</button></div>}} @else {<a routerLink="/login" class="sign-in">Sign in <b>→</b></a>}</div>
+    </nav></header>
   `,
+  styles: [`
+    .site-header{position:fixed;z-index:50;top:18px;left:50%;transform:translateX(-50%);width:min(96vw,1440px);font-family:Inter,system-ui,sans-serif}.nav-bar{height:76px;display:flex;align-items:center;padding-right:14px;border:1px solid #e1e6f0;border-radius:23px;background:#ffffffed;box-shadow:0 11px 30px #263a691a;backdrop-filter:blur(14px);position:relative}.brand{height:100%;min-width:270px;padding:0 31px;display:flex;align-items:center;gap:11px;border-radius:23px 47px 47px 23px;background:linear-gradient(135deg,#fff 22%,#f2efff 72%,#d3c0fe);text-decoration:none;position:relative;overflow:hidden}.brand:after{content:'';position:absolute;right:-31px;top:-35px;width:92px;height:145px;border-radius:50%;background:#b79af0;opacity:.42;transform:rotate(25deg)}.brand-mark{position:relative;z-index:1;width:39px;height:39px;color:#1d1b22;font:italic 1.55rem Georgia,serif}.brand-mark i{position:absolute;left:0;top:1px;font-weight:400}.brand-mark b{position:absolute;right:0;bottom:0;font-size:1.35rem}.brand-copy{z-index:1;display:grid;gap:3px}.brand-copy strong{color:#1c1e2a;font-size:1rem;letter-spacing:-.03em}.brand-copy small{color:#727487;font-size:.67rem;font-weight:600}.nav-links{display:flex;align-items:center;gap:9px;margin:0 auto;padding:0 18px}.nav-links a{position:relative;padding:27px 12px 23px;color:#3f4351;text-decoration:none;font-size:.84rem;font-weight:700;white-space:nowrap;transition:color .2s}.nav-links a:after{content:'';position:absolute;left:12px;bottom:17px;width:calc(100% - 24px);height:2px;border-radius:2px;background:linear-gradient(90deg,#7056d6,#9b84ed);transform:scaleX(0);transition:transform .28s ease}.nav-links a:hover,.nav-links a.active{color:#5841bd}.nav-links a:hover:after,.nav-links a.active:after{transform:scaleX(1)}.nav-right{position:relative;display:flex;align-items:center;gap:12px;margin-left:auto}.sign-in{padding:13px 20px;border-radius:999px;background:linear-gradient(135deg,#4936ca,#7868e9);box-shadow:0 7px 16px #5641cf3d;color:#fff;text-decoration:none;font-size:.84rem;font-weight:700;transition:.2s}.sign-in:hover{transform:translateY(-2px);box-shadow:0 10px 20px #5641cf55}.sign-in b{margin-left:7px;font-size:1.12rem}.profile{border:1px solid #e1e6f0;background:#fff;border-radius:99px;padding:7px 11px 7px 7px;display:flex;align-items:center;gap:7px;color:#34405a;font-weight:700;font-size:.78rem;cursor:pointer}.profile span,.profile img{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#e8efff;color:#4167ca}.profile img{object-fit:cover}.menu{position:absolute;top:54px;right:0;width:140px;padding:7px;background:#fff;border:1px solid #e3e8f1;border-radius:12px;box-shadow:0 12px 28px #263a6922}.menu a,.menu button{display:block;width:100%;padding:9px;text-align:left;border:0;background:none;color:#475569;font-size:.78rem;text-decoration:none;cursor:pointer}.menu button{color:#c03a4f}:host-context(.dark) .nav-bar{background:#101a30e8;border-color:#263753}:host-context(.dark) .brand{background:linear-gradient(135deg,#14203a,#24204d,#453c7d)}:host-context(.dark) .brand-copy strong,:host-context(.dark) .brand-mark{color:#f3f5ff}:host-context(.dark) .brand-copy small,:host-context(.dark) .nav-links a{color:#b9c4da}:host-context(.dark) .profile,:host-context(.dark) .menu{background:#142039;border-color:#304362;color:#dce6fa}@media(max-width:900px){.brand{min-width:220px;padding:0 20px}.nav-links{gap:0}.nav-links a{padding-left:9px;padding-right:9px}}@media(max-width:720px){.site-header{top:10px;width:calc(100% - 20px)}.nav-bar{height:64px}.brand{min-width:0;padding:0 16px;border-radius:19px 34px 34px 19px}.brand-copy strong{font-size:.8rem}.brand-copy small,.nav-links{display:none}.brand-mark{transform:scale(.8)}.sign-in{padding:10px 14px;font-size:.76rem}}
+  `]
 })
 export class NavbarComponent {
-  constructor(public auth: AuthService) {}
+  showDropdown = signal(false);
+  constructor(public auth: AuthService, private router: Router) {}
+  logout() { this.showDropdown.set(false); this.auth.logout(); this.router.navigate(['/']); }
 }

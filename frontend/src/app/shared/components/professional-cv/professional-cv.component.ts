@@ -67,6 +67,7 @@ export interface CvTypography {
       [style.--fs.px]="fontSize"
       [style.--fw]="fontWeight"
       [style.--lh]="lineHeight"
+      [style.font-family]="fontFamily"
     >
       <header class="cv-header">
         <div class="avatar">
@@ -448,6 +449,7 @@ export class ProfessionalCvComponent {
   @Input() fontSize = 10;
   @Input() fontWeight = 400;
   @Input() lineHeight = 1.4;
+  @Input() fontFamily = 'Arial, Helvetica, sans-serif';
   @Input() sectionLines = true;
 
   get initials(): string {

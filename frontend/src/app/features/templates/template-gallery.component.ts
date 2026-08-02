@@ -3,6 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Search } from 'lucide-angular';
 import { ProfessionalCvComponent } from '../../shared/components/professional-cv/professional-cv.component';
+import { ModernSplitCvComponent } from '../../shared/components/modern-split-cv/modern-split-cv.component';
+import { CleanSidebarCvComponent } from '../../shared/components/clean-sidebar-cv/clean-sidebar-cv.component';
+import { ElegantFrameCvComponent } from '../../shared/components/elegant-frame-cv/elegant-frame-cv.component';
+import { ClassicDarkCvComponent } from '../../shared/components/classic-dark-cv/classic-dark-cv.component';
+import { FormalClassicCvComponent } from '../../shared/components/formal-classic-cv/formal-classic-cv.component';
+import { CoverLetterCvComponent } from '../../shared/components/cover-letter-cv/cover-letter-cv.component';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { DEMO_CV } from '../../shared/demo-cv-data';
@@ -15,12 +21,13 @@ interface CvTemplate {
   colors: string[];
   hasPhoto: boolean;
   description?: string;
+  layout: 'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter';
 }
 
 @Component({
   selector: 'app-template-gallery',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ProfessionalCvComponent],
+  imports: [CommonModule, LucideAngularModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, FormalClassicCvComponent, CoverLetterCvComponent],
   template: `
     <section class="max-w-6xl mx-auto px-4 pt-28 pb-14 text-slate-900 dark:text-sky-50">
       <header class="mb-8">
@@ -63,33 +70,145 @@ interface CvTemplate {
         </span>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
         @for (t of filtered(); track t.id) {
           <article class="group">
             <!-- Fixed A4 card: aspect ratio locks the CV frame -->
             <div class="cv-card group-hover:shadow-xl group-hover:-translate-y-0.5">
               <div class="cv-thumb pointer-events-none" aria-hidden="true">
-                <app-professional-cv
-                  [accent]="accentFor(t)"
-                  [name]="demo.name"
-                  [jobTitle]="demo.jobTitle"
-                  [email]="demo.email"
-                  [phone]="demo.phone"
-                  [location]="demo.location"
-                  [linkedin]="demo.linkedin"
-                  [summary]="demo.summary"
-                  [photoUrl]="demo.photoUrl"
-                  [experience]="demo.experience"
-                  [education]="demo.education"
-                  [skills]="demo.skills"
-                  [languages]="demo.languages"
-                  [certifications]="demo.certifications"
-                  [projects]="demo.projects"
-                  [fontSize]="9"
-                  [fontWeight]="400"
-                  [lineHeight]="1.35"
-                  [sectionLines]="true"
-                />
+                @if (t.layout === 'modern-split') {
+                  <app-modern-split-cv
+                    [accent]="accentFor(t)"
+                    [name]="demo.name"
+                    [jobTitle]="demo.jobTitle"
+                    [email]="demo.email"
+                    [phone]="demo.phone"
+                    [location]="demo.location"
+                    [summary]="demo.summary"
+                    [photoUrl]="demo.photoUrl"
+                    [experience]="demo.experience"
+                    [education]="demo.education"
+                    [skills]="demo.skills"
+                    [languages]="demo.languages"
+                    [references]="demo.references"
+                    [hobbies]="demo.hobbies"
+                    [fontSize]="9"
+                    [fontWeight]="400"
+                    [lineHeight]="1.35"
+                  />
+                } @else if (t.layout === 'clean-sidebar') {
+                  <app-clean-sidebar-cv
+                    [accent]="accentFor(t)"
+                    [name]="demo.name"
+                    [jobTitle]="demo.jobTitle"
+                    [email]="demo.email"
+                    [phone]="demo.phone"
+                    [location]="demo.location"
+                    [summary]="demo.summary"
+                    [photoUrl]="demo.photoUrl"
+                    [experience]="demo.experience"
+                    [education]="demo.education"
+                    [skills]="demo.skills"
+                    [languages]="demo.languages"
+                    [references]="demo.references"
+                    [fontSize]="9"
+                    [fontWeight]="400"
+                    [lineHeight]="1.35"
+                  />
+                } @else if (t.layout === 'elegant-frame') {
+                  <app-elegant-frame-cv
+                    [accent]="accentFor(t)"
+                    [name]="demo.name"
+                    [jobTitle]="demo.jobTitle"
+                    [email]="demo.email"
+                    [phone]="demo.phone"
+                    [location]="demo.location"
+                    [linkedin]="demo.linkedin"
+                    [summary]="demo.summary"
+                    [photoUrl]="demo.photoUrl"
+                    [experience]="demo.experience"
+                    [education]="demo.education"
+                    [skills]="demo.skills"
+                    [languages]="demo.languages"
+                    [references]="demo.references"
+                    [fontSize]="9"
+                    [fontWeight]="400"
+                    [lineHeight]="1.35"
+                  />
+                } @else if (t.layout === 'classic-dark') {
+                  <app-classic-dark-cv
+                    [accent]="accentFor(t)"
+                    [name]="demo.name"
+                    [jobTitle]="demo.jobTitle"
+                    [email]="demo.email"
+                    [phone]="demo.phone"
+                    [location]="demo.location"
+                    [linkedin]="demo.linkedin"
+                    [summary]="demo.summary"
+                    [photoUrl]="demo.photoUrl"
+                    [experience]="demo.experience"
+                    [education]="demo.education"
+                    [skills]="demo.skills"
+                    [languages]="demo.languages"
+                    [references]="demo.references"
+                    [fontSize]="9"
+                    [fontWeight]="400"
+                    [lineHeight]="1.35"
+                  />
+                } @else if (t.layout === 'formal-classic') {
+                  <app-formal-classic-cv
+                    [name]="demo.name"
+                    [jobTitle]="demo.jobTitle"
+                    [email]="demo.email"
+                    [phone]="demo.phone"
+                    [location]="demo.location"
+                    [linkedin]="demo.linkedin"
+                    [summary]="demo.summary"
+                    [photoUrl]="demo.photoUrl"
+                    [experience]="demo.experience"
+                    [education]="demo.education"
+                    [skills]="demo.skills"
+                    [languages]="demo.languages"
+                    [references]="demo.references"
+                    [projects]="demo.projects"
+                    [fontSize]="9"
+                    [fontWeight]="400"
+                    [lineHeight]="1.35"
+                  />
+                } @else if (t.layout === 'cover-letter') {
+                  <app-cover-letter-cv
+                    [accent]="accentFor(t)"
+                    [name]="demo.name"
+                    [phone]="demo.phone"
+                    [email]="demo.email"
+                    [location]="demo.location"
+                    [fontSize]="9"
+                    [fontWeight]="400"
+                    [lineHeight]="1.5"
+                  />
+                } @else {
+                  <app-professional-cv
+                    [accent]="accentFor(t)"
+                    [name]="demo.name"
+                    [jobTitle]="demo.jobTitle"
+                    [email]="demo.email"
+                    [phone]="demo.phone"
+                    [location]="demo.location"
+                    [linkedin]="demo.linkedin"
+                    [summary]="demo.summary"
+                    [photoUrl]="demo.photoUrl"
+                    [experience]="demo.experience"
+                    [education]="demo.education"
+                    [skills]="demo.skills"
+                    [languages]="demo.languages"
+                    [certifications]="demo.certifications"
+                    [projects]="demo.projects"
+                    [fontSize]="9"
+                    [fontWeight]="400"
+                    [lineHeight]="1.35"
+                    [sectionLines]="true"
+                  />
+                }
               </div>
 
               <div class="cv-card-overlay">
@@ -187,14 +306,12 @@ interface CvTemplate {
         position: relative;
         width: 100%;
         aspect-ratio: 210 / 297;
-        max-height: 400px;
         overflow: hidden;
-        border-radius: 1rem;
+        border-radius: 1.25rem;
         border: 1px solid #e2e8f0;
-        background: #e8eef4;
-        box-shadow: 0 1px 3px rgb(15 23 42 / 0.06);
+        background: #fff;
+        box-shadow: 0 4px 24px rgb(15 23 42 / 0.10);
         transition: box-shadow 0.3s ease, transform 0.3s ease;
-        /* Fixed frame: A4 paper always fills the card edge-to-edge */
         container-type: size;
       }
       .cv-thumb {
@@ -275,6 +392,20 @@ export class TemplateGalleryComponent implements OnInit {
           } catch {
             /* keep defaults */
           }
+          const name = (t.name as string).toLowerCase();
+          const layout = name.includes('cover')
+            ? 'cover-letter'
+            : name.includes('formal')
+            ? 'formal-classic'
+            : name.includes('classic')
+            ? 'classic-dark'
+            : name.includes('elegant')
+              ? 'elegant-frame'
+              : name.includes('clean')
+                ? 'clean-sidebar'
+                : name.includes('modern')
+                  ? 'modern-split'
+                  : 'professional';
           return {
             id: String(t.id),
             name: t.name,
@@ -283,6 +414,7 @@ export class TemplateGalleryComponent implements OnInit {
             colors,
             hasPhoto: true,
             description: t.description,
+            layout: layout as CvTemplate['layout'],
           };
         }),
       );
