@@ -6,7 +6,24 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-client-id" content="31993800271-vrlusmo0tba6a088dveagoj7lbga5q38.apps.googleusercontent.com">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/cq-favicon.svg">
+  <script>
+    try {
+      document.documentElement.classList.toggle('dark', localStorage.getItem('cv_creator_theme') === 'dark');
+    } catch {}
+  </script>
+  <style>
+    ::view-transition-old(root) { animation: cv-route-out 180ms cubic-bezier(.4, 0, 1, 1) both; }
+    ::view-transition-new(root) { animation: cv-route-in 320ms cubic-bezier(.16, 1, .3, 1) both; }
+    @keyframes cv-route-out { to { opacity: 0; transform: translateY(-5px) scale(.995); } }
+    @keyframes cv-route-in { from { opacity: 0; transform: translateY(10px) scale(.995); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @media (prefers-reduced-motion: reduce) {
+      ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 1ms; }
+    }
+  </style>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>

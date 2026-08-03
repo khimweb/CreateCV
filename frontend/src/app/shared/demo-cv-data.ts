@@ -8,7 +8,7 @@ export const DEMO_CV = {
   linkedin: 'github.com/khimweb',
   summary:
     'Goal-oriented, adaptable, and always striving to learn, grow, and deliver the best results.',
-  photoUrl: null as string | null,
+  photoUrl: '/assets/sample-profile.svg' as string | null,
   experience: [
     {
       company: 'HYUNDAI PACKAGING',

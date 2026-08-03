@@ -1151,6 +1151,31 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
         background: #c8d4e0;
         flex-shrink: 0;
       }
+
+      /* Workspace controls only — the rendered A4 CV remains template-defined. */
+      :host-context(.dark) label { color: #d9e4f4; }
+      :host-context(.dark) input,
+      :host-context(.dark) textarea,
+      :host-context(.dark) select { background: #0e192c; border-color: #364964; color: #edf4fd; }
+      :host-context(.dark) input:focus,
+      :host-context(.dark) textarea:focus,
+      :host-context(.dark) select:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px #0ea5e955; }
+      :host-context(.dark) .step,
+      :host-context(.dark) .outline,
+      :host-context(.dark) .chip,
+      :host-context(.dark) .level-bar,
+      :host-context(.dark) .typo-btn,
+      :host-context(.dark) .typo-select,
+      :host-context(.dark) .ft-btn,
+      :host-context(.dark) .ft-val,
+      :host-context(.dark) .ft-select { background: #15233b; border-color: #354965; color: #dce7f7; }
+      :host-context(.dark) .card-block,
+      :host-context(.dark) .typo-bar,
+      :host-context(.dark) .font-toolbar { background: #13213a; border-color: #314663; }
+      :host-context(.dark) .add-dashed { border-color: #415675; color: #b8c6da; }
+      :host-context(.dark) .opt { background: #283a55; color: #c3d0e2; }
+      :host-context(.dark) .typo-val { color: #b5c3d6; }
+      :host-context(.dark) .ft-sep { background: #3a4e6c; }
     `,
   ],
 })

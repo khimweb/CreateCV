@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" role="img" aria-labelledby="title desc">
+  <title id="title">Professional sample profile</title>
+  <desc id="desc">A polished illustrated portrait in a dark business suit for CV template previews.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#4f5b68"/><stop offset="1" stop-color="#202831"/></linearGradient>
+    <linearGradient id="skin" x1=".25" x2=".8" y1="0" y2="1"><stop stop-color="#e4ad88"/><stop offset="1" stop-color="#b96f52"/></linearGradient>
+    <linearGradient id="suit" x1="0" x2="1"><stop stop-color="#111827"/><stop offset=".55" stop-color="#202a37"/><stop offset="1" stop-color="#0b111b"/></linearGradient>
+  </defs>
+  <rect width="640" height="800" fill="url(#bg)"/>
+  <circle cx="505" cy="145" r="210" fill="#738190" opacity=".18"/>
+  <path d="M55 800c17-184 116-278 266-278s251 94 269 278H55z" fill="url(#suit)"/>
+  <path d="M190 800l45-238h172l47 238H190z" fill="#edf2f7"/>
+  <path d="M272 558l49 89 48-89-30-50h-38l-29 50z" fill="#131b26"/>
+  <path d="M255 506h132l-18 65-48 41-48-41-18-65z" fill="url(#skin)"/>
+  <ellipse cx="320" cy="334" rx="118" ry="154" fill="url(#skin)"/>
+  <path d="M207 331c-8-141 65-204 143-194 85 9 119 83 84 197-18-59-24-119-72-141-45 46-92 57-155 66z" fill="#121820"/>
+  <path d="M205 319c6-92 45-165 121-169 84-4 126 60 111 144-31-63-70-86-125-86-37 35-68 74-107 111z" fill="#0b1018"/>
+  <ellipse cx="276" cy="342" rx="9" ry="7" fill="#29303a"/><ellipse cx="365" cy="342" rx="9" ry="7" fill="#29303a"/>
+  <path d="M286 416c23 15 46 15 69 0" fill="none" stroke="#8f4e3d" stroke-linecap="round" stroke-width="7"/>
+  <path d="M240 304c19-10 39-11 55-3M346 301c18-8 37-7 53 4" fill="none" stroke="#1c222b" stroke-linecap="round" stroke-width="9"/>
+  <path d="M318 352l-11 37 22 2" fill="none" stroke="#a85f49" stroke-linecap="round" stroke-width="5"/>
+  <path d="M55 800c17-184 116-278 266-278 18 0 35 1 52 4l-52 121-65-91-63 244H55z" fill="#111923" opacity=".58"/>
+</svg>

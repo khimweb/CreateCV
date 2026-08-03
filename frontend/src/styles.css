@@ -12,6 +12,104 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+/* Application appearance — scoped only to interface chrome, never CV documents. */
+html { background: #f8fafc; color-scheme: light; }
+html.dark { background: #0f172a; color-scheme: dark; }
+html.dark body { background: #0f172a; color: #e2e8f0; }
+
+/* Navigation */
+html.dark app-navbar .nav-bar { border-color: #2b3a55; background: #101b30ed; box-shadow: 0 13px 33px #02061766; }
+html.dark app-navbar .brand { background: linear-gradient(135deg,#14213a 18%,#1d2545 72%,#312851); color: #eff5ff; }
+html.dark app-navbar .brand-copy small, html.dark app-navbar .profile-copy small, html.dark app-navbar .profile-summary small { color: #aab6ca; }
+html.dark app-navbar .nav-links > a, html.dark app-navbar .more-trigger, html.dark app-navbar .login-link { color: #c4cfdf; }
+html.dark app-navbar .nav-links > a:hover, html.dark app-navbar .more-trigger:hover, html.dark app-navbar .nav-links > a.active, html.dark app-navbar .more-trigger.active { background: #29365b; color: #dcd7ff; box-shadow: inset 0 0 0 1px #42537d; }
+html.dark app-navbar .nav-popover, html.dark app-navbar .profile-popover, html.dark app-navbar .profile-trigger { background: #142039f7; border-color: #2e405f; color: #e9effa; box-shadow: 0 18px 35px #02061777; }
+html.dark app-navbar .nav-popover a, html.dark app-navbar .profile-popover a, html.dark app-navbar .profile-popover button { color: #c8d4e6; }
+html.dark app-navbar .nav-popover a:hover, html.dark app-navbar .profile-popover a:hover, html.dark app-navbar .profile-popover button:hover { background: #263958; color: #e6e0ff; }
+html.dark app-navbar .profile-summary { border-color: #2d405f; }
+
+/* Marketing pages */
+html.dark app-home .home-page { background: linear-gradient(145deg,#0d1527 0%,#111b32 50%,#111a2c 100%); color: #eef3fc; }
+html.dark app-home .glow-one { background: #4d3f9866; }
+html.dark app-home .glow-two { background: #1d5b8d55; }
+html.dark app-home .lead, html.dark app-home .quick-links, html.dark app-home .section-intro > p:last-child, html.dark app-home .templates-heading p, html.dark app-home .final-cta > p:not(.eyebrow), html.dark app-home .value-grid p, html.dark app-home .template-info p, html.dark app-home .ready-card small { color: #acb9ce; }
+html.dark app-home .secondary, html.dark app-home .quick-links a, html.dark app-home .preview-badge, html.dark app-home .ready-card, html.dark app-home .value-grid article, html.dark app-home .template-card { background: #17243b; border-color: #30415f; color: #e3ebf8; }
+html.dark app-home .secondary, html.dark app-home .quick-links a, html.dark app-home .preview-badge, html.dark app-home .template-info > span { color: #c8bbff; }
+html.dark app-home .cv-frame { border-color: #34435e; background: #fff; }
+
+html.dark app-about .about-page { background: linear-gradient(135deg,#0d1629 0%,#111d35 48%,#101a2e 100%); color: #e8effa; }
+html.dark app-about .ambient-one { background: #355d9a; opacity: .27; }
+html.dark app-about .ambient-two { background: #574583; opacity: .22; }
+html.dark app-about .lead, html.dark app-about .section-intro > p:last-child, html.dark app-about .process-copy > p, html.dark app-about .feature-card p, html.dark app-about .template-caption p, html.dark app-about .value-strip span, html.dark app-about .steps p { color: #aebbd1; }
+html.dark app-about .secondary-action, html.dark app-about .feature-card, html.dark app-about .template-sample, html.dark app-about .cv-preview, html.dark app-about .success-chip { background: #15233a; border-color: #30435f; color: #e6eef9; box-shadow: 0 12px 35px #02061744; }
+html.dark app-about .preview-top { border-color: #31415b; }
+html.dark app-about .preview-line, html.dark app-about .sample-bar, html.dark app-about .sample-rule { background: #33445e; }
+html.dark app-about .process-section { background: #152542; }
+html.dark app-about .value-strip { border-color: #314664; }
+html.dark app-about .trust-row { color: #afbdd2; }
+html.dark app-about .trust-row i { background: #3a4f6e; }
+html.dark app-about .about-page > section:last-child > div { background: #121e34; border-color: #314563; }
+html.dark app-about .about-page > section:last-child > div > div:first-child { background: linear-gradient(145deg,#182b4b,#24203d); color: #edf3ff; }
+html.dark app-about .about-page > section:last-child > div > div:first-child p:not(.kicker) { color: #b5c2d7; }
+html.dark app-about .about-page > section:last-child > div > div:first-child span:not(.text-\[\#6650ce\]) { background: #1b2942; border-color: #3b4b6a; color: #d5dcf4; }
+
+html.dark app-contact .contact-page { background: linear-gradient(145deg,#0c1527,#121d34 52%,#111b2e); color: #eaf0fa; }
+html.dark app-contact .orb-one { background: #55478b77; }
+html.dark app-contact .orb-two { background: #1c5a8c66; }
+html.dark app-contact .contact-hero > p:not(.eyebrow), html.dark app-contact .card-heading > p:last-child, html.dark app-contact .side-copy > p:last-child, html.dark app-contact .safe-note, html.dark app-contact .social-title { color: #aebbd0; }
+html.dark app-contact .trust span, html.dark app-contact .form-card, html.dark app-contact .direct-card, html.dark app-contact .social, html.dark app-contact .safe-note { background: #16233b; border-color: #31425f; color: #e2eaf6; }
+html.dark app-contact .contact-grid { border-color: #2f415e; box-shadow: 0 24px 62px #02061766; }
+html.dark app-contact .contact-side { background: linear-gradient(145deg,#182546,#141f38); }
+html.dark app-contact form label { color: #cfdaeb; }
+html.dark app-contact input, html.dark app-contact select, html.dark app-contact textarea { background: #0f1a2d; border-color: #354763; color: #edf3fb; }
+html.dark app-contact input:focus, html.dark app-contact select:focus, html.dark app-contact textarea:focus { background: #101d32; box-shadow: 0 0 0 4px #5d46d455; }
+html.dark app-contact .direct-card small, html.dark app-contact .social small { color: #aebbd1; }
+html.dark app-contact .social-title span { background: #384b69; }
+html.dark app-contact .safe-note b { color: #e7eef9; }
+
+/* Account screens */
+html.dark app-login .desktop-only, html.dark app-register .desktop-only { background: linear-gradient(120deg,#0d1629,#17233d 55%,#0d1729); }
+html.dark app-login .auth-card, html.dark app-register .auth-card, html.dark app-login .m-card, html.dark app-register .m-card { background: #142039; color: #eaf0fb; }
+html.dark app-login .m-form-page, html.dark app-register .m-form-page { background: #0f192d; }
+html.dark app-login .back-link, html.dark app-register .back-link, html.dark app-login .heading .sub, html.dark app-register .heading .sub, html.dark app-login .switch-link, html.dark app-register .switch-link, html.dark app-login .m-switch, html.dark app-register .m-switch, html.dark app-login .chk, html.dark app-register .chk { color: #adbad0; }
+html.dark app-login .heading h2, html.dark app-register .heading h2, html.dark app-login form label:not(.chk), html.dark app-register form label:not(.chk), html.dark app-login .m-card form label:not(.chk), html.dark app-register .m-card form label:not(.chk) { color: #edf3fc; }
+html.dark app-login input:not([type=checkbox]), html.dark app-register input:not([type=checkbox]) { background: #0d1729; border-color: #334561; color: #edf3fc; }
+html.dark app-login .divider, html.dark app-register .divider { color: #97a8c2; }
+html.dark app-login .divider:before, html.dark app-login .divider:after, html.dark app-register .divider:before, html.dark app-register .divider:after { background: #344661; }
+
+/* Template gallery and personal CV workspace. A4 documents intentionally stay white. */
+html.dark app-template-gallery { background: radial-gradient(circle at 84% 8%,#272053 0,transparent 26rem),linear-gradient(145deg,#0d1627,#111c31); }
+html.dark app-template-gallery header h1, html.dark app-template-gallery .group h2 { color: #edf3fc; }
+html.dark app-template-gallery header p, html.dark app-template-gallery .group .text-xs { color: #aebbd0; }
+html.dark app-template-gallery label { background: #15223a !important; border-color: #344662 !important; box-shadow: none; }
+html.dark app-template-gallery input { color: #eef4fc; }
+html.dark app-template-gallery .group { background: #15223a; border-color: #334661; box-shadow: 0 13px 30px #02061755; }
+html.dark app-template-gallery .cv-card { background: #fff; border-color: #43526a; }
+html.dark app-template-gallery .swatch { border-color: #15223a; box-shadow: 0 0 0 1.5px #64748b; }
+
+html.dark app-my-cv-dashboard .cv-library { background: linear-gradient(135deg,#0d1629,#101c33 55%,#101a2e); }
+html.dark app-my-cv-dashboard .library-head h1 { color: #edf3fb; }
+html.dark app-my-cv-dashboard .library-head p:last-child { color: #adbad0; }
+html.dark app-my-cv-dashboard .search-box { background: #15223a; border-color: #344763; color: #bdc9dc; }
+html.dark app-my-cv-dashboard .search-box input { color: #edf3fb; }
+html.dark app-my-cv-dashboard .cv-card { background: #fff; border-color: #43536d; box-shadow: 0 8px 25px #02061777; }
+html.dark app-my-cv-dashboard .cv-meta p { color: #edf3fb; }
+html.dark app-my-cv-dashboard .cv-meta span { color: #aab7cc; }
+
+html.dark app-settings .safe-note, html.dark app-settings .safe-note b { color: #aebbd0; }
+html.dark app-settings .mode-picker { border-color: #344661; }
+html.dark app-settings .mode-picker button { color: #b9c7da; }
+html.dark app-settings .form-grid input:disabled { color: #97a8bf; background: #0d1729; }
+html.dark app-settings .security-card { background: #172747; border-color: #314765; }
+
+/* Ensure browser print/UI color preferences cannot alter the downloaded A4 document. */
+@media print {
+  .print-root,
+  .print-root .cv-paper {
+    color-scheme: light !important;
+  }
+}
+
 /*
   Multi-page A4 download/print
   --------------------------------

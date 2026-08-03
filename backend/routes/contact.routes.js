@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
     await sendContactEmail({ name, email, subject, message });
     res.status(202).json({ sent: true });
   } catch (err) {
-    console.error('Contact email failed', err);
+    console.error('Contact email failed:', err.message);
     res.status(502).json({ error: 'EMAIL_SEND_FAILED' });
   }
 });

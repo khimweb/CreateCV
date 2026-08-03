@@ -74,7 +74,7 @@ interface CvTemplate {
         @for (t of filtered(); track t.id) {
           <article class="group">
             <!-- Fixed A4 card: aspect ratio locks the CV frame -->
-            <div class="cv-card group-hover:shadow-xl group-hover:-translate-y-0.5">
+            <div class="cv-card group-hover:shadow-xl group-hover:-translate-y-0.5" (click)="select(t)" role="button" tabindex="0" (keydown.enter)="select(t)" [attr.aria-label]="'Open full preview of ' + t.name">
               <div class="cv-thumb pointer-events-none" aria-hidden="true">
                 @if (t.layout === 'modern-split') {
                   <app-modern-split-cv
@@ -349,6 +349,178 @@ interface CvTemplate {
         background: #0369a1;
         border-color: #0369a1;
         color: #fff;
+      }
+
+      /* Compact gallery cards still keep the complete A4 layout visible. */
+      :host {
+        display: block;
+        min-height: 100vh;
+        background: radial-gradient(circle at 84% 8%, #e7e3ff 0, transparent 26rem), linear-gradient(145deg, #fbfcff, #f2f4ff);
+        font-family: Manrope, Inter, system-ui, sans-serif;
+      }
+      :host > section {
+        max-width: 1280px !important;
+        padding: 116px 24px 84px !important;
+      }
+      :host header {
+        max-width: 700px;
+        margin: 0 auto 2rem;
+        text-align: center;
+      }
+      :host header h1 {
+        color: #1c2540;
+        font-size: clamp(2rem, 4vw, 3.45rem);
+        line-height: 1.08;
+        letter-spacing: -0.055em;
+      }
+      :host header p {
+        margin: 0.8rem auto 0;
+        color: #707a91;
+        line-height: 1.65;
+      }
+      :host label {
+        min-height: 48px;
+        border-radius: 15px !important;
+        border-color: #e0e3f0 !important;
+        box-shadow: 0 8px 20px #263a6910;
+      }
+      :host > section > div:nth-of-type(2) {
+        padding-top: 1rem;
+        border-color: #e1e5f0 !important;
+      }
+      :host > section > div:nth-of-type(3) {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 260px)) !important;
+        justify-content: center;
+        gap: 20px !important;
+        margin-top: 28px !important;
+      }
+      .chip {
+        border-color: #dfe2ee;
+        color: #5e687c;
+        background: #ffffffc9;
+      }
+      .chip:hover,
+      .chip.active {
+        background: #5d46d4;
+        border-color: #5d46d4;
+        box-shadow: 0 7px 17px #5d46d42e;
+      }
+      .group {
+        min-width: 0;
+        padding: 9px 9px 12px;
+        border: 1px solid #e5e7f0;
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 13px 30px #2d3d6612;
+        transition: transform .24s cubic-bezier(.32,.72,0,1), box-shadow .24s;
+      }
+      .group:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 42px #2d3d6620;
+      }
+      .cv-card {
+        border-radius: 13px;
+        border-color: #e2e5ee;
+        box-shadow: 0 5px 16px #1e293b12;
+      }
+      .cv-card-overlay {
+        inset: auto 9px 9px auto;
+        justify-content: flex-end;
+        align-items: flex-end;
+        background: transparent;
+        backdrop-filter: none;
+        opacity: 1;
+        pointer-events: none;
+      }
+      .cta {
+        pointer-events: auto;
+        padding: 0.5rem 0.72rem;
+        border-radius: 10px;
+        background: #ffffffeb !important;
+        color: #5140bb !important;
+        border: 1px solid #dedaf7 !important;
+        box-shadow: 0 5px 14px #17255426;
+        font-size: 0.69rem;
+      }
+      .cta:hover {
+        background: #5d46d4 !important;
+        border-color: #5d46d4 !important;
+        color: #fff !important;
+      }
+      .group > div:last-child {
+        margin: 0 !important;
+        padding: 13px 3px 0;
+      }
+      .group h2 {
+        color: #252d43;
+        font-size: 0.86rem;
+        letter-spacing: -0.02em;
+      }
+      .swatch {
+        width: 16px;
+        height: 16px;
+      }
+      @media (max-width: 700px) {
+        :host > section { padding: 88px 16px 72px !important; }
+        :host header { margin-bottom: 1.45rem; }
+        :host header h1 { font-size: 2rem; }
+        :host > section > div:nth-of-type(3) {
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          gap: 12px !important;
+          margin-top: 20px !important;
+        }
+        .group { padding: 6px 6px 9px; border-radius: 15px; }
+        .cv-card { border-radius: 10px; }
+        .cta { padding: 0.4rem 0.5rem; font-size: 0.6rem; }
+        .group > div:last-child { padding: 9px 2px 0; }
+        .group h2 { font-size: 0.72rem; }
+        .swatch { width: 13px; height: 13px; }
+      }
+      @media (max-width: 350px) {
+        :host > section > div:nth-of-type(3) { grid-template-columns: minmax(0, 250px) !important; }
+      }
+      /* Large, complete A4 previews: never crop the CV behind an action overlay. */
+      :host > section > div:nth-of-type(3) {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        justify-content: stretch;
+        gap: 26px !important;
+        margin-top: 30px !important;
+      }
+      .group {
+        padding: 10px 10px 15px;
+        border-radius: 22px;
+      }
+      .cv-card {
+        border-radius: 14px;
+        cursor: pointer;
+        box-shadow: 0 10px 28px #1e293b16;
+      }
+      .cv-card:focus-visible {
+        outline: 3px solid #765fe3;
+        outline-offset: 4px;
+      }
+      .cv-card-overlay { display: none; }
+      .group > div:last-child { padding: 15px 5px 1px; }
+      .group h2 { font-size: .94rem; }
+      @media (max-width: 1080px) {
+        :host > section > div:nth-of-type(3) {
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          gap: 22px !important;
+        }
+      }
+      @media (max-width: 640px) {
+        :host > section { padding-left: 18px !important; padding-right: 18px !important; }
+        :host > section > div:nth-of-type(3) {
+          grid-template-columns: minmax(0, 1fr) !important;
+          gap: 20px !important;
+        }
+        .group { max-width: 430px; width: 100%; margin: 0 auto; padding: 8px 8px 13px; }
+        .group h2 { font-size: .9rem; }
+        .swatch { width: 16px; height: 16px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .group, .chip, .cv-card { transition: none !important; }
       }
     `,
   ],
