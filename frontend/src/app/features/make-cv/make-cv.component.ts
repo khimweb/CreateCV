@@ -1268,6 +1268,9 @@ export class MakeCvComponent implements OnInit, OnDestroy {
         error: () => {},
       });
     }
+
+    // Auto-save on any form change (debounced 10 seconds)
+    this.form.valueChanges.subscribe(() => this.scheduleAutoSave());
   }
 
   get education() {
@@ -1636,7 +1639,7 @@ export class MakeCvComponent implements OnInit, OnDestroy {
 
   scheduleAutoSave() {
     if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
-    this.autoSaveTimer = setTimeout(() => this.autoSave(), 30000);
+    this.autoSaveTimer = setTimeout(() => this.autoSave(), 10000);
   }
 
   async autoSave() {
