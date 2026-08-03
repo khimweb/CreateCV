@@ -56,7 +56,7 @@ async function list({ page = 1, pageSize = 20, search = '' } = {}) {
   const offset = (page - 1) * pageSize;
   const searchTerm = `%${search}%`;
   const { rows } = await query(
-    `SELECT u.id, u.full_name, u.email, u.role, u.is_active, u.last_login_at, u.created_at,
+    `SELECT u.id, u.full_name, u.email, u.avatar_url, u.role, u.is_active, u.last_login_at, u.created_at,
             (SELECT COUNT(*) FROM user_cvs WHERE user_id = u.id) AS cv_count
      FROM users u
      WHERE u.full_name LIKE ? OR u.email LIKE ?

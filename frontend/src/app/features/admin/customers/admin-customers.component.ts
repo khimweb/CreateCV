@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { LucideAngularModule, UserPlus, Trash2, ToggleLeft, ToggleRight, Search } from 'lucide-angular';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
 interface AdminUser {
   id: string;
@@ -13,6 +14,7 @@ interface AdminUser {
   last_login_at: string | null;
   created_at: string;
   cv_count: number;
+  avatar_url: string | null;
 }
 
 @Component({
@@ -61,8 +63,12 @@ interface AdminUser {
               <tr class="border-t border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                 <td class="px-5 py-3">
                   <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-xs font-bold">
-                      {{ u.full_name?.slice(0,1) }}
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-xs font-bold overflow-hidden">
+                      @if (u.avatar_url) {
+                        <img [src]="u.avatar_url" alt="" class="w-full h-full object-cover" />
+                      } @else {
+                        {{ u.full_name?.slice(0,1) }}
+                      }
                     </div>
                     <div>
                       <p class="font-medium text-slate-800 dark:text-white">{{ u.full_name }}</p>
@@ -194,7 +200,7 @@ export class AdminCustomersComponent implements OnInit {
   showAddUser = signal(false);
   newUser = { fullName: '', email: '', password: '' };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private toast: ToastService) {}
 
   ngOnInit() { this.load(); }
 
@@ -204,7 +210,10 @@ export class AdminCustomersComponent implements OnInit {
   }
 
   toggleActive(u: AdminUser) {
-    this.http.patch(`/api/v1/admin/customers/${u.id}`, { isActive: !u.is_active }).subscribe(() => this.load());
+    this.http.patch(`/api/v1/admin/customers/${u.id}`, { isActive: !u.is_active }).subscribe({
+      next: () => { this.toast.success(u.is_active ? 'User deactivated' : 'User activated'); this.load(); },
+      error: () => this.toast.error('Failed to update user')
+    });
   }
 
   confirmRemove(u: AdminUser) {
@@ -212,18 +221,17 @@ export class AdminCustomersComponent implements OnInit {
   }
 
   removeUser(u: AdminUser) {
-    this.http.delete(`/api/v1/admin/customers/${u.id}`).subscribe(() => {
-      this.alertUser.set(null);
-      this.load();
+    this.http.delete(`/api/v1/admin/customers/${u.id}`).subscribe({
+      next: () => { this.alertUser.set(null); this.toast.success('User removed'); this.load(); },
+      error: () => { this.alertUser.set(null); this.toast.error('Failed to remove user'); }
     });
   }
 
   createUser() {
     if (!this.newUser.fullName || !this.newUser.email || !this.newUser.password) return;
-    this.http.post('/api/v1/admin/settings/users', this.newUser).subscribe(() => {
-      this.showAddUser.set(false);
-      this.newUser = { fullName: '', email: '', password: '' };
-      this.load();
+    this.http.post('/api/v1/admin/settings/users', this.newUser).subscribe({
+      next: () => { this.showAddUser.set(false); this.newUser = { fullName: '', email: '', password: '' }; this.toast.success('User created!'); this.load(); },
+      error: () => this.toast.error('Failed to create user')
     });
   }
 }

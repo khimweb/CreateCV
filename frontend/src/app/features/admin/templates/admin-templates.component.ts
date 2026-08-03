@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { LucideAngularModule, Trash2, Search, Eye } from 'lucide-angular';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
 interface AdminTemplate {
   id: string;
@@ -50,7 +51,14 @@ interface AdminTemplate {
         <div class="rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
                     shadow-sm hover:shadow-md transition-all duration-200 group">
           <div class="relative">
-            <img [src]="t.thumbnail_url" [alt]="t.name" class="w-full h-44 object-cover" />
+            @if (t.thumbnail_url) {
+              <img [src]="t.thumbnail_url" [alt]="t.name" class="w-full h-44 object-cover" />
+            } @else {
+              <div class="w-full h-44 flex items-center justify-center"
+                   [style.background]="'linear-gradient(135deg, ' + getColor(t.name, 0) + ', ' + getColor(t.name, 1) + ')'">
+                <span class="text-white text-3xl font-bold opacity-80">{{ t.name.slice(0,2) }}</span>
+              </div>
+            }
             <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center gap-2 transition-all duration-200 opacity-0 group-hover:opacity-100">
               <button type="button" (click)="preview.set(t)"
                       class="p-2 rounded-full bg-white/90 text-slate-700 hover:scale-110 transition-transform">
@@ -83,7 +91,17 @@ interface AdminTemplate {
       <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
            (click)="preview.set(null)">
         <div class="max-w-2xl w-full rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xl" (click)="$event.stopPropagation()">
-          <img [src]="p.thumbnail_url" [alt]="p.name" class="w-full max-h-[70vh] object-contain bg-slate-100 dark:bg-slate-800" />
+          @if (p.thumbnail_url) {
+            <img [src]="p.thumbnail_url" [alt]="p.name" class="w-full max-h-[70vh] object-contain bg-slate-100 dark:bg-slate-800" />
+          } @else {
+            <div class="w-full h-64 flex items-center justify-center"
+                 [style.background]="'linear-gradient(135deg, ' + getColor(p.name, 0) + ', ' + getColor(p.name, 1) + ')'">
+              <div class="text-center text-white">
+                <p class="text-4xl font-bold opacity-80">{{ p.name.slice(0,2) }}</p>
+                <p class="mt-2 text-sm opacity-70">{{ p.name }}</p>
+              </div>
+            </div>
+          }
           <div class="p-4 flex items-center justify-between">
             <p class="font-medium text-slate-800 dark:text-white">{{ p.name }}</p>
             <button type="button" (click)="preview.set(null)"
@@ -139,9 +157,20 @@ export class AdminTemplatesComponent implements OnInit {
   category = '';
   search = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private toast: ToastService) {}
 
   ngOnInit() { this.load(); }
+
+  private readonly gradients = [
+    ['#6366f1', '#8b5cf6'], ['#ec4899', '#f43f5e'], ['#14b8a6', '#06b6d4'],
+    ['#f59e0b', '#f97316'], ['#10b981', '#059669'], ['#3b82f6', '#6366f1'],
+    ['#8b5cf6', '#a855f7'], ['#ef4444', '#dc2626'], ['#0ea5e9', '#2563eb'],
+  ];
+
+  getColor(name: string, idx: number): string {
+    const hash = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+    return this.gradients[hash % this.gradients.length][idx];
+  }
 
   load() {
     this.http.get<{ templates: AdminTemplate[] }>('/api/v1/admin/templates', {
@@ -150,7 +179,10 @@ export class AdminTemplatesComponent implements OnInit {
   }
 
   toggleActive(t: AdminTemplate) {
-    this.http.patch(`/api/v1/admin/templates/${t.id}/toggle-active`, {}).subscribe(() => this.load());
+    this.http.patch(`/api/v1/admin/templates/${t.id}/toggle-active`, {}).subscribe({
+      next: () => { this.toast.success(t.is_active ? 'Template disabled' : 'Template enabled'); this.load(); },
+      error: () => this.toast.error('Failed to update template')
+    });
   }
 
   confirmRemove(t: AdminTemplate) {
@@ -158,9 +190,9 @@ export class AdminTemplatesComponent implements OnInit {
   }
 
   removeTemplate(t: AdminTemplate) {
-    this.http.delete(`/api/v1/admin/templates/${t.id}`).subscribe(() => {
-      this.alertTemplate.set(null);
-      this.load();
+    this.http.delete(`/api/v1/admin/templates/${t.id}`).subscribe({
+      next: () => { this.alertTemplate.set(null); this.toast.success('Template deleted'); this.load(); },
+      error: () => { this.alertTemplate.set(null); this.toast.error('Failed to delete template'); }
     });
   }
 }
