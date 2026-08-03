@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormGroup } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../shared/components/toast/toast.service';
@@ -55,6 +55,6 @@ import { LoaderComponent } from '../../shared/components/loader/loader.component
 })
 export class LoginComponent {
   form: FormGroup; error = signal<string | null>(null); returnUrl = signal<string>('/'); showPw = signal(false); loading = signal(false);
-  constructor(private fb: FormBuilder, private route: ActivatedRoute, private auth: AuthService, private toast: ToastService) { this.form = this.fb.group({ email: ['', [Validators.required, Validators.email]], password: ['', Validators.required] }); this.returnUrl.set(this.route.snapshot.queryParamMap.get('returnUrl') || '/'); }
-  submit() { if (this.form.invalid) return; this.loading.set(true); this.error.set(null); const { email, password } = this.form.getRawValue(); this.auth.login(email!, password!, this.returnUrl()).subscribe({ next: () => { this.loading.set(false); this.toast.success('Welcome back!'); }, error: () => { this.loading.set(false); this.error.set('Incorrect email or password.'); } }); }
+  constructor(private fb: FormBuilder, private route: ActivatedRoute, private auth: AuthService, private toast: ToastService, private router: Router) { this.form = this.fb.group({ email: ['', [Validators.required, Validators.email]], password: ['', Validators.required] }); this.returnUrl.set(this.route.snapshot.queryParamMap.get('returnUrl') || '/'); }
+  submit() { if (this.form.invalid) return; this.loading.set(true); this.error.set(null); const { email, password } = this.form.getRawValue(); const returnUrl = this.returnUrl(); const safeUrl = returnUrl.startsWith('/login') || returnUrl.startsWith('/register') ? '/' : returnUrl; this.auth.login(email!, password!, safeUrl).subscribe({ next: () => { this.loading.set(false); this.toast.success('Welcome back!'); const user = this.auth.currentUser(); if (user?.role === 'admin' && safeUrl === '/') { this.router.navigate(['/admin']); } }, error: () => { this.loading.set(false); this.error.set('Incorrect email or password.'); } }); }
 }
