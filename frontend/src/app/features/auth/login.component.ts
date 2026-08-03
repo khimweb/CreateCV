@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormGroup } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../shared/components/toast/toast.service';
+import { LoaderComponent } from '../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, LoaderComponent],
   template: `
     <section class="auth-page">
       <div class="auth-orb auth-orb--top"></div><div class="auth-orb auth-orb--bottom"></div>
@@ -37,7 +39,8 @@ import { AuthService } from '../../core/services/auth.service';
             </label>
             <div class="form-options"><label class="check-label"><input type="checkbox" /> <span>Remember me</span></label><a href="mailto:support@cvcreator.com">Forgot password?</a></div>
             @if (error()) { <p class="form-error">{{ error() }}</p> }
-            <button type="submit" [disabled]="form.invalid">Sign in <span>→</span></button>
+            <button type="submit" [disabled]="form.invalid || loading()">Sign in <span>→</span></button>
+            <app-loader [show]="loading()" [inline]="true" text="Signing in..." />
           </form>
           <div class="divider"><span>or continue with</span></div>
           <div class="socials"><button type="button" aria-label="Continue with Google">G</button><button type="button" aria-label="Continue with Facebook">f</button><button type="button" aria-label="Continue with Apple">●</button></div>
@@ -51,7 +54,7 @@ import { AuthService } from '../../core/services/auth.service';
   `],
 })
 export class LoginComponent {
-  form: FormGroup; error = signal<string | null>(null); returnUrl = signal<string>('/'); showPw = signal(false);
-  constructor(private fb: FormBuilder, private route: ActivatedRoute, private auth: AuthService) { this.form = this.fb.group({ email: ['', [Validators.required, Validators.email]], password: ['', Validators.required] }); this.returnUrl.set(this.route.snapshot.queryParamMap.get('returnUrl') || '/'); }
-  submit() { if (this.form.invalid) return; const { email, password } = this.form.getRawValue(); this.auth.login(email!, password!, this.returnUrl()).subscribe({ error: () => this.error.set('Incorrect email or password.') }); }
+  form: FormGroup; error = signal<string | null>(null); returnUrl = signal<string>('/'); showPw = signal(false); loading = signal(false);
+  constructor(private fb: FormBuilder, private route: ActivatedRoute, private auth: AuthService, private toast: ToastService) { this.form = this.fb.group({ email: ['', [Validators.required, Validators.email]], password: ['', Validators.required] }); this.returnUrl.set(this.route.snapshot.queryParamMap.get('returnUrl') || '/'); }
+  submit() { if (this.form.invalid) return; this.loading.set(true); this.error.set(null); const { email, password } = this.form.getRawValue(); this.auth.login(email!, password!, this.returnUrl()).subscribe({ next: () => { this.loading.set(false); this.toast.success('Welcome back!'); }, error: () => { this.loading.set(false); this.error.set('Incorrect email or password.'); } }); }
 }

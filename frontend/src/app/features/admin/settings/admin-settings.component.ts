@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators, FormGroup } from '@angula
 import { HttpClient } from '@angular/common/http';
 import { LucideAngularModule, Lock, UserCog, Trash2, LogOut } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -143,7 +144,7 @@ export class AdminSettingsComponent implements OnInit {
   profileForm: FormGroup;
   passwordForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private auth: AuthService, private router: Router) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private auth: AuthService, private router: Router, private toast: ToastService) {
     this.profileForm = this.fb.group({ fullName: [''], email: [{ value: '', disabled: true }] });
     this.passwordForm = this.fb.group({ newPassword: ['', [Validators.required, Validators.minLength(8)]] });
   }
@@ -157,16 +158,15 @@ export class AdminSettingsComponent implements OnInit {
   saveProfile() {
     this.http.put('/api/v1/admin/settings/profile', { fullName: this.profileForm.get('fullName')?.value })
       .subscribe(() => {
-        this.message.set('Information updated!');
+        this.toast.success('Information updated!');
         this.auth.updateUser({ fullName: this.profileForm.get('fullName')?.value });
-        setTimeout(() => this.message.set(null), 3000);
       });
   }
 
   changePassword() {
     if (this.passwordForm.invalid) return;
     this.http.put('/api/v1/admin/settings/password', this.passwordForm.getRawValue())
-      .subscribe(() => { this.message.set('Password updated!'); this.passwordForm.reset(); setTimeout(() => this.message.set(null), 3000); });
+      .subscribe(() => { this.toast.success('Password updated!'); this.passwordForm.reset(); });
   }
 
   logout() {

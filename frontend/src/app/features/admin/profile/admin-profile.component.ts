@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { LucideAngularModule, Camera, Save } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
 @Component({
   selector: 'app-admin-profile',
@@ -87,7 +88,7 @@ export class AdminProfileComponent implements OnInit {
   profile = { fullName: '', email: '', avatarUrl: '', coverUrl: '', bio: '' };
   message = signal<string | null>(null);
 
-  constructor(private http: HttpClient, private auth: AuthService) {}
+  constructor(private http: HttpClient, private auth: AuthService, private toast: ToastService) {}
 
   ngOnInit() {
     this.http.get<{ user: any }>('/api/v1/admin/settings/profile').subscribe(({ user }) => {
@@ -128,9 +129,8 @@ export class AdminProfileComponent implements OnInit {
       coverUrl: this.profile.coverUrl,
       bio: this.profile.bio,
     }).subscribe(() => {
-      this.message.set('Profile saved successfully!');
+      this.toast.success('Profile saved successfully!');
       this.auth.updateUser({ fullName: this.profile.fullName, avatarUrl: this.profile.avatarUrl });
-      setTimeout(() => this.message.set(null), 3000);
     });
   }
 }
