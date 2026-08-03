@@ -727,6 +727,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
     }
 
     <ng-template #cvPreview>
+      <div class="cv-live-root">
       @if (layout() === 'modern-split') {
         <app-modern-split-cv
           [photoUrl]="photoUrl()"
@@ -868,6 +869,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
           [accent]="accentColor()"
         />
       }
+      </div>
     </ng-template>
   `,
   styles: [
@@ -1682,43 +1684,57 @@ export class MakeCvComponent implements OnInit, OnDestroy {
       this.fullPreview.set(true);
       setTimeout(() => {
         window.print();
-        this.toast.success('PDF ready! Check your downloads.');
+        this.toast.success('PDF downloaded!');
       }, 400);
     } else {
-      // DOCX: generate a simple HTML-based .doc file
       this.generateDocx();
     }
   }
 
   private generateDocx() {
-    const content = this.buildContent();
-    const html = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-      <head><meta charset="utf-8"><title>${content.fullName || 'My CV'}</title>
-      <style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt;line-height:1.5;margin:2cm}h1{font-size:22pt;margin:0 0 4pt}h2{font-size:14pt;border-bottom:1pt solid #333;padding-bottom:4pt;margin:14pt 0 8pt}h3{font-size:12pt;margin:8pt 0 2pt}p{margin:2pt 0}ul{margin:4pt 0;padding-left:18pt}.section{margin-bottom:14pt}</style></head>
-      <body>
-        <h1>${content.fullName || ''}</h1>
-        <p><b>${content.jobTitle || ''}</b></p>
-        <p>${[content.email, content.phone, content.location].filter(Boolean).join(' | ')}</p>
-        ${content.linkedin ? `<p>${content.linkedin}</p>` : ''}
-        ${content.summary ? `<div class="section"><h2>Professional Summary</h2><p>${content.summary}</p></div>` : ''}
-        ${content.experience?.length ? `<div class="section"><h2>Work Experience</h2>${content.experience.map((e: any) => `<h3>${e.title || ''} — ${e.company || ''}</h3><p><i>${e.startMonth || ''} ${e.startYear || ''} – ${e.current ? 'Present' : (e.endMonth || '') + ' ' + (e.endYear || '')}</i> | ${e.location || ''}</p><p>${e.description || ''}</p>`).join('')}</div>` : ''}
-        ${content.education?.length ? `<div class="section"><h2>Education</h2>${content.education.map((e: any) => `<h3>${e.degree || ''} in ${e.field || ''}</h3><p>${e.institution || ''} | ${e.startYear || ''} – ${e.endYear || ''}</p>${e.achievements ? `<p>${e.achievements}</p>` : ''}`).join('')}</div>` : ''}
-        ${content.skills?.length ? `<div class="section"><h2>Skills</h2><ul>${content.skills.map((s: any) => `<li>${s.name} — ${s.level}</li>`).join('')}</ul></div>` : ''}
-        ${content.languages?.length ? `<div class="section"><h2>Languages</h2><ul>${content.languages.map((l: any) => `<li>${l.name} — ${l.proficiency}</li>`).join('')}</ul></div>` : ''}
-        ${content.certifications?.length ? `<div class="section"><h2>Certifications</h2><ul>${content.certifications.map((c: any) => `<li>${c.name} (${c.year || ''})</li>`).join('')}</ul></div>` : ''}
-        ${content.projects?.length ? `<div class="section"><h2>Projects</h2>${content.projects.map((p: any) => `<h3>${p.name || ''}</h3><p>${p.description || ''}</p>`).join('')}</div>` : ''}
-      </body></html>
-    `;
+    // Capture the actual rendered CV preview HTML with all its inline styles
+    const previewEl = document.querySelector('.cv-live-root');
+    if (!previewEl) {
+      this.toast.error('Could not capture CV preview');
+      return;
+    }
 
-    const blob = new Blob([html], { type: 'application/msword' });
+    const content = this.buildContent();
+    const cvHtml = previewEl.innerHTML;
+
+    // Get computed styles from the preview
+    const allStyles = Array.from(document.styleSheets)
+      .map(sheet => { try { return Array.from(sheet.cssRules).map(r => r.cssText).join('\n'); } catch { return ''; } })
+      .join('\n');
+
+    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>${content.fullName || 'My CV'}</title>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+<style>
+@page { size: A4 portrait; margin: 0; }
+body { margin: 0; padding: 0; width: 210mm; min-height: 297mm; }
+${allStyles}
+</style>
+</head>
+<body>
+<div style="width:210mm;min-height:297mm;margin:0;padding:0;">
+${cvHtml}
+</div>
+</body>
+</html>`;
+
+    const blob = new Blob(['\ufeff' + html], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `${content.fullName || 'My_CV'}.doc`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    this.toast.success('DOCX downloaded! Open in Word to edit.');
+    this.toast.success('Word file downloaded!');
   }
 
   async download() {
