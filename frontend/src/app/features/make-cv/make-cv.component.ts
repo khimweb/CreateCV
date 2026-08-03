@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -31,6 +31,7 @@ import { ElegantFrameCvComponent } from '../../shared/components/elegant-frame-c
 import { ClassicDarkCvComponent } from '../../shared/components/classic-dark-cv/classic-dark-cv.component';
 import { FormalClassicCvComponent } from '../../shared/components/formal-classic-cv/formal-classic-cv.component';
 import { CoverLetterCvComponent } from '../../shared/components/cover-letter-cv/cover-letter-cv.component';
+import { ToastService } from '../../shared/components/toast/toast.service';
 import {
   DEGREES,
   FIELDS_OF_STUDY,
@@ -1115,7 +1116,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
     `,
   ],
 })
-export class MakeCvComponent implements OnInit {
+export class MakeCvComponent implements OnInit, OnDestroy {
   UserRound = UserRound;
   Download = Download;
   Save = Save;
@@ -1188,6 +1189,7 @@ export class MakeCvComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private http: HttpClient,
+    private toast: ToastService,
   ) {
     this.form = this.fb.group({
       fullName: [''],
@@ -1593,16 +1595,33 @@ export class MakeCvComponent implements OnInit {
     });
   }
 
+  private autoSaveTimer: any = null;
+
+  scheduleAutoSave() {
+    if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
+    this.autoSaveTimer = setTimeout(() => this.autoSave(), 30000);
+  }
+
+  async autoSave() {
+    const id = this.cvId || (this.templateId ? await this.ensureCvId() : null);
+    if (!id) return;
+    const content = this.buildContent();
+    this.http.put(`/api/v1/cvs/${id}`, { title: content.fullName || 'My CV', content }).subscribe({
+      next: () => this.toast.info('Auto-saved'),
+      error: () => {},
+    });
+  }
+
   async save() {
     const id = await this.ensureCvId();
     if (!id) {
-      alert('Choose a template first to create your CV.');
+      this.toast.error('Choose a template first to create your CV.');
       return;
     }
     const content = this.buildContent();
     this.http.put(`/api/v1/cvs/${id}`, { title: content.fullName || 'My CV', content }).subscribe({
-      next: () => alert('Draft saved (including typography & photo).'),
-      error: () => alert('Could not save your draft.'),
+      next: () => this.toast.success('Draft saved!'),
+      error: () => this.toast.error('Could not save your draft.'),
     });
   }
 
@@ -1619,5 +1638,9 @@ export class MakeCvComponent implements OnInit {
     }
     this.fullPreview.set(true);
     setTimeout(() => window.print(), 400);
+  }
+
+  ngOnDestroy() {
+    if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
   }
 }
