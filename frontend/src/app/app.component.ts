@@ -22,6 +22,7 @@ export class AppComponent {
   constructor(private router: Router) {}
 
   isAuthRoute() {
-    return this.router.url.split('?')[0] === '/login' || this.router.url.split('?')[0] === '/register';
+    const url = this.router.url.split('?')[0];
+    return url === '/login' || url === '/register' || url.startsWith('/admin');
   }
 }
