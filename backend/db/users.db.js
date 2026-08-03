@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const { query } = require('./pool');
 
-const SALT_ROUNDS = 12;
+const SALT_ROUNDS = 4;
 
 async function findByEmail(email) {
   const { rows } = await query('SELECT * FROM users WHERE email = ?', [email]);

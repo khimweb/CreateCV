@@ -12,7 +12,19 @@ function initializeDatabase() {
     "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'",
     (err, table) => {
       if (err) return reject(err);
-      if (table) return resolve();
+      if (table) {
+        // Ensure activity_log table exists (may be missing after git operations)
+        db.run(`CREATE TABLE IF NOT EXISTS activity_log (
+          id INTEGER PRIMARY KEY, user_id INTEGER, email TEXT NOT NULL,
+          action TEXT NOT NULL, ip_address TEXT, user_agent TEXT,
+          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )`, () => {
+          db.run('ALTER TABLE users ADD COLUMN bio TEXT DEFAULT ""', () => {});
+          db.run('ALTER TABLE users ADD COLUMN cover_url TEXT', () => {});
+          resolve();
+        });
+        return;
+      }
 
       console.log('Database schema not found. Initializing SQLite database...');
       const schema = fs.readFileSync(schemaPath, 'utf8');
@@ -20,6 +32,11 @@ function initializeDatabase() {
         if (schemaError) {
           reject(schemaError);
         } else {
+          db.run(`CREATE TABLE IF NOT EXISTS activity_log (
+            id INTEGER PRIMARY KEY, user_id INTEGER, email TEXT NOT NULL,
+            action TEXT NOT NULL, ip_address TEXT, user_agent TEXT,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+          )`, () => {});
           console.log('Database initialized successfully.');
           resolve();
         }
