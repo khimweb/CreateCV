@@ -661,9 +661,45 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
       <footer class="fixed bottom-0 inset-x-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur border-t border-slate-200 dark:border-slate-700">
         <div class="max-w-4xl mx-auto flex justify-end gap-3 p-3">
           <button type="button" class="outline" (click)="save()"><lucide-icon [img]="Save" /> Save Draft</button>
-          <button type="button" class="download" (click)="download()"><lucide-icon [img]="Download" /> Download CV</button>
+          <button type="button" class="download" (click)="showDownloadModal.set(true)"><lucide-icon [img]="Download" /> Download CV</button>
         </div>
       </footer>
+
+      <!-- Download Format Modal -->
+      @if (showDownloadModal()) {
+        <div class="fixed inset-0 z-[90] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+             (click)="showDownloadModal.set(false)">
+          <div class="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-800 shadow-2xl overflow-hidden animate-[slideUp_0.25s_ease-out]"
+               (click)="$event.stopPropagation()">
+            <div class="px-6 pt-6 pb-3 text-center">
+              <p class="font-semibold text-slate-800 dark:text-white text-lg">Download CV</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Choose your preferred format</p>
+            </div>
+            <div class="px-6 pb-4 grid grid-cols-2 gap-3">
+              <button type="button" (click)="downloadAs('pdf')"
+                      class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10"
+                      [class.border-slate-200]="true" [class.dark:border-slate-700]="true">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15h6"/><path d="M9 11h6"/></svg>
+                <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">PDF</span>
+                <span class="text-[10px] text-slate-400">Best for sharing</span>
+              </button>
+              <button type="button" (click)="downloadAs('docx')"
+                      class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10"
+                      [class.border-slate-200]="true" [class.dark:border-slate-700]="true">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/></svg>
+                <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">DOCX</span>
+                <span class="text-[10px] text-slate-400">Editable in Word</span>
+              </button>
+            </div>
+            <div class="border-t border-slate-200 dark:border-slate-700">
+              <button type="button" (click)="showDownloadModal.set(false)"
+                      class="w-full py-3 text-slate-500 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     </main>
 
     @if (fullPreview()) {
@@ -1596,6 +1632,7 @@ export class MakeCvComponent implements OnInit, OnDestroy {
   }
 
   private autoSaveTimer: any = null;
+  showDownloadModal = signal(false);
 
   scheduleAutoSave() {
     if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
@@ -1625,7 +1662,8 @@ export class MakeCvComponent implements OnInit, OnDestroy {
     });
   }
 
-  async download() {
+  async downloadAs(format: 'pdf' | 'docx') {
+    this.showDownloadModal.set(false);
     const id = await this.ensureCvId();
     if (id) {
       const content = this.buildContent();
@@ -1636,8 +1674,52 @@ export class MakeCvComponent implements OnInit, OnDestroy {
         });
       });
     }
-    this.fullPreview.set(true);
-    setTimeout(() => window.print(), 400);
+
+    if (format === 'pdf') {
+      this.fullPreview.set(true);
+      setTimeout(() => {
+        window.print();
+        this.toast.success('PDF ready! Check your downloads.');
+      }, 400);
+    } else {
+      // DOCX: generate a simple HTML-based .doc file
+      this.generateDocx();
+    }
+  }
+
+  private generateDocx() {
+    const content = this.buildContent();
+    const html = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+      <head><meta charset="utf-8"><title>${content.fullName || 'My CV'}</title>
+      <style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt;line-height:1.5;margin:2cm}h1{font-size:22pt;margin:0 0 4pt}h2{font-size:14pt;border-bottom:1pt solid #333;padding-bottom:4pt;margin:14pt 0 8pt}h3{font-size:12pt;margin:8pt 0 2pt}p{margin:2pt 0}ul{margin:4pt 0;padding-left:18pt}.section{margin-bottom:14pt}</style></head>
+      <body>
+        <h1>${content.fullName || ''}</h1>
+        <p><b>${content.jobTitle || ''}</b></p>
+        <p>${[content.email, content.phone, content.location].filter(Boolean).join(' | ')}</p>
+        ${content.linkedin ? `<p>${content.linkedin}</p>` : ''}
+        ${content.summary ? `<div class="section"><h2>Professional Summary</h2><p>${content.summary}</p></div>` : ''}
+        ${content.experience?.length ? `<div class="section"><h2>Work Experience</h2>${content.experience.map((e: any) => `<h3>${e.title || ''} — ${e.company || ''}</h3><p><i>${e.startMonth || ''} ${e.startYear || ''} – ${e.current ? 'Present' : (e.endMonth || '') + ' ' + (e.endYear || '')}</i> | ${e.location || ''}</p><p>${e.description || ''}</p>`).join('')}</div>` : ''}
+        ${content.education?.length ? `<div class="section"><h2>Education</h2>${content.education.map((e: any) => `<h3>${e.degree || ''} in ${e.field || ''}</h3><p>${e.institution || ''} | ${e.startYear || ''} – ${e.endYear || ''}</p>${e.achievements ? `<p>${e.achievements}</p>` : ''}`).join('')}</div>` : ''}
+        ${content.skills?.length ? `<div class="section"><h2>Skills</h2><ul>${content.skills.map((s: any) => `<li>${s.name} — ${s.level}</li>`).join('')}</ul></div>` : ''}
+        ${content.languages?.length ? `<div class="section"><h2>Languages</h2><ul>${content.languages.map((l: any) => `<li>${l.name} — ${l.proficiency}</li>`).join('')}</ul></div>` : ''}
+        ${content.certifications?.length ? `<div class="section"><h2>Certifications</h2><ul>${content.certifications.map((c: any) => `<li>${c.name} (${c.year || ''})</li>`).join('')}</ul></div>` : ''}
+        ${content.projects?.length ? `<div class="section"><h2>Projects</h2>${content.projects.map((p: any) => `<h3>${p.name || ''}</h3><p>${p.description || ''}</p>`).join('')}</div>` : ''}
+      </body></html>
+    `;
+
+    const blob = new Blob([html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${content.fullName || 'My_CV'}.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.toast.success('DOCX downloaded! Open in Word to edit.');
+  }
+
+  async download() {
+    this.showDownloadModal.set(true);
   }
 
   ngOnDestroy() {

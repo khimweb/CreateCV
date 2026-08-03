@@ -49,8 +49,8 @@ app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:4200', crede
 // Payment webhook needs the raw body for signature verification, so it
 // must be mounted BEFORE express.json().
 app.use('/api/v1/orders/:id/webhook', express.raw({ type: 'application/json' }));
-// Allow base64 profile photos inside CV content JSON (up to ~5MB payload)
-app.use(express.json({ limit: '5mb' }));
+// Allow base64 profile photos inside CV content JSON (up to ~20MB payload)
+app.use(express.json({ limit: '20mb' }));
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 const contactLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10 });
