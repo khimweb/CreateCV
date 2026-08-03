@@ -29,6 +29,7 @@ function toPublicUser(user) {
     avatarUrl: user.avatar_url,
     role: user.role,
     themePreference: user.theme_preference,
+    isApproved: !!user.is_approved,
   };
 }
 

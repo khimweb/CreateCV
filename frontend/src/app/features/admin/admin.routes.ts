@@ -22,6 +22,10 @@ export const adminRoutes: Routes = [
         loadComponent: () => import('./templates/admin-templates.component').then(m => m.AdminTemplatesComponent),
       },
       {
+        path: 'permission',
+        loadComponent: () => import('./permission/admin-permission.component').then(m => m.AdminPermissionComponent),
+      },
+      {
         path: 'security',
         loadComponent: () => import('./security/admin-security.component').then(m => m.AdminSecurityComponent),
       },

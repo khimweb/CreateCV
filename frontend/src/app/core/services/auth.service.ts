@@ -9,6 +9,7 @@ export interface AuthUser {
   email: string;
   avatarUrl?: string;
   role: 'user' | 'admin';
+  isApproved?: boolean;
 }
 
 const TOKEN_KEY = 'cv_creator_token';

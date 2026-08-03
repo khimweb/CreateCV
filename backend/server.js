@@ -21,6 +21,7 @@ function initializeDatabase() {
         )`, () => {
           db.run('ALTER TABLE users ADD COLUMN bio TEXT DEFAULT ""', () => {});
           db.run('ALTER TABLE users ADD COLUMN cover_url TEXT', () => {});
+          db.run('ALTER TABLE users ADD COLUMN is_approved INTEGER NOT NULL DEFAULT 0', () => {});
           resolve();
         });
         return;

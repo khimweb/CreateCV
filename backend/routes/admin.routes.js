@@ -71,9 +71,13 @@ router.get('/customers/:id', async (req, res) => {
 
 // PATCH /api/v1/admin/customers/:id — activate/deactivate, change role
 router.patch('/customers/:id', async (req, res) => {
-  const { isActive } = req.body;
+  const { isActive, isApproved } = req.body;
   if (typeof isActive === 'boolean') {
     const user = await db.users.setActive(req.params.id, isActive);
+    return res.json({ user });
+  }
+  if (typeof isApproved === 'boolean') {
+    const user = await db.users.setApproved(req.params.id, isApproved);
     return res.json({ user });
   }
   res.status(400).json({ error: 'NO_SUPPORTED_FIELDS' });

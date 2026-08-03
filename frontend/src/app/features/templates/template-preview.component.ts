@@ -11,6 +11,7 @@ import { ClassicDarkCvComponent } from '../../shared/components/classic-dark-cv/
 import { FormalClassicCvComponent } from '../../shared/components/formal-classic-cv/formal-classic-cv.component';
 import { CoverLetterCvComponent } from '../../shared/components/cover-letter-cv/cover-letter-cv.component';
 import { DEMO_CV } from '../../shared/demo-cv-data';
+import { AuthService } from '../../core/services/auth.service';
 
 interface CvTemplate {
   id: string;
@@ -252,6 +253,32 @@ interface CvTemplate {
         </div>
       </section>
     }
+
+    <!-- Not Approved Alert (iOS style) -->
+    @if (showNotApprovedAlert()) {
+      <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+           (click)="showNotApprovedAlert.set(false)">
+        <div class="w-full max-w-xs rounded-2xl bg-white dark:bg-slate-800 shadow-2xl overflow-hidden animate-[slideUp_0.25s_ease-out]"
+             (click)="$event.stopPropagation()"
+             style="animation: slideUp 0.25s cubic-bezier(0.32,0.72,0,1)">
+          <div class="px-6 pt-6 pb-4 text-center">
+            <div class="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center mx-auto mb-3">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <p class="font-semibold text-slate-800 dark:text-white text-base">Access Restricted</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
+              Your account is not yet approved. Please wait for the admin to grant you access to use templates.
+            </p>
+          </div>
+          <div class="border-t border-slate-200 dark:border-slate-700">
+            <button type="button" (click)="showNotApprovedAlert.set(false)"
+                    class="w-full py-3 text-sky-600 dark:text-sky-400 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   `,
 })
 export class TemplatePreviewComponent implements OnInit {
@@ -263,6 +290,7 @@ export class TemplatePreviewComponent implements OnInit {
   selectedColor = signal<string>('#667B97');
   userRating = signal<number | null>(null);
   showColorPicker = signal(false);
+  showNotApprovedAlert = signal(false);
 
   moreColors = [
     '#1a5f5a', '#0f4c81', '#2c3e50', '#1b3a5c', '#334155', '#0369a1',
@@ -277,6 +305,7 @@ export class TemplatePreviewComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
+    private auth: AuthService,
   ) {}
 
   ngOnInit() {
@@ -337,6 +366,13 @@ export class TemplatePreviewComponent implements OnInit {
   }
 
   useTemplate(t: CvTemplate) {
+    // Check if user is approved
+    const user = this.auth.currentUser();
+    if (user && !user.isApproved && user.role !== 'admin') {
+      this.showNotApprovedAlert.set(true);
+      return;
+    }
+
     this.http
       .post<{ cvId: string; cv?: { id: string | number } }>(`/api/v1/templates/${t.id}/select`, {
         selectedColor: this.selectedColor(),
@@ -348,13 +384,23 @@ export class TemplatePreviewComponent implements OnInit {
             queryParams: { templateId: t.id, cvId, color: this.selectedColor(), layout: t.layout },
           });
         },
-        error: () => {
+        error: (err) => {
+          if (err.error?.error === 'NOT_APPROVED') {
+            this.showNotApprovedAlert.set(true);
+            return;
+          }
           this.http.post<{ cv: { id: string | number } }>('/api/v1/cvs', { templateId: t.id }).subscribe({
             next: ({ cv }) =>
               this.router.navigate(['/make-cv'], {
                 queryParams: { templateId: t.id, cvId: cv.id, color: this.selectedColor(), layout: t.layout },
               }),
-            error: () => alert('Could not start this template. Please log in and try again.'),
+            error: (e2) => {
+              if (e2.error?.error === 'NOT_APPROVED') {
+                this.showNotApprovedAlert.set(true);
+              } else {
+                alert('Could not start this template. Please log in and try again.');
+              }
+            },
           });
         },
       });

@@ -19,6 +19,12 @@ router.get('/:id', requireAuth, async (req, res) => {
 
 // POST /api/v1/cvs — create a new CV from a templateId (mirrors /templates/:id/select)
 router.post('/', requireAuth, async (req, res) => {
+  // Check if user is approved
+  const user = await db.users.findById(req.user.id);
+  if (!user.is_approved && user.role !== 'admin') {
+    return res.status(403).json({ error: 'NOT_APPROVED', message: 'Your account is not yet approved by admin. Please wait for approval to use templates.' });
+  }
+
   const { templateId } = req.body;
   const template = await db.templates.findById(templateId);
   if (!template || !template.is_active) return res.status(404).json({ error: 'TEMPLATE_NOT_FOUND' });

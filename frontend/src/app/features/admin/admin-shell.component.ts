@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   LucideAngularModule, Search, LayoutDashboard, Users, LayoutTemplate,
-  Settings, LogOut, Shield, UserCircle, Menu, X,
+  Settings, LogOut, Shield, UserCircle, Menu, X, ShieldCheck,
 } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth.service';
 import { signal } from '@angular/core';
@@ -128,6 +128,7 @@ export class AdminShellComponent {
     { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/admin/customers', label: 'Users', icon: Users },
     { path: '/admin/templates', label: 'Templates', icon: LayoutTemplate },
+    { path: '/admin/permission', label: 'Permission', icon: ShieldCheck },
     { path: '/admin/security', label: 'Security', icon: Shield },
   ];
 

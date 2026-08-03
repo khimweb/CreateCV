@@ -56,7 +56,7 @@ async function list({ page = 1, pageSize = 20, search = '' } = {}) {
   const offset = (page - 1) * pageSize;
   const searchTerm = `%${search}%`;
   const { rows } = await query(
-    `SELECT u.id, u.full_name, u.email, u.avatar_url, u.role, u.is_active, u.last_login_at, u.created_at,
+    `SELECT u.id, u.full_name, u.email, u.avatar_url, u.role, u.is_active, u.is_approved, u.last_login_at, u.created_at,
             (SELECT COUNT(*) FROM user_cvs WHERE user_id = u.id) AS cv_count
      FROM users u
      WHERE u.full_name LIKE ? OR u.email LIKE ?
@@ -90,6 +90,14 @@ async function setActive(id, isActive) {
   return findById(id);
 }
 
+async function setApproved(id, isApproved) {
+  await query(
+    'UPDATE users SET is_approved = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+    [isApproved ? 1 : 0, id]
+  );
+  return findById(id);
+}
+
 async function remove(id) {
   await query('DELETE FROM users WHERE id = ?', [id]);
 }
@@ -110,6 +118,7 @@ module.exports = {
   list,
   getOnlineUsers,
   setActive,
+  setApproved,
   remove,
   count,
 };
