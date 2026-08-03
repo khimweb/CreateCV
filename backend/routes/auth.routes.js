@@ -1,11 +1,22 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const db = require('../db');
 
 const ACCESS_TOKEN_TTL = '2h';
 const REFRESH_TOKEN_TTL = '30d';
+const googleClient = new OAuth2Client();
+
+async function logActivity(entry) {
+  try {
+    await db.activityLog.log(entry);
+  } catch (error) {
+    // Activity history must never prevent a user from authenticating.
+    console.error('Activity log write failed:', error.message);
+  }
+}
 
 function signAccessToken(user) {
   return jwt.sign(
@@ -62,6 +73,59 @@ router.post('/register', async (req, res) => {
   const refreshToken = signRefreshToken(user);
 
   res.status(201).json({ token, refreshToken, user: toPublicUser(user) });
+});
+
+// POST /api/v1/auth/google — verify a Google-issued ID token, then sign in.
+router.post('/google', async (req, res) => {
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    return res.status(503).json({ error: 'GOOGLE_SIGN_IN_UNAVAILABLE', message: 'Google sign-in is not configured.' });
+  }
+  if (!req.body?.credential || typeof req.body.credential !== 'string') {
+    return res.status(400).json({ error: 'INVALID_GOOGLE_CREDENTIAL', message: 'A Google credential is required.' });
+  }
+
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: req.body.credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const profile = ticket.getPayload();
+    if (!profile?.sub || !profile.email || profile.email_verified !== true) {
+      return res.status(401).json({ error: 'INVALID_GOOGLE_CREDENTIAL', message: 'Google did not verify this email address.' });
+    }
+
+    const email = profile.email.toLowerCase();
+    let user = await db.googleIdentities.findUserBySubject(profile.sub);
+    if (!user) {
+      user = await db.users.findByEmail(email);
+      if (user) {
+        try {
+          await db.googleIdentities.linkGoogleAccount({ userId: user.id, subject: profile.sub, email });
+        } catch (error) {
+          user = await db.googleIdentities.findUserBySubject(profile.sub);
+          if (!user) throw error;
+        }
+      } else {
+        user = await db.googleIdentities.createGoogleUser({
+          fullName: profile.name || email.split('@')[0],
+          email,
+          avatarUrl: profile.picture,
+          subject: profile.sub,
+        });
+      }
+    }
+
+    if (!user || !user.is_active) {
+      return res.status(403).json({ error: 'ACCOUNT_DISABLED', message: 'This account is disabled.' });
+    }
+
+    await db.users.touchLastLogin(user.id);
+    await logActivity({ userId: user.id, email: user.email, action: 'google_login', ipAddress: req.ip, userAgent: req.headers['user-agent'] });
+    res.json({ token: signAccessToken(user), refreshToken: signRefreshToken(user), user: toPublicUser(user) });
+  } catch (error) {
+    console.error('Google sign-in failed:', error.message);
+    res.status(401).json({ error: 'INVALID_GOOGLE_CREDENTIAL', message: 'Google sign-in could not be verified.' });
+  }
 });
 
 // POST /api/v1/auth/login

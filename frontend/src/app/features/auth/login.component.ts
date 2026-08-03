@@ -5,11 +5,12 @@ import { FormBuilder, ReactiveFormsModule, Validators, FormGroup } from '@angula
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../shared/components/toast/toast.service';
 import { LoaderComponent } from '../../shared/components/loader/loader.component';
+import { GoogleSignInComponent } from '../../shared/components/auth/google-sign-in.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, LoaderComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, LoaderComponent, GoogleSignInComponent],
   template: `
     <section class="auth-page">
       <!-- Desktop -->
@@ -33,7 +34,7 @@ import { LoaderComponent } from '../../shared/components/loader/loader.component
               <app-loader [show]="loading()" [inline]="true" text="Signing in..." />
             </form>
             <div class="divider"><span>or continue with</span></div>
-            <div class="socials"><button type="button">G</button><button type="button">f</button><button type="button">●</button></div>
+            <div class="socials"><app-google-sign-in (credential)="signInWithGoogle($event)" /></div>
             <p class="switch-link">Don't have an account? <a routerLink="/register">Sign up</a></p>
           </main>
         </div>
@@ -73,6 +74,7 @@ import { LoaderComponent } from '../../shared/components/loader/loader.component
                 <app-loader [show]="loading()" [inline]="true" text="Signing in..." />
               </form>
               <div class="divider"><span>Sign in with</span></div>
+              <app-google-sign-in (credential)="signInWithGoogle($event)" />
               <div class="m-socials"><button type="button"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></button><button type="button"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#1DA1F2" d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg></button><button type="button"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#EA4335" d="M5.266 9.765A7.077 7.077 0 0112 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.27 0 3.198 2.698 1.24 6.65l4.026 3.115z"/><path fill="#34A853" d="M16.04 18.013c-1.09.703-2.474 1.078-4.04 1.078a7.077 7.077 0 01-6.723-4.823l-4.04 3.067C3.151 21.39 7.241 24 12 24c2.933 0 5.735-1.043 7.834-3l-3.793-2.987z"/><path fill="#4A90D9" d="M19.834 21c2.195-2.048 3.62-5.096 3.62-9 0-.71-.109-1.473-.272-2.182H12v4.637h6.436c-.317 1.559-1.17 2.766-2.395 3.558L19.834 21z"/><path fill="#FBBC05" d="M5.277 14.268A7.12 7.12 0 014.909 12c0-.782.125-1.533.357-2.235L1.24 6.65A11.934 11.934 0 000 12c0 1.92.445 3.73 1.237 5.335l4.04-3.067z"/></svg></button><button type="button"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#000" d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></button></div>
               <p class="m-switch">Don't have an account? <a routerLink="/register">Sign up</a></p>
             </div>
@@ -126,7 +128,7 @@ import { LoaderComponent } from '../../shared/components/loader/loader.component
     .m-card input:not([type=checkbox]){box-sizing:border-box;display:block;width:100%;padding:14px 16px;margin-top:6px;border:1.5px solid #e2e8f0;border-radius:12px;background:#fafcff;font:inherit;font-size:.85rem;outline:none;transition:.2s;color:#1d2b4d}
     .m-card input:not([type=checkbox]):focus{border-color:#4167ca;box-shadow:0 0 0 3px #e3eaff;background:#fff}
     .m-submit{width:100%;border:0;border-radius:12px;padding:15px;background:#3b5cc4;color:#fff;font-weight:700;font-size:.9rem;box-shadow:0 8px 24px #3b5cc435;cursor:pointer;transition:.2s;margin-top:8px}.m-submit:hover:not(:disabled){background:#2d4c9f}.m-submit:disabled{opacity:.5}
-    .m-socials{display:flex;justify-content:center;gap:16px}.m-socials button{width:44px;height:44px;border:1px solid #e5eaf3;background:#fff;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}.m-socials button:active{transform:scale(.92)}
+    .m-socials{display:none}.m-socials button{width:44px;height:44px;border:1px solid #e5eaf3;background:#fff;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}.m-socials button:active{transform:scale(.92)}
     .m-switch{text-align:center;color:#7b869d;font-size:.82rem;margin:20px 0 0}.m-switch a{color:#3b5cc4;font-weight:800;text-decoration:none}
     @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
   `],
@@ -134,6 +136,36 @@ import { LoaderComponent } from '../../shared/components/loader/loader.component
 export class LoginComponent {
   form: FormGroup; error = signal<string | null>(null); returnUrl = signal('/'); showPw = signal(false); loading = signal(false);
   mobileView = signal<'welcome' | 'login'>('welcome');
-  constructor(private fb: FormBuilder, private route: ActivatedRoute, private auth: AuthService, private toast: ToastService, private router: Router) { this.form = this.fb.group({ email: ['', [Validators.required, Validators.email]], password: ['', Validators.required] }); this.returnUrl.set(this.route.snapshot.queryParamMap.get('returnUrl') || '/'); }
-  submit() { if (this.form.invalid) return; this.loading.set(true); this.error.set(null); const { email, password } = this.form.getRawValue(); const returnUrl = this.returnUrl(); const safeUrl = returnUrl.startsWith('/login') || returnUrl.startsWith('/register') ? '/' : returnUrl; this.auth.login(email!, password!, safeUrl).subscribe({ next: () => { this.loading.set(false); this.toast.success('Welcome back!'); const user = this.auth.currentUser(); if (user?.role === 'admin' && safeUrl === '/') { this.router.navigate(['/admin']); } }, error: () => { this.loading.set(false); this.error.set('Incorrect email or password.'); } }); }
+
+  constructor(private fb: FormBuilder, private route: ActivatedRoute, private auth: AuthService, private toast: ToastService, private router: Router) {
+    this.form = this.fb.group({ email: ['', [Validators.required, Validators.email]], password: ['', Validators.required] });
+    this.returnUrl.set(this.route.snapshot.queryParamMap.get('returnUrl') || '/');
+  }
+
+  submit() {
+    if (this.form.invalid) return;
+    this.loading.set(true); this.error.set(null);
+    const { email, password } = this.form.getRawValue();
+    const returnUrl = this.returnUrl();
+    const safeUrl = returnUrl.startsWith('/login') || returnUrl.startsWith('/register') ? '/' : returnUrl;
+    this.auth.login(email!, password!, safeUrl).subscribe({
+      next: () => {
+        this.loading.set(false); this.toast.success('Welcome back!');
+        const user = this.auth.currentUser();
+        if (user?.role === 'admin' && safeUrl === '/') this.router.navigate(['/admin']);
+      },
+      error: () => { this.loading.set(false); this.error.set('Incorrect email or password.'); },
+    });
+  }
+
+  signInWithGoogle(credential: string) {
+    this.loading.set(true); this.error.set(null);
+    this.auth.loginWithGoogle(credential).subscribe({
+      next: () => { this.loading.set(false); this.toast.success('Signed in with Google.'); },
+      error: (error) => {
+        this.loading.set(false);
+        this.error.set(error.error?.message || 'Google sign-in could not be completed.');
+      },
+    });
+  }
 }

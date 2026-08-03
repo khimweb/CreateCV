@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { requireAuth, requireAdmin, requireApproved } = require('../middleware/auth');
 const db = require('../db'); // pg pool / prisma client wrapper
 
 // GET /api/v1/templates — public gallery grid
@@ -22,7 +22,7 @@ router.get('/:id', async (req, res) => {
 // template card or "Use This Template" on the preview page. If there's
 // no valid session, requireAuth returns 401 and the Angular app
 // redirects to /login?returnUrl=/templates/preview/:id
-router.post('/:id/select', requireAuth, async (req, res) => {
+router.post('/:id/select', requireAuth, requireApproved, async (req, res) => {
   const template = await db.templates.findById(req.params.id);
   if (!template || !template.is_active) return res.status(404).json({ error: 'NOT_FOUND' });
 

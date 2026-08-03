@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireApproved } = require('../middleware/auth');
 const db = require('../db');
 const { renderCvToPdf } = require('../services/pdf.service');
 
@@ -18,13 +18,7 @@ router.get('/:id', requireAuth, async (req, res) => {
 });
 
 // POST /api/v1/cvs — create a new CV from a templateId (mirrors /templates/:id/select)
-router.post('/', requireAuth, async (req, res) => {
-  // Check if user is approved
-  const user = await db.users.findById(req.user.id);
-  if (!user.is_approved && user.role !== 'admin') {
-    return res.status(403).json({ error: 'NOT_APPROVED', message: 'Your account is not yet approved by admin. Please wait for approval to use templates.' });
-  }
-
+router.post('/', requireAuth, requireApproved, async (req, res) => {
   const { templateId } = req.body;
   const template = await db.templates.findById(templateId);
   if (!template || !template.is_active) return res.status(404).json({ error: 'TEMPLATE_NOT_FOUND' });
@@ -34,7 +28,7 @@ router.post('/', requireAuth, async (req, res) => {
 });
 
 // PUT /api/v1/cvs/:id — autosave form content from the Make CV workstation
-router.put('/:id', requireAuth, async (req, res) => {
+router.put('/:id', requireAuth, requireApproved, async (req, res) => {
   const { content, title } = req.body;
   const cv = await db.userCvs.updateContent(req.params.id, req.user.id, content || {}, title);
   if (!cv) return res.status(404).json({ error: 'NOT_FOUND' });
@@ -42,7 +36,7 @@ router.put('/:id', requireAuth, async (req, res) => {
 });
 
 // PUT /api/v1/cvs/:id/color — live color-scheme swap
-router.put('/:id/color', requireAuth, async (req, res) => {
+router.put('/:id/color', requireAuth, requireApproved, async (req, res) => {
   const { color } = req.body;
   if (!color) return res.status(400).json({ error: 'MISSING_COLOR' });
 
@@ -52,7 +46,7 @@ router.put('/:id/color', requireAuth, async (req, res) => {
 });
 
 // POST /api/v1/cvs/:id/download — generate & return a PDF
-router.post('/:id/download', requireAuth, async (req, res) => {
+router.post('/:id/download', requireAuth, requireApproved, async (req, res) => {
   const cv = await db.userCvs.findById(req.params.id, req.user.id);
   if (!cv) return res.status(404).json({ error: 'NOT_FOUND' });
 

@@ -7,43 +7,57 @@ const { seedDefaultTemplates } = require('./db/seed');
 const dbPath = path.resolve(__dirname, '..', 'database', 'cv-creator.db');
 const schemaPath = path.resolve(__dirname, '..', 'database', 'schema.sql');
 
-function initializeDatabase() {
-  return new Promise((resolve, reject) => db.get(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'",
-    (err, table) => {
-      if (err) return reject(err);
-      if (table) {
-        // Ensure activity_log table exists (may be missing after git operations)
-        db.run(`CREATE TABLE IF NOT EXISTS activity_log (
-          id INTEGER PRIMARY KEY, user_id INTEGER, email TEXT NOT NULL,
-          action TEXT NOT NULL, ip_address TEXT, user_agent TEXT,
-          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-        )`, () => {
-          db.run('ALTER TABLE users ADD COLUMN bio TEXT DEFAULT ""', () => {});
-          db.run('ALTER TABLE users ADD COLUMN cover_url TEXT', () => {});
-          db.run('ALTER TABLE users ADD COLUMN is_approved INTEGER NOT NULL DEFAULT 0', () => {});
-          resolve();
-        });
-        return;
-      }
+function run(sql) {
+  return new Promise((resolve, reject) => db.run(sql, (error) => (error ? reject(error) : resolve())));
+}
 
-      console.log('Database schema not found. Initializing SQLite database...');
-      const schema = fs.readFileSync(schemaPath, 'utf8');
-      db.exec(schema, (schemaError) => {
-        if (schemaError) {
-          reject(schemaError);
-        } else {
-          db.run(`CREATE TABLE IF NOT EXISTS activity_log (
-            id INTEGER PRIMARY KEY, user_id INTEGER, email TEXT NOT NULL,
-            action TEXT NOT NULL, ip_address TEXT, user_agent TEXT,
-            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-          )`, () => {});
-          console.log('Database initialized successfully.');
-          resolve();
-        }
-      });
-    }
-  ));
+function get(sql) {
+  return new Promise((resolve, reject) => db.get(sql, (error, row) => (error ? reject(error) : resolve(row))));
+}
+
+function execute(sql) {
+  return new Promise((resolve, reject) => db.exec(sql, (error) => (error ? reject(error) : resolve())));
+}
+
+async function addColumnIfMissing(sql) {
+  try {
+    await run(sql);
+  } catch (error) {
+    if (!/duplicate column name/i.test(error.message)) throw error;
+  }
+}
+
+async function ensureRuntimeSchema() {
+  await run(`CREATE TABLE IF NOT EXISTS activity_log (
+    id INTEGER PRIMARY KEY, user_id INTEGER, email TEXT NOT NULL,
+    action TEXT NOT NULL, ip_address TEXT, user_agent TEXT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`);
+  await addColumnIfMissing('ALTER TABLE users ADD COLUMN bio TEXT NOT NULL DEFAULT ""');
+  await addColumnIfMissing('ALTER TABLE users ADD COLUMN cover_url TEXT');
+  await addColumnIfMissing('ALTER TABLE users ADD COLUMN is_approved INTEGER NOT NULL DEFAULT 0');
+  await run(`CREATE TABLE IF NOT EXISTS user_identities (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    provider TEXT NOT NULL CHECK (provider IN ('google')),
+    provider_subject TEXT NOT NULL,
+    provider_email TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_used_at DATETIME,
+    UNIQUE (provider, provider_subject),
+    UNIQUE (user_id, provider)
+  )`);
+  await run('CREATE INDEX IF NOT EXISTS idx_user_identities_subject ON user_identities(provider, provider_subject)');
+}
+
+async function initializeDatabase() {
+  const usersTable = await get("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'");
+  if (!usersTable) {
+    console.log('Database schema not found. Initializing SQLite database...');
+    await execute(fs.readFileSync(schemaPath, 'utf8'));
+    console.log('Database initialized successfully.');
+  }
+  await ensureRuntimeSchema();
 }
 
 

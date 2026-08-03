@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { approvalGuard } from './core/guards/approval.guard';
 
 export const routes: Routes = [
   {
@@ -22,7 +23,7 @@ export const routes: Routes = [
     path: 'make-cv',
     loadComponent: () =>
       import('./features/make-cv/make-cv.component').then(m => m.MakeCvComponent),
-    canActivate: [authGuard],
+    canActivate: [authGuard, approvalGuard],
   },
   {
     path: 'my-cv',

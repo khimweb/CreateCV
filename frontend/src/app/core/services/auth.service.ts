@@ -49,6 +49,17 @@ export class AuthService {
     );
   }
 
+  loginWithGoogle(credential: string) {
+    return this.http.post<{ token: string; user: AuthUser }>('/api/v1/auth/google', { credential }).pipe(
+      tap(({ token, user }) => {
+        localStorage.setItem(TOKEN_KEY, token);
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+        this.currentUser.set(user);
+        this.router.navigate(['/']);
+      })
+    );
+  }
+
   logout() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
@@ -67,6 +78,15 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
+  }
+
+  refreshCurrentUser() {
+    return this.http.get<{ user: AuthUser }>('/api/v1/auth/me').pipe(
+      tap(({ user }) => {
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+        this.currentUser.set(user);
+      })
+    );
   }
 
   private readStoredUser(): AuthUser | null {

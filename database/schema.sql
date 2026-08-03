@@ -16,6 +16,9 @@ CREATE TABLE users (
   theme_preference  TEXT              NOT NULL DEFAULT 'light'
                       CHECK (theme_preference IN ('light', 'dark')),
   is_active         INTEGER           NOT NULL DEFAULT 1,
+  is_approved       INTEGER           NOT NULL DEFAULT 0,
+  bio               TEXT              NOT NULL DEFAULT '',
+  cover_url         TEXT,
   last_login_at     DATETIME,
   created_at        DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at        DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -23,6 +26,23 @@ CREATE TABLE users (
 
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role  ON users(role);
+
+-- ---------------------------------------------------------
+-- USER_IDENTITIES (external verified sign-in providers)
+-- ---------------------------------------------------------
+CREATE TABLE user_identities (
+  id                INTEGER PRIMARY KEY,
+  user_id           INTEGER           NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  provider          TEXT              NOT NULL CHECK (provider IN ('google')),
+  provider_subject  TEXT              NOT NULL,
+  provider_email    TEXT              NOT NULL,
+  created_at        DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_used_at      DATETIME,
+  UNIQUE (provider, provider_subject),
+  UNIQUE (user_id, provider)
+);
+
+CREATE INDEX idx_user_identities_subject ON user_identities(provider, provider_subject);
 
 -- ---------------------------------------------------------
 -- CV_TEMPLATES

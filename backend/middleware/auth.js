@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const db = require('../db');
 
 /**
  * requireAuth — verifies the Bearer JWT and attaches req.user.
@@ -33,4 +34,18 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth, requireAdmin };
+async function requireApproved(req, res, next) {
+  try {
+    const user = await db.users.findById(req.user?.id);
+    if (!user) return res.status(401).json({ error: 'UNAUTHENTICATED' });
+    if (user.role === 'admin' || user.is_approved) return next();
+    return res.status(403).json({
+      error: 'NOT_APPROVED',
+      message: 'Your account is awaiting admin approval before you can use CV templates.',
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { requireAuth, requireAdmin, requireApproved };
