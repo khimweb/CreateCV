@@ -2,7 +2,8 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { LucideAngularModule, UserPlus, Trash2, ToggleLeft, ToggleRight, Search } from 'lucide-angular';
+import { Router } from '@angular/router';
+import { LucideAngularModule, UserPlus, Trash2, ToggleLeft, ToggleRight, Search, FolderOpen } from 'lucide-angular';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 
 interface AdminUser {
@@ -34,6 +35,13 @@ interface AdminUser {
         <lucide-icon [img]="UserPlus" class="w-4 h-4" /> Add User
       </button>
     </div>
+
+    <section class="grid grid-cols-2 gap-3 lg:grid-cols-4 mb-6">
+      <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-800"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total users</p><b class="mt-2 block text-2xl text-slate-800 dark:text-white">{{ total() }}</b></article>
+      <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-800"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Active on page</p><b class="mt-2 block text-2xl text-emerald-600">{{ activeCount() }}</b></article>
+      <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-800"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Saved CVs</p><b class="mt-2 block text-2xl text-indigo-600 dark:text-indigo-400">{{ savedCvCount() }}</b></article>
+      <button type="button" (click)="showAddUser.set(true)" class="grid min-h-[92px] place-items-center rounded-2xl border border-dashed border-indigo-300 bg-indigo-50/60 p-4 text-indigo-600 transition hover:bg-indigo-100 hover:shadow-sm dark:border-indigo-500/40 dark:bg-indigo-500/10 dark:text-indigo-300"><span class="text-xl leading-none">+</span><span class="text-xs font-bold">Add user</span></button>
+    </section>
 
     <!-- Search -->
     <div class="relative mb-5 max-w-md">
@@ -105,10 +113,16 @@ interface AdminUser {
                       <lucide-icon [img]="u.is_active ? ToggleRight : ToggleLeft"
                                    class="w-4 h-4" [class.text-emerald-500]="u.is_active" [class.text-slate-400]="!u.is_active" />
                     </button>
-                    <button type="button" (click)="confirmRemove(u)"
-                            class="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-red-500">
-                      <lucide-icon [img]="Trash2" class="w-4 h-4" />
+                    <button type="button" (click)="viewDrafts(u)" title="View saved drafts"
+                            class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-500/10 transition-colors">
+                      <lucide-icon [img]="FolderOpen" class="w-4 h-4" />
                     </button>
+                    @if (u.role !== 'admin') {
+                      <button type="button" (click)="confirmRemove(u)" title="Remove user"
+                              class="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-red-500">
+                        <lucide-icon [img]="Trash2" class="w-4 h-4" />
+                      </button>
+                    }
                   </div>
                 </td>
               </tr>
@@ -192,6 +206,7 @@ export class AdminCustomersComponent implements OnInit {
   readonly ToggleLeft = ToggleLeft;
   readonly ToggleRight = ToggleRight;
   readonly Search = Search;
+  readonly FolderOpen = FolderOpen;
 
   users = signal<AdminUser[]>([]);
   total = signal(0);
@@ -200,7 +215,7 @@ export class AdminCustomersComponent implements OnInit {
   showAddUser = signal(false);
   newUser = { fullName: '', email: '', password: '' };
 
-  constructor(private http: HttpClient, private toast: ToastService) {}
+  constructor(private http: HttpClient, private toast: ToastService, private router: Router) {}
 
   ngOnInit() { this.load(); }
 
@@ -208,6 +223,10 @@ export class AdminCustomersComponent implements OnInit {
     this.http.get<{ users: AdminUser[]; total: number }>('/api/v1/admin/customers', { params: { search: this.search } })
       .subscribe(({ users, total }) => { this.users.set(users); this.total.set(total); });
   }
+
+  activeCount() { return this.users().filter(user => user.is_active).length; }
+
+  savedCvCount() { return this.users().reduce((total, user) => total + Number(user.cv_count || 0), 0); }
 
   toggleActive(u: AdminUser) {
     this.http.patch(`/api/v1/admin/customers/${u.id}`, { isActive: !u.is_active }).subscribe({
@@ -223,8 +242,12 @@ export class AdminCustomersComponent implements OnInit {
   removeUser(u: AdminUser) {
     this.http.delete(`/api/v1/admin/customers/${u.id}`).subscribe({
       next: () => { this.alertUser.set(null); this.toast.success('User removed'); this.load(); },
-      error: () => { this.alertUser.set(null); this.toast.error('Failed to remove user'); }
+      error: (err) => { this.alertUser.set(null); this.toast.error(err.error?.message || 'Failed to remove user'); }
     });
+  }
+
+  viewDrafts(u: AdminUser) {
+    this.router.navigate(['/admin/drafts'], { queryParams: { user: u.id } });
   }
 
   createUser() {

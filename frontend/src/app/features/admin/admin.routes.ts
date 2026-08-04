@@ -18,6 +18,10 @@ export const adminRoutes: Routes = [
         loadComponent: () => import('./customers/admin-customers.component').then(m => m.AdminCustomersComponent),
       },
       {
+        path: 'drafts',
+        loadComponent: () => import('./drafts/admin-user-drafts.component').then(m => m.AdminUserDraftsComponent),
+      },
+      {
         path: 'templates',
         loadComponent: () => import('./templates/admin-templates.component').then(m => m.AdminTemplatesComponent),
       },

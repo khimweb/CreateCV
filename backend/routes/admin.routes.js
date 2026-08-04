@@ -83,9 +83,18 @@ router.patch('/customers/:id', async (req, res) => {
   res.status(400).json({ error: 'NO_SUPPORTED_FIELDS' });
 });
 
-// DELETE /api/v1/admin/customers/:id — remove user
+// DELETE /api/v1/admin/customers/:id — remove a regular user and their linked data
 router.delete('/customers/:id', async (req, res) => {
-  await db.users.remove(req.params.id);
+  const user = await db.users.findById(req.params.id);
+  if (!user) return res.status(404).json({ error: 'NOT_FOUND' });
+  if (String(user.id) === String(req.user.id)) {
+    return res.status(400).json({ error: 'CANNOT_REMOVE_SELF', message: 'Use account settings to remove your own account.' });
+  }
+  if (user.role === 'admin') {
+    return res.status(403).json({ error: 'CANNOT_REMOVE_ADMIN', message: 'Administrator accounts cannot be removed from Users.' });
+  }
+
+  await db.users.remove(user.id);
   res.status(204).send();
 });
 

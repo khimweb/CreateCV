@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   LucideAngularModule, Search, LayoutDashboard, Users, LayoutTemplate,
-  Settings, LogOut, Shield, UserCircle, Menu, X, ShieldCheck,
+  Settings, LogOut, Shield, UserCircle, Menu, X, ShieldCheck, FileText,
 } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth.service';
 import { signal } from '@angular/core';
@@ -121,12 +121,14 @@ export class AdminShellComponent {
   readonly LogOut = LogOut;
   readonly Menu = Menu;
   readonly X = X;
+  readonly FileText = FileText;
 
   mobileOpen = signal(false);
 
   readonly mainNav = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/admin/customers', label: 'Users', icon: Users },
+    { path: '/admin/drafts', label: 'Saved Drafts', icon: FileText },
     { path: '/admin/templates', label: 'Templates', icon: LayoutTemplate },
     { path: '/admin/permission', label: 'Permission', icon: ShieldCheck },
     { path: '/admin/security', label: 'Security', icon: Shield },
