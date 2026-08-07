@@ -10,6 +10,10 @@ import { ElegantFrameCvComponent } from '../../shared/components/elegant-frame-c
 import { ClassicDarkCvComponent } from '../../shared/components/classic-dark-cv/classic-dark-cv.component';
 import { FormalClassicCvComponent } from '../../shared/components/formal-classic-cv/formal-classic-cv.component';
 import { CoverLetterCvComponent } from '../../shared/components/cover-letter-cv/cover-letter-cv.component';
+import { WarmTaupeTimelineCvComponent } from '../../shared/components/warm-taupe-timeline-cv/warm-taupe-timeline-cv.component';
+import { SlateRoundedPanelsCvComponent } from '../../shared/components/slate-rounded-panels-cv/slate-rounded-panels-cv.component';
+import { NavySidebarProfileCvComponent } from '../../shared/components/navy-sidebar-profile-cv/navy-sidebar-profile-cv.component';
+import { GraphiteBannerTimelineCvComponent } from '../../shared/components/graphite-banner-timeline-cv/graphite-banner-timeline-cv.component';
 import { DEMO_CV } from '../../shared/demo-cv-data';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -20,16 +24,16 @@ interface CvTemplate {
   thumbnailUrl: string;
   defaultColors: string[];
   avgRating: number;
-  layout: 'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter';
+  layout: 'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter' | 'warm-taupe-timeline' | 'slate-rounded-panels' | 'navy-sidebar-profile' | 'graphite-banner-timeline';
 }
 
 @Component({
   selector: 'app-template-preview',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, FormalClassicCvComponent, CoverLetterCvComponent],
+  imports: [CommonModule, LucideAngularModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, FormalClassicCvComponent, CoverLetterCvComponent, WarmTaupeTimelineCvComponent, SlateRoundedPanelsCvComponent, NavySidebarProfileCvComponent, GraphiteBannerTimelineCvComponent],
   template: `
     @if (template(); as t) {
-      <section class="max-w-6xl mx-auto px-4 pt-28 pb-16">
+      <section class="w-full max-w-none px-4 sm:px-6 xl:px-8 pt-28 pb-16">
         <button
           type="button"
           class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-sky-700 mb-4 transition"
@@ -38,11 +42,11 @@ interface CvTemplate {
           <lucide-icon [img]="ArrowLeft" class="w-4 h-4" /> Back to templates
         </button>
 
-        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] gap-8 items-start">
+        <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6 xl:gap-8 items-start">
           <!-- Real layout preview (scaled to fit column) -->
           <div class="rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-sky-500/20 shadow-md">
-            <div class="h-[min(78vh,820px)] overflow-auto p-4 flex justify-center">
-              <div class="origin-top" [style.zoom]="0.72">
+            <div class="h-[calc(100vh-8rem)] min-h-[720px] overflow-auto p-5 sm:p-6 lg:p-8 flex justify-center">
+              <div class="origin-top" [style.zoom]="1">
                 @if (t.layout === 'modern-split') {
                   <app-modern-split-cv
                     [accent]="selectedColor()"
@@ -91,6 +95,8 @@ interface CvTemplate {
                     [education]="demo.education"
                     [skills]="demo.skills"
                     [languages]="demo.languages"
+                    [certifications]="demo.certifications"
+                    [hobbies]="demo.hobbies"
                     [references]="demo.references"
                   />
                 } @else if (t.layout === 'classic-dark') {
@@ -126,6 +132,30 @@ interface CvTemplate {
                     [languages]="demo.languages"
                     [references]="demo.references"
                     [projects]="demo.projects"
+                  />
+                } @else if (t.layout === 'graphite-banner-timeline') {
+                  <app-graphite-banner-timeline-cv
+                    [accent]="selectedColor()"
+                    [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl"
+                    [education]="demo.education" [experience]="demo.experience" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies"
+                  />
+                } @else if (t.layout === 'navy-sidebar-profile') {
+                  <app-navy-sidebar-profile-cv
+                    [accent]="selectedColor()"
+                    [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl"
+                    [education]="demo.education" [experience]="demo.experience" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies"
+                  />
+                } @else if (t.layout === 'slate-rounded-panels') {
+                  <app-slate-rounded-panels-cv
+                    [accent]="selectedColor()"
+                    [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl"
+                    [education]="demo.education" [experience]="demo.experience" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies"
+                  />
+                } @else if (t.layout === 'warm-taupe-timeline') {
+                  <app-warm-taupe-timeline-cv
+                    [accent]="selectedColor()"
+                    [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl"
+                    [education]="demo.education" [experience]="demo.experience" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies"
                   />
                 } @else if (t.layout === 'cover-letter') {
                   <app-cover-letter-cv
@@ -318,7 +348,15 @@ export class TemplatePreviewComponent implements OnInit {
           ? JSON.parse(template.default_colors || '[]')
           : template.defaultColors || template.default_colors || [];
       const name = (template.name as string).toLowerCase();
-      const layout: CvTemplate['layout'] = name.includes('cover')
+      const layout: CvTemplate['layout'] = name.includes('graphite')
+        ? 'graphite-banner-timeline'
+        : name.includes('navy sidebar')
+        ? 'navy-sidebar-profile'
+        : name.includes('slate rounded')
+        ? 'slate-rounded-panels'
+        : name.includes('warm taupe')
+        ? 'warm-taupe-timeline'
+        : name.includes('cover')
         ? 'cover-letter'
         : name.includes('formal')
         ? 'formal-classic'

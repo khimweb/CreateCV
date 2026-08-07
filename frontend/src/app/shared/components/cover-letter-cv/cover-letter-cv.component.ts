@@ -105,7 +105,11 @@ import { CommonModule } from '@angular/common';
     /* Print */
     @media print {
       :host { display: block; }
-      .cl { width: 100% !important; min-height: 0 !important; box-shadow: none !important; }
+      .cl {
+        width: 100% !important;
+        min-height: 297mm !important;
+        box-shadow: none !important;
+      }
       @page { size: A4 portrait; margin: 0; }
     }
   `],

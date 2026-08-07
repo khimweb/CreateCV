@@ -11,6 +11,11 @@ import { ElegantFrameCvComponent } from '../../../shared/components/elegant-fram
 import { ClassicDarkCvComponent } from '../../../shared/components/classic-dark-cv/classic-dark-cv.component';
 import { FormalClassicCvComponent } from '../../../shared/components/formal-classic-cv/formal-classic-cv.component';
 import { CoverLetterCvComponent } from '../../../shared/components/cover-letter-cv/cover-letter-cv.component';
+import { WarmTaupeTimelineCvComponent } from '../../../shared/components/warm-taupe-timeline-cv/warm-taupe-timeline-cv.component';
+import { SlateRoundedPanelsCvComponent } from '../../../shared/components/slate-rounded-panels-cv/slate-rounded-panels-cv.component';
+import { NavySidebarProfileCvComponent } from '../../../shared/components/navy-sidebar-profile-cv/navy-sidebar-profile-cv.component';
+import { GraphiteBannerTimelineCvComponent } from '../../../shared/components/graphite-banner-timeline-cv/graphite-banner-timeline-cv.component';
+import { A4FitDirective } from '../../../shared/directives/a4-fit.directive';
 import { DEMO_CV } from '../../../shared/demo-cv-data';
 
 interface AdminTemplate {
@@ -28,7 +33,7 @@ interface AdminTemplate {
 @Component({
   selector: 'app-admin-templates',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, FormalClassicCvComponent, CoverLetterCvComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, FormalClassicCvComponent, CoverLetterCvComponent, WarmTaupeTimelineCvComponent, SlateRoundedPanelsCvComponent, NavySidebarProfileCvComponent, GraphiteBannerTimelineCvComponent, A4FitDirective],
   template: `
     <!-- Header -->
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -61,7 +66,7 @@ interface AdminTemplate {
         <div class="rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
                     shadow-sm hover:shadow-lg transition-all duration-300 group">
           <!-- Live CV Preview -->
-          <div class="cv-card cursor-pointer" (click)="preview.set(t)">
+          <div appA4Fit class="cv-card cursor-pointer" (click)="preview.set(t)">
             <div class="cv-thumb pointer-events-none">
               @if (t.layout === 'modern-split') {
                 <app-modern-split-cv [accent]="getAccent(t)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="9" [fontWeight]="400" [lineHeight]="1.35" />
@@ -73,6 +78,14 @@ interface AdminTemplate {
                 <app-classic-dark-cv [accent]="getAccent(t)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [references]="demo.references" [fontSize]="9" [fontWeight]="400" [lineHeight]="1.35" />
               } @else if (t.layout === 'formal-classic') {
                 <app-formal-classic-cv [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [references]="demo.references" [projects]="demo.projects" [fontSize]="9" [fontWeight]="400" [lineHeight]="1.35" />
+              } @else if (t.layout === 'graphite-banner-timeline') {
+                <app-graphite-banner-timeline-cv [accent]="getAccent(t)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="9" [fontWeight]="400" [lineHeight]="1.5" />
+              } @else if (t.layout === 'navy-sidebar-profile') {
+                <app-navy-sidebar-profile-cv [accent]="getAccent(t)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="9" [fontWeight]="400" [lineHeight]="1.5" />
+              } @else if (t.layout === 'slate-rounded-panels') {
+                <app-slate-rounded-panels-cv [accent]="getAccent(t)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="9" [fontWeight]="400" [lineHeight]="1.45" />
+              } @else if (t.layout === 'warm-taupe-timeline') {
+                <app-warm-taupe-timeline-cv [accent]="getAccent(t)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="9" [fontWeight]="400" [lineHeight]="1.35" />
               } @else if (t.layout === 'cover-letter') {
                 <app-cover-letter-cv [accent]="getAccent(t)" [name]="demo.name" [phone]="demo.phone" [email]="demo.email" [location]="demo.location" [fontSize]="9" [fontWeight]="400" [lineHeight]="1.5" />
               } @else {
@@ -120,6 +133,14 @@ interface AdminTemplate {
                 <app-classic-dark-cv [accent]="getAccent(p)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [references]="demo.references" [fontSize]="10" [fontWeight]="400" [lineHeight]="1.4" />
               } @else if (p.layout === 'formal-classic') {
                 <app-formal-classic-cv [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [references]="demo.references" [projects]="demo.projects" [fontSize]="10" [fontWeight]="400" [lineHeight]="1.4" />
+              } @else if (p.layout === 'graphite-banner-timeline') {
+                <app-graphite-banner-timeline-cv [accent]="getAccent(p)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="10" [fontWeight]="400" [lineHeight]="1.55" />
+              } @else if (p.layout === 'navy-sidebar-profile') {
+                <app-navy-sidebar-profile-cv [accent]="getAccent(p)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="10" [fontWeight]="400" [lineHeight]="1.55" />
+              } @else if (p.layout === 'slate-rounded-panels') {
+                <app-slate-rounded-panels-cv [accent]="getAccent(p)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="10" [fontWeight]="400" [lineHeight]="1.5" />
+              } @else if (p.layout === 'warm-taupe-timeline') {
+                <app-warm-taupe-timeline-cv [accent]="getAccent(p)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="10" [fontWeight]="400" [lineHeight]="1.4" />
               } @else if (p.layout === 'cover-letter') {
                 <app-cover-letter-cv [accent]="getAccent(p)" [name]="demo.name" [phone]="demo.phone" [email]="demo.email" [location]="demo.location" [fontSize]="10" [fontWeight]="400" [lineHeight]="1.5" />
               } @else {
@@ -170,8 +191,8 @@ interface AdminTemplate {
       border-bottom: 1px solid #e2e8f0; background: #fff; container-type: size;
     }
     .cv-thumb {
-      position: absolute; top: 0; left: 0; width: 210mm; min-height: 297mm;
-      transform-origin: top left; transform: scale(calc(100cqw / 793.7));
+      position: absolute; top: 0; left: 0; width: 210mm; height: 297mm; overflow: hidden;
+      transform-origin: top left; transform: scale(var(--a4-scale, 0.264));
     }
     .cv-preview-full {
       width: 210mm; min-height: 297mm; transform-origin: top left;
@@ -214,6 +235,10 @@ export class AdminTemplatesComponent implements OnInit {
 
   detectLayout(name: string): string {
     const n = name.toLowerCase();
+    if (n.includes('graphite')) return 'graphite-banner-timeline';
+    if (n.includes('navy sidebar')) return 'navy-sidebar-profile';
+    if (n.includes('slate rounded')) return 'slate-rounded-panels';
+    if (n.includes('warm taupe')) return 'warm-taupe-timeline';
     if (n.includes('cover')) return 'cover-letter';
     if (n.includes('formal')) return 'formal-classic';
     if (n.includes('classic')) return 'classic-dark';

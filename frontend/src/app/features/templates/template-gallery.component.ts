@@ -9,6 +9,11 @@ import { ElegantFrameCvComponent } from '../../shared/components/elegant-frame-c
 import { ClassicDarkCvComponent } from '../../shared/components/classic-dark-cv/classic-dark-cv.component';
 import { FormalClassicCvComponent } from '../../shared/components/formal-classic-cv/formal-classic-cv.component';
 import { CoverLetterCvComponent } from '../../shared/components/cover-letter-cv/cover-letter-cv.component';
+import { WarmTaupeTimelineCvComponent } from '../../shared/components/warm-taupe-timeline-cv/warm-taupe-timeline-cv.component';
+import { SlateRoundedPanelsCvComponent } from '../../shared/components/slate-rounded-panels-cv/slate-rounded-panels-cv.component';
+import { NavySidebarProfileCvComponent } from '../../shared/components/navy-sidebar-profile-cv/navy-sidebar-profile-cv.component';
+import { GraphiteBannerTimelineCvComponent } from '../../shared/components/graphite-banner-timeline-cv/graphite-banner-timeline-cv.component';
+import { A4FitDirective } from '../../shared/directives/a4-fit.directive';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { DEMO_CV } from '../../shared/demo-cv-data';
@@ -21,13 +26,13 @@ interface CvTemplate {
   colors: string[];
   hasPhoto: boolean;
   description?: string;
-  layout: 'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter';
+  layout: 'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter' | 'warm-taupe-timeline' | 'slate-rounded-panels' | 'navy-sidebar-profile' | 'graphite-banner-timeline';
 }
 
 @Component({
   selector: 'app-template-gallery',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, FormalClassicCvComponent, CoverLetterCvComponent],
+  imports: [CommonModule, LucideAngularModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, FormalClassicCvComponent, CoverLetterCvComponent, WarmTaupeTimelineCvComponent, SlateRoundedPanelsCvComponent, NavySidebarProfileCvComponent, GraphiteBannerTimelineCvComponent, A4FitDirective],
   template: `
     <section class="max-w-6xl mx-auto px-4 pt-28 pb-14 text-slate-900 dark:text-sky-50">
       <header class="mb-8">
@@ -74,7 +79,7 @@ interface CvTemplate {
         @for (t of filtered(); track t.id) {
           <article class="group">
             <!-- Fixed A4 card: aspect ratio locks the CV frame -->
-            <div class="cv-card group-hover:shadow-xl group-hover:-translate-y-0.5" (click)="select(t)" role="button" tabindex="0" (keydown.enter)="select(t)" [attr.aria-label]="'Open full preview of ' + t.name">
+            <div appA4Fit class="cv-card group-hover:shadow-xl group-hover:-translate-y-0.5" (click)="select(t)" role="button" tabindex="0" (keydown.enter)="select(t)" [attr.aria-label]="'Open full preview of ' + t.name">
               <div class="cv-thumb pointer-events-none" aria-hidden="true">
                 @if (t.layout === 'modern-split') {
                   <app-modern-split-cv
@@ -130,6 +135,8 @@ interface CvTemplate {
                     [education]="demo.education"
                     [skills]="demo.skills"
                     [languages]="demo.languages"
+                    [certifications]="demo.certifications"
+                    [hobbies]="demo.hobbies"
                     [references]="demo.references"
                     [fontSize]="9"
                     [fontWeight]="400"
@@ -174,6 +181,34 @@ interface CvTemplate {
                     [fontSize]="9"
                     [fontWeight]="400"
                     [lineHeight]="1.35"
+                  />
+                } @else if (t.layout === 'graphite-banner-timeline') {
+                  <app-graphite-banner-timeline-cv
+                    [accent]="accentFor(t)"
+                    [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl"
+                    [education]="demo.education" [experience]="demo.experience" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies"
+                    [fontSize]="9" [fontWeight]="400" [lineHeight]="1.5"
+                  />
+                } @else if (t.layout === 'navy-sidebar-profile') {
+                  <app-navy-sidebar-profile-cv
+                    [accent]="accentFor(t)"
+                    [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl"
+                    [education]="demo.education" [experience]="demo.experience" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies"
+                    [fontSize]="9" [fontWeight]="400" [lineHeight]="1.5"
+                  />
+                } @else if (t.layout === 'slate-rounded-panels') {
+                  <app-slate-rounded-panels-cv
+                    [accent]="accentFor(t)"
+                    [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl"
+                    [education]="demo.education" [experience]="demo.experience" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies"
+                    [fontSize]="9" [fontWeight]="400" [lineHeight]="1.45"
+                  />
+                } @else if (t.layout === 'warm-taupe-timeline') {
+                  <app-warm-taupe-timeline-cv
+                    [accent]="accentFor(t)"
+                    [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl"
+                    [education]="demo.education" [experience]="demo.experience" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies"
+                    [fontSize]="9" [fontWeight]="400" [lineHeight]="1.35"
                   />
                 } @else if (t.layout === 'cover-letter') {
                   <app-cover-letter-cv
@@ -319,10 +354,11 @@ interface CvTemplate {
         top: 0;
         left: 0;
         width: 210mm;
-        min-height: 297mm;
+        height: 297mm;
+        overflow: hidden;
         transform-origin: top left;
-        /* 210mm ≈ 793.7px — scale card width into full A4 */
-        transform: scale(calc(100cqw / 793.7));
+        /* --a4-scale is measured by appA4Fit so the whole A4 page fits. */
+        transform: scale(var(--a4-scale, 0.264));
       }
       .cv-card-overlay {
         position: absolute;
@@ -565,7 +601,15 @@ export class TemplateGalleryComponent implements OnInit {
             /* keep defaults */
           }
           const name = (t.name as string).toLowerCase();
-          const layout = name.includes('cover')
+          const layout = name.includes('graphite')
+            ? 'graphite-banner-timeline'
+            : name.includes('navy sidebar')
+            ? 'navy-sidebar-profile'
+            : name.includes('slate rounded')
+            ? 'slate-rounded-panels'
+            : name.includes('warm taupe')
+            ? 'warm-taupe-timeline'
+            : name.includes('cover')
             ? 'cover-letter'
             : name.includes('formal')
             ? 'formal-classic'

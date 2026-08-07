@@ -13,7 +13,7 @@ export interface CvProject { name?: string; description?: string; link?: string;
   standalone: true,
   imports: [CommonModule],
   template: `
-    <article class="cv" [style.--fs.px]="fontSize" [style.--fw]="fontWeight" [style.--lh]="lineHeight" [style.--font]="fontFamily">
+    <article class="cv" [style.--fs.px]="fontSize" [style.--fw]="fontWeight" [style.--lh]="lineHeight" [style.--font]="fontFamily" [style.--accent]="accent">
       <!-- HEADER -->
       <header class="hdr">
         <div class="hdr-info">
@@ -113,7 +113,7 @@ export interface CvProject { name?: string; description?: string; link?: string;
   styles: [`
     :host { display: block; }
     .cv {
-      --fs: 10px; --fw: 400; --lh: 1.4; --font: 'Times New Roman', Times, Georgia, serif;
+      --fs: 10px; --fw: 400; --lh: 1.4; --font: 'Times New Roman', Times, Georgia, serif; --accent: #000000;
       width: 210mm; min-height: 297mm; box-sizing: border-box;
       font-family: var(--font); font-size: var(--fs); font-weight: var(--fw); line-height: var(--lh);
       background: #fff; color: #111; padding: 42px 50px;
@@ -124,12 +124,12 @@ export interface CvProject { name?: string; description?: string; link?: string;
     .hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
     .hdr-info { flex: 1; padding-right: 20px; }
     .hdr-name {
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: var(--font);
       font-size: calc(var(--fs) * 2.8); font-weight: 800;
-      letter-spacing: 0.5px; text-transform: uppercase; color: #1a1a1a; margin-bottom: 3px;
+      letter-spacing: 0.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 3px;
     }
     .hdr-title {
-      font-family: Georgia, 'Times New Roman', serif;
+      font-family: var(--font);
       font-size: calc(var(--fs) * 1.7); font-style: italic; font-weight: 400;
       color: #222; margin-bottom: 14px;
     }
@@ -138,7 +138,7 @@ export interface CvProject { name?: string; description?: string; link?: string;
     .contact-grid { display: grid; grid-template-columns: auto 1fr; column-gap: 24px; row-gap: 0; }
     .contact-col { display: flex; flex-direction: column; gap: 5px; }
     .ct { display: flex; align-items: center; gap: 8px; font-size: calc(var(--fs) * 1.15); color: #333; }
-    .ct svg { width: 12px; height: 12px; stroke: #222; fill: none; stroke-width: 2; flex-shrink: 0; }
+    .ct svg { width: 12px; height: 12px; stroke: var(--accent); fill: none; stroke-width: 2; flex-shrink: 0; }
 
     /* Photo */
     .photo-frame {
@@ -149,14 +149,14 @@ export interface CvProject { name?: string; description?: string; link?: string;
     .ph-i { font-size: calc(var(--fs) * 2.5); font-weight: 700; color: #666; }
 
     /* Divider */
-    .divider { border: none; border-top: 1px solid #333; margin: 8px 0 10px; }
+    .divider { border: none; border-top: 1px solid var(--accent); margin: 8px 0 10px; }
 
     /* Sections */
     section { margin-bottom: 2px; }
     .sec-title {
-      font-family: 'Times New Roman', Times, serif;
+      font-family: var(--font);
       font-size: calc(var(--fs) * 1.45); font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase; color: #000; margin-bottom: 5px;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px;
     }
     .sub-title, .job-title {
       font-size: calc(var(--fs) * 1.2); font-weight: 700; color: #000;

@@ -6,6 +6,8 @@ export interface CvExperience { company?: string; position?: string; startDate?:
 export interface CvSkill { name?: string; level?: string; }
 export interface CvLanguage { name?: string; proficiency?: string; }
 export interface CvReference { name?: string; position?: string; company?: string; phone?: string; email?: string; }
+export interface CvCertification { name?: string; issuer?: string; date?: string; }
+export interface CvHobby { name?: string; }
 
 @Component({
   selector: 'app-elegant-frame-cv',
@@ -104,6 +106,18 @@ export interface CvReference { name?: string; position?: string; company?: strin
                   </div>
                 </div>
               }
+
+              <!-- HOBBIES -->
+              @if (hobbies.length) {
+                <div class="sec">
+                  <h3 class="sec-title">H O B B I E S</h3>
+                  <div class="hobby-list">
+                    @for (hobby of hobbies; track $index) {
+                      @if (hobby.name) { <span class="hobby-chip">{{ hobby.name }}</span> }
+                    }
+                  </div>
+                </div>
+              }
             </aside>
 
             <!-- RIGHT COLUMN -->
@@ -147,6 +161,25 @@ export interface CvReference { name?: string; position?: string; company?: strin
                 </div>
               }
 
+              <!-- CERTIFICATIONS -->
+              @if (certifications.length) {
+                <div class="sec">
+                  <h2 class="sec-title-r">C E R T I F I C A T I O N S</h2>
+                  <div class="cert-list">
+                    @for (certification of certifications; track $index) {
+                      @if (certification.name) {
+                        <div class="cert-item">
+                          <div class="cert-name">{{ certification.name }}</div>
+                          @if (certification.issuer || certification.date) {
+                            <div class="cert-meta">{{ certification.issuer }}{{ certification.issuer && certification.date ? ' · ' : '' }}{{ certification.date }}</div>
+                          }
+                        </div>
+                      }
+                    }
+                  </div>
+                </div>
+              }
+
               <!-- REFERENCE -->
               @if (references.length) {
                 <div class="sec">
@@ -177,7 +210,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
       --fs: 10px;
       --fw: 400;
       --lh: 1.5;
-      --font: Arial, Helvetica, sans-serif;
+      --font: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
       width: 210mm;
       min-height: 297mm;
       box-sizing: border-box;
@@ -302,6 +335,20 @@ export interface CvReference { name?: string; position?: string; company?: strin
     .lang-list { display: flex; flex-direction: column; gap: 5px; }
     .lang-item { font-size: calc(var(--fs) * 0.95); font-weight: 500; }
 
+    /* Hobbies */
+    .hobby-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .hobby-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 7px;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 999px;
+      font-size: calc(var(--fs) * 0.8);
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      color: rgba(255,255,255,0.92);
+    }
+
     /* ── RIGHT COLUMN ── */
     .right-col {
       background: #fff;
@@ -394,6 +441,34 @@ export interface CvReference { name?: string; position?: string; company?: strin
       text-align: justify;
     }
 
+    /* Certifications */
+    .cert-list { display: grid; gap: 9px; }
+    .cert-item {
+      position: relative;
+      padding-left: 12px;
+      break-inside: avoid;
+    }
+    .cert-item::before {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 0;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .cert-name {
+      font-size: calc(var(--fs) * 1.02);
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+    .cert-meta {
+      margin-top: 1px;
+      font-size: calc(var(--fs) * 0.88);
+      color: #64748b;
+    }
+
     /* Reference */
     .ref-grid {
       display: grid;
@@ -436,11 +511,13 @@ export class ElegantFrameCvComponent {
   @Input() experience: CvExperience[] = [];
   @Input() skills: CvSkill[] = [];
   @Input() languages: CvLanguage[] = [];
+  @Input() certifications: CvCertification[] = [];
+  @Input() hobbies: CvHobby[] = [];
   @Input() references: CvReference[] = [];
   @Input() fontSize = 10;
   @Input() fontWeight = 400;
   @Input() lineHeight = 1.5;
-  @Input() fontFamily = 'Arial, Helvetica, sans-serif';
+  @Input() fontFamily = "'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
 
   get firstName(): string {
     const p = (this.name || 'ISABEL SCHUMACHER').trim().split(/\s+/);

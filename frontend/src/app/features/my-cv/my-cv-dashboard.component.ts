@@ -8,6 +8,11 @@ import { ModernSplitCvComponent } from '../../shared/components/modern-split-cv/
 import { CleanSidebarCvComponent } from '../../shared/components/clean-sidebar-cv/clean-sidebar-cv.component';
 import { ElegantFrameCvComponent } from '../../shared/components/elegant-frame-cv/elegant-frame-cv.component';
 import { ClassicDarkCvComponent } from '../../shared/components/classic-dark-cv/classic-dark-cv.component';
+import { WarmTaupeTimelineCvComponent } from '../../shared/components/warm-taupe-timeline-cv/warm-taupe-timeline-cv.component';
+import { SlateRoundedPanelsCvComponent } from '../../shared/components/slate-rounded-panels-cv/slate-rounded-panels-cv.component';
+import { NavySidebarProfileCvComponent } from '../../shared/components/navy-sidebar-profile-cv/navy-sidebar-profile-cv.component';
+import { GraphiteBannerTimelineCvComponent } from '../../shared/components/graphite-banner-timeline-cv/graphite-banner-timeline-cv.component';
+import { A4FitDirective } from '../../shared/directives/a4-fit.directive';
 
 interface SavedCv {
   id: string;
@@ -22,7 +27,7 @@ interface SavedCv {
 @Component({
   selector: 'app-my-cv-dashboard',
   standalone: true,
-  imports: [CommonModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, LucideAngularModule],
+  imports: [CommonModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, WarmTaupeTimelineCvComponent, SlateRoundedPanelsCvComponent, NavySidebarProfileCvComponent, GraphiteBannerTimelineCvComponent, A4FitDirective, LucideAngularModule],
   template: `
     <section class="cv-library">
       <div class="library-head">
@@ -37,7 +42,7 @@ interface SavedCv {
       <div class="cv-grid">
         @for (cv of filteredCvs(); track cv.id) {
           <div class="group relative">
-            <div class="cv-card">
+            <div appA4Fit class="cv-card">
               <div class="cv-thumb pointer-events-none" aria-hidden="true">
                 @if (layoutOf(cv) === 'modern-split') {
                   <app-modern-split-cv
@@ -87,7 +92,34 @@ interface SavedCv {
                     [experience]="asArray(contentOf(cv).experience)"
                     [skills]="asArray(contentOf(cv).skills)"
                     [languages]="asArray(contentOf(cv).languages)"
+                    [certifications]="asArray(contentOf(cv).certifications)"
+                    [hobbies]="asArray(contentOf(cv).hobbies)"
                     [references]="asArray(contentOf(cv).references)"
+                  />
+                } @else if (layoutOf(cv) === 'graphite-banner-timeline') {
+                  <app-graphite-banner-timeline-cv
+                    [accent]="contentOf(cv).accent || cv.selected_color || '#323E4D'" [photoUrl]="contentOf(cv).photoUrl || null"
+                    [name]="contentOf(cv).fullName || cv.title" [jobTitle]="contentOf(cv).jobTitle || ''" [email]="contentOf(cv).email || ''" [phone]="contentOf(cv).phone || ''" [location]="contentOf(cv).location || ''" [linkedin]="contentOf(cv).linkedin || ''" [summary]="contentOf(cv).summary || ''"
+                    [education]="asArray(contentOf(cv).education)" [experience]="asArray(contentOf(cv).experience)" [skills]="asArray(contentOf(cv).skills)" [languages]="asArray(contentOf(cv).languages)" [certifications]="asArray(contentOf(cv).certifications)" [projects]="asArray(contentOf(cv).projects)" [references]="asArray(contentOf(cv).references)" [hobbies]="asArray(contentOf(cv).hobbies)"
+                  />
+                } @else if (layoutOf(cv) === 'navy-sidebar-profile') {
+                  <app-navy-sidebar-profile-cv
+                    [accent]="contentOf(cv).accent || cv.selected_color || '#1E3A52'" [photoUrl]="contentOf(cv).photoUrl || null"
+                    [name]="contentOf(cv).fullName || cv.title" [jobTitle]="contentOf(cv).jobTitle || ''" [email]="contentOf(cv).email || ''" [phone]="contentOf(cv).phone || ''" [location]="contentOf(cv).location || ''" [linkedin]="contentOf(cv).linkedin || ''" [summary]="contentOf(cv).summary || ''"
+                    [education]="asArray(contentOf(cv).education)" [experience]="asArray(contentOf(cv).experience)" [skills]="asArray(contentOf(cv).skills)" [languages]="asArray(contentOf(cv).languages)" [certifications]="asArray(contentOf(cv).certifications)" [projects]="asArray(contentOf(cv).projects)" [references]="asArray(contentOf(cv).references)" [hobbies]="asArray(contentOf(cv).hobbies)"
+                  />
+                } @else if (layoutOf(cv) === 'slate-rounded-panels') {
+                  <app-slate-rounded-panels-cv
+                    [accent]="contentOf(cv).accent || cv.selected_color || '#364152'" [photoUrl]="contentOf(cv).photoUrl || null"
+                    [name]="contentOf(cv).fullName || cv.title" [jobTitle]="contentOf(cv).jobTitle || ''" [email]="contentOf(cv).email || ''" [phone]="contentOf(cv).phone || ''" [location]="contentOf(cv).location || ''" [linkedin]="contentOf(cv).linkedin || ''" [summary]="contentOf(cv).summary || ''"
+                    [education]="asArray(contentOf(cv).education)" [experience]="asArray(contentOf(cv).experience)" [skills]="asArray(contentOf(cv).skills)" [languages]="asArray(contentOf(cv).languages)" [certifications]="asArray(contentOf(cv).certifications)" [projects]="asArray(contentOf(cv).projects)" [references]="asArray(contentOf(cv).references)" [hobbies]="asArray(contentOf(cv).hobbies)"
+                  />
+                } @else if (layoutOf(cv) === 'warm-taupe-timeline') {
+                  <app-warm-taupe-timeline-cv
+                    [accent]="contentOf(cv).accent || cv.selected_color || '#A87C64'" [photoUrl]="contentOf(cv).photoUrl || null"
+                    [name]="contentOf(cv).fullName || cv.title" [jobTitle]="contentOf(cv).jobTitle || ''" [email]="contentOf(cv).email || ''" [phone]="contentOf(cv).phone || ''" [location]="contentOf(cv).location || ''" [linkedin]="contentOf(cv).linkedin || ''" [summary]="contentOf(cv).summary || ''"
+                    [education]="asArray(contentOf(cv).education)" [experience]="asArray(contentOf(cv).experience)" [skills]="asArray(contentOf(cv).skills)" [languages]="asArray(contentOf(cv).languages)" [certifications]="asArray(contentOf(cv).certifications)" [projects]="asArray(contentOf(cv).projects)" [references]="asArray(contentOf(cv).references)" [hobbies]="asArray(contentOf(cv).hobbies)"
+                    [fontSize]="contentOf(cv).typography?.fontSize || 10" [fontWeight]="contentOf(cv).typography?.fontWeight || 400" [lineHeight]="contentOf(cv).typography?.lineHeight || 1.42" [fontFamily]="contentOf(cv).typography?.fontFamily || undefined"
                   />
                 } @else if (layoutOf(cv) === 'classic-dark') {
                   <app-classic-dark-cv
@@ -178,9 +210,10 @@ interface SavedCv {
       top: 0;
       left: 0;
       width: 210mm;
-      min-height: 297mm;
+      height: 297mm;
+      overflow: hidden;
       transform-origin: top left;
-      transform: scale(calc(100cqw / 793.7));
+      transform: scale(var(--a4-scale, 0.264));
     }
     .cv-overlay {
       position: absolute;
@@ -245,6 +278,10 @@ export class MyCvDashboardComponent implements OnInit {
     const content = this.contentOf(cv);
     if (content.layout) return content.layout;
     const name = (cv.template_name || '').toLowerCase();
+    if (name.includes('graphite')) return 'graphite-banner-timeline';
+    if (name.includes('navy sidebar')) return 'navy-sidebar-profile';
+    if (name.includes('slate rounded')) return 'slate-rounded-panels';
+    if (name.includes('warm taupe')) return 'warm-taupe-timeline';
     if (name.includes('geometric')) return 'classic-dark';
     if (name.includes('elegant')) return 'elegant-frame';
     if (name.includes('clean')) return 'clean-sidebar';

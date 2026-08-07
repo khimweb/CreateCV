@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -12,6 +12,7 @@ import {
   Languages,
   Award,
   FolderKanban,
+  Palette,
   Download,
   Save,
   Eye,
@@ -31,7 +32,13 @@ import { ElegantFrameCvComponent } from '../../shared/components/elegant-frame-c
 import { ClassicDarkCvComponent } from '../../shared/components/classic-dark-cv/classic-dark-cv.component';
 import { FormalClassicCvComponent } from '../../shared/components/formal-classic-cv/formal-classic-cv.component';
 import { CoverLetterCvComponent } from '../../shared/components/cover-letter-cv/cover-letter-cv.component';
+import { WarmTaupeTimelineCvComponent } from '../../shared/components/warm-taupe-timeline-cv/warm-taupe-timeline-cv.component';
+import { SlateRoundedPanelsCvComponent } from '../../shared/components/slate-rounded-panels-cv/slate-rounded-panels-cv.component';
+import { NavySidebarProfileCvComponent } from '../../shared/components/navy-sidebar-profile-cv/navy-sidebar-profile-cv.component';
+import { GraphiteBannerTimelineCvComponent } from '../../shared/components/graphite-banner-timeline-cv/graphite-banner-timeline-cv.component';
 import { ToastService } from '../../shared/components/toast/toast.service';
+import { PREVIEW_PLACEHOLDER } from '../../shared/preview-placeholders';
+import { PptxExportService } from '../../shared/services/pptx-export.service';
 import {
   DEGREES,
   FIELDS_OF_STUDY,
@@ -49,11 +56,21 @@ import {
 
 const SKILL_LEVELS = ['Beginner', 'Basic', 'Intermediate', 'Advanced', 'Expert'] as const;
 const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
+const ACCENT_PALETTE = [
+  { label: 'Navy', value: '#0F3D64' },
+  { label: 'Royal blue', value: '#2563EB' },
+  { label: 'Teal', value: '#0F766E' },
+  { label: 'Emerald', value: '#15803D' },
+  { label: 'Burgundy', value: '#9F1239' },
+  { label: 'Terracotta', value: '#C2410C' },
+  { label: 'Plum', value: '#7E22CE' },
+  { label: 'Charcoal', value: '#374151' },
+];
 
 @Component({
   selector: 'app-make-cv',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, FormalClassicCvComponent, CoverLetterCvComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, FormalClassicCvComponent, CoverLetterCvComponent, WarmTaupeTimelineCvComponent, SlateRoundedPanelsCvComponent, NavySidebarProfileCvComponent, GraphiteBannerTimelineCvComponent],
   template: `
     <main class="min-h-screen bg-[#f7faff] dark:bg-slate-950 pt-24 pb-28 px-4">
       <div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[84px_minmax(0,1fr)] xl:grid-cols-[84px_minmax(0,1fr)_430px] gap-7">
@@ -84,13 +101,13 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <span class="ft-val">{{ fontSize() }}px</span>
                 <button type="button" class="ft-btn" (click)="bumpFont(1)" title="Increase font size">A+</button>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" title="Font family">
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" [ngModelOptions]="{ standalone: true }" title="Font family">
                   @for (f of fontFamilies; track f.value) {
                     <option [value]="f.value">{{ f.label }}</option>
                   }
                 </select>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" title="Weight">
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" [ngModelOptions]="{ standalone: true }" title="Weight">
                   @for (w of fontWeights; track w.value) {
                     <option [value]="w.value">{{ w.label }}</option>
                   }
@@ -139,11 +156,11 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <span class="ft-val">{{ fontSize() }}px</span>
                 <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" [ngModelOptions]="{ standalone: true }">
                   @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
                 </select>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" [ngModelOptions]="{ standalone: true }">
                   @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
                 </select>
               </div>
@@ -173,31 +190,16 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                     </div>
                     <label class="block mt-3"
                       >Field of Study
-                      <select formControlName="field">
-                        <option value="">Optional — select field…</option>
-                        @for (f of fields; track f) {
-                          <option [value]="f">{{ f }}</option>
-                        }
-                      </select>
+                      <input formControlName="field" list="fields-of-study" placeholder="Select or type a field…" />
                     </label>
                     <div class="grid sm:grid-cols-2 gap-4 mt-3">
                       <label
                         >Start Year *
-                        <select formControlName="startYear">
-                          <option value="">Year…</option>
-                          @for (y of years; track y) {
-                            <option [value]="y">{{ y }}</option>
-                          }
-                        </select>
+                        <input formControlName="startYear" list="year-options" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="Select or type year…" />
                       </label>
                       <label
                         >End Year
-                        <select formControlName="endYear" [disabled]="ed.get('current')?.value">
-                          <option value="">Year…</option>
-                          @for (y of years; track y) {
-                            <option [value]="y">{{ y }}</option>
-                          }
-                        </select>
+                        <input formControlName="endYear" list="year-options" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="Select or type year…" [disabled]="ed.get('current')?.value" />
                       </label>
                     </div>
                     <label class="check mt-3">
@@ -223,11 +225,11 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <span class="ft-val">{{ fontSize() }}px</span>
                 <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" [ngModelOptions]="{ standalone: true }">
                   @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
                 </select>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" [ngModelOptions]="{ standalone: true }">
                   @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
                 </select>
               </div>
@@ -257,12 +259,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                               <option [value]="m">{{ m }}</option>
                             }
                           </select>
-                          <select formControlName="startYear">
-                            <option value="">Year</option>
-                            @for (y of years; track y) {
-                              <option [value]="y">{{ y }}</option>
-                            }
-                          </select>
+                          <input formControlName="startYear" list="year-options" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="Select or type year…" />
                         </div>
                       </label>
                       <label
@@ -274,12 +271,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                               <option [value]="m">{{ m }}</option>
                             }
                           </select>
-                          <select formControlName="endYear" [disabled]="job.get('current')?.value">
-                            <option value="">Year</option>
-                            @for (y of years; track y) {
-                              <option [value]="y">{{ y }}</option>
-                            }
-                          </select>
+                          <input formControlName="endYear" list="year-options" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="Select or type year…" [disabled]="job.get('current')?.value" />
                         </div>
                       </label>
                     </div>
@@ -314,11 +306,11 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <span class="ft-val">{{ fontSize() }}px</span>
                 <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" [ngModelOptions]="{ standalone: true }">
                   @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
                 </select>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" [ngModelOptions]="{ standalone: true }">
                   @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
                 </select>
               </div>
@@ -362,11 +354,11 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <span class="ft-val">{{ fontSize() }}px</span>
                 <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" [ngModelOptions]="{ standalone: true }">
                   @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
                 </select>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" [ngModelOptions]="{ standalone: true }">
                   @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
                 </select>
               </div>
@@ -374,12 +366,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <div class="grid sm:grid-cols-2 gap-4 items-start">
                   <label
                     >Language
-                    <select [(ngModel)]="langDraft.name" [ngModelOptions]="{ standalone: true }">
-                      <option value="">Select language…</option>
-                      @for (l of languageOptions; track l) {
-                        <option [value]="l">{{ l }}</option>
-                      }
-                    </select>
+                    <input [(ngModel)]="langDraft.name" [ngModelOptions]="{ standalone: true }" list="languages-list" placeholder="Select or type a language…" />
                   </label>
                   <div>
                     <span class="font-semibold text-sm text-slate-700">Proficiency</span>
@@ -419,11 +406,11 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <span class="ft-val">{{ fontSize() }}px</span>
                 <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" [ngModelOptions]="{ standalone: true }">
                   @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
                 </select>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" [ngModelOptions]="{ standalone: true }">
                   @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
                 </select>
               </div>
@@ -453,11 +440,11 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <span class="ft-val">{{ fontSize() }}px</span>
                 <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" [ngModelOptions]="{ standalone: true }">
                   @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
                 </select>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" [ngModelOptions]="{ standalone: true }">
                   @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
                 </select>
               </div>
@@ -489,11 +476,11 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <span class="ft-val">{{ fontSize() }}px</span>
                 <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" [ngModelOptions]="{ standalone: true }">
                   @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
                 </select>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" [ngModelOptions]="{ standalone: true }">
                   @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
                 </select>
               </div>
@@ -529,11 +516,11 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <span class="ft-val">{{ fontSize() }}px</span>
                 <button type="button" class="ft-btn" (click)="bumpFont(1)">A+</button>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)">
+                <select class="ft-select" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" [ngModelOptions]="{ standalone: true }">
                   @for (f of fontFamilies; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
                 </select>
                 <span class="ft-sep"></span>
-                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+                <select class="ft-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" [ngModelOptions]="{ standalone: true }">
                   @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
                 </select>
               </div>
@@ -568,6 +555,21 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
           <datalist id="institutions">
             @for (i of institutions; track i) {
               <option [value]="i"></option>
+            }
+          </datalist>
+          <datalist id="fields-of-study">
+            @for (field of fields; track field) {
+              <option [value]="field"></option>
+            }
+          </datalist>
+          <datalist id="year-options">
+            @for (year of years; track year) {
+              <option [value]="year"></option>
+            }
+          </datalist>
+          <datalist id="languages-list">
+            @for (language of languageOptions; track language) {
+              <option [value]="language"></option>
             }
           </datalist>
           <datalist id="skills-list">
@@ -615,7 +617,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
               </div>
               <div class="typo-group">
                 <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><text x="3" y="18" font-size="16" font-weight="400" stroke="none" fill="#94a3b8">F</text></svg>
-                <select class="typo-select font-sel" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" title="Font family">
+                <select class="typo-select font-sel" [ngModel]="fontFamily()" (ngModelChange)="fontFamily.set($event)" [ngModelOptions]="{ standalone: true }" title="Font family">
                   @for (f of fontFamilies; track f.value) {
                     <option [value]="f.value" [style.font-family]="f.value">{{ f.label }}</option>
                   }
@@ -623,7 +625,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
               </div>
               <div class="typo-group">
                 <lucide-icon [img]="Bold" class="w-3.5 h-3.5 text-slate-400" />
-                <select class="typo-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" title="Font weight">
+                <select class="typo-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" [ngModelOptions]="{ standalone: true }" title="Font weight">
                   @for (w of fontWeights; track w.value) {
                     <option [value]="w.value">{{ w.label }}</option>
                   }
@@ -631,7 +633,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
               </div>
               <div class="typo-group">
                 <lucide-icon [img]="AlignJustify" class="w-3.5 h-3.5 text-slate-400" />
-                <select class="typo-select" [ngModel]="lineHeight()" (ngModelChange)="lineHeight.set(+$event)" title="Line spacing">
+                <select class="typo-select" [ngModel]="lineHeight()" (ngModelChange)="lineHeight.set(+$event)" [ngModelOptions]="{ standalone: true }" title="Line spacing">
                   @for (lh of lineHeights; track lh.value) {
                     <option [value]="lh.value">{{ lh.label }}</option>
                   }
@@ -647,7 +649,23 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <lucide-icon [img]="Minus" class="w-3.5 h-3.5" />
                 Lines
               </button>
+              <div class="typo-group accent-picker" aria-label="CV accent color">
+                <lucide-icon [img]="Palette" class="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <div class="accent-swatches" role="group" aria-label="Choose an accent color">
+                  @for (tone of accentPalette; track tone.value) {
+                    <button type="button" class="accent-swatch" [class.selected]="accentColor() === tone.value" [style.background]="tone.value" (click)="setAccent(tone.value)" [attr.aria-label]="tone.label + ' accent color'" [title]="tone.label"></button>
+                  }
+                </div>
+                <label class="custom-color" title="Choose a custom accent color">
+                  <span class="sr-only">Custom accent color</span>
+                  <input type="color" [ngModel]="accentColor()" (ngModelChange)="setAccent($event)" aria-label="Custom accent color" />
+                </label>
+              </div>
             </div>
+
+            @if (usingSampleData()) {
+              <p class="sample-hint">Showing sample content so you can see the layout. Your details replace it as you type.</p>
+            }
 
             <div class="h-[520px] overflow-auto rounded-xl border-2 border-slate-900 bg-slate-100">
               <div [style.zoom]="zoom() * 0.48" class="origin-top-left">
@@ -675,7 +693,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
               <p class="font-semibold text-slate-800 dark:text-white text-lg">Download CV</p>
               <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Choose your preferred format</p>
             </div>
-            <div class="px-6 pb-4 grid grid-cols-2 gap-3">
+            <div class="px-6 pb-4 grid grid-cols-3 gap-3">
               <button type="button" (click)="downloadAs('pdf')"
                       class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10"
                       [class.border-slate-200]="true" [class.dark:border-slate-700]="true">
@@ -689,6 +707,13 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/></svg>
                 <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">DOCX</span>
                 <span class="text-[10px] text-slate-400">Editable in Word</span>
+              </button>
+              <button type="button" (click)="downloadAs('pptx')"
+                      class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10"
+                      [class.border-slate-200]="true" [class.dark:border-slate-700]="true">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><rect x="8" y="12" width="8" height="5" rx="1"/></svg>
+                <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">PPTX</span>
+                <span class="text-[10px] text-slate-400">Editable, keeps design</span>
               </button>
             </div>
             <div class="border-t border-slate-200 dark:border-slate-700">
@@ -709,7 +734,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
             <button type="button" class="typo-btn" (click)="bumpFont(-1)">A−</button>
             <span class="typo-val">{{ fontSize() }}px</span>
             <button type="button" class="typo-btn" (click)="bumpFont(1)">A+</button>
-            <select class="typo-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)">
+            <select class="typo-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" [ngModelOptions]="{ standalone: true }">
               @for (w of fontWeights; track w.value) {
                 <option [value]="w.value">{{ w.label }}</option>
               }
@@ -720,7 +745,7 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
             <lucide-icon [img]="X" />
           </button>
         </div>
-        <div class="mx-auto mt-16 print-root a4-sheet">
+        <div class="mx-auto mt-16 print-root a4-sheet" [class.cover-letter-print]="layout() === 'cover-letter'">
           <ng-container *ngTemplateOutlet="cvPreview"></ng-container>
         </div>
       </div>
@@ -731,18 +756,18 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
       @if (layout() === 'modern-split') {
         <app-modern-split-cv
           [photoUrl]="photoUrl()"
-          [name]="form.value.fullName || 'Your Name'"
-          [jobTitle]="form.value.jobTitle || ''"
-          [email]="form.value.email || ''"
-          [phone]="form.value.phone || ''"
-          [location]="form.value.location || ''"
-          [summary]="form.value.summary || defaultSummary"
-          [education]="form.value.education || []"
-          [experience]="mappedExperience()"
-          [skills]="form.value.skills || []"
-          [languages]="form.value.languages || []"
-          [references]="form.value.references || []"
-          [hobbies]="form.value.hobbies || []"
+          [name]="previewName()"
+          [jobTitle]="previewJobTitle()"
+          [email]="previewEmail()"
+          [phone]="previewPhone()"
+          [location]="previewLocation()"
+          [summary]="previewSummary()"
+          [education]="previewEducation()"
+          [experience]="previewExperience()"
+          [skills]="previewSkills()"
+          [languages]="previewLanguages()"
+          [references]="previewReferences()"
+          [hobbies]="previewHobbies()"
           [fontSize]="fontSize()"
           [fontWeight]="fontWeight()"
           [lineHeight]="lineHeight()"
@@ -752,17 +777,17 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
       } @else if (layout() === 'clean-sidebar') {
         <app-clean-sidebar-cv
           [photoUrl]="photoUrl()"
-          [name]="form.value.fullName || 'Your Name'"
-          [jobTitle]="form.value.jobTitle || ''"
-          [email]="form.value.email || ''"
-          [phone]="form.value.phone || ''"
-          [location]="form.value.location || ''"
-          [summary]="form.value.summary || defaultSummary"
-          [education]="form.value.education || []"
-          [experience]="mappedExperience()"
-          [skills]="form.value.skills || []"
-          [languages]="form.value.languages || []"
-          [references]="form.value.references || []"
+          [name]="previewName()"
+          [jobTitle]="previewJobTitle()"
+          [email]="previewEmail()"
+          [phone]="previewPhone()"
+          [location]="previewLocation()"
+          [summary]="previewSummary()"
+          [education]="previewEducation()"
+          [experience]="previewExperience()"
+          [skills]="previewSkills()"
+          [languages]="previewLanguages()"
+          [references]="previewReferences()"
           [fontSize]="fontSize()"
           [fontWeight]="fontWeight()"
           [lineHeight]="lineHeight()"
@@ -772,18 +797,20 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
       } @else if (layout() === 'elegant-frame') {
         <app-elegant-frame-cv
           [photoUrl]="photoUrl()"
-          [name]="form.value.fullName || 'Your Name'"
-          [jobTitle]="form.value.jobTitle || ''"
-          [email]="form.value.email || ''"
-          [phone]="form.value.phone || ''"
-          [location]="form.value.location || ''"
-          [linkedin]="form.value.linkedin || ''"
-          [summary]="form.value.summary || defaultSummary"
-          [education]="form.value.education || []"
-          [experience]="mappedExperience()"
-          [skills]="form.value.skills || []"
-          [languages]="form.value.languages || []"
-          [references]="form.value.references || []"
+          [name]="previewName()"
+          [jobTitle]="previewJobTitle()"
+          [email]="previewEmail()"
+          [phone]="previewPhone()"
+          [location]="previewLocation()"
+          [linkedin]="previewLinkedin()"
+          [summary]="previewSummary()"
+          [education]="previewEducation()"
+          [experience]="previewExperience()"
+          [skills]="previewSkills()"
+          [languages]="previewLanguages()"
+          [certifications]="previewCertifications()"
+          [hobbies]="previewHobbies()"
+          [references]="previewReferences()"
           [fontSize]="fontSize()"
           [fontWeight]="fontWeight()"
           [lineHeight]="lineHeight()"
@@ -793,40 +820,69 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
       } @else if (layout() === 'classic-dark') {
         <app-classic-dark-cv
           [photoUrl]="photoUrl()"
-          [name]="form.value.fullName || 'Your Name'"
-          [jobTitle]="form.value.jobTitle || ''"
-          [email]="form.value.email || ''"
-          [phone]="form.value.phone || ''"
-          [location]="form.value.location || ''"
-          [linkedin]="form.value.linkedin || ''"
-          [summary]="form.value.summary || defaultSummary"
-          [education]="form.value.education || []"
-          [experience]="mappedExperience()"
-          [skills]="form.value.skills || []"
-          [languages]="form.value.languages || []"
-          [references]="form.value.references || []"
+          [name]="previewName()"
+          [jobTitle]="previewJobTitle()"
+          [email]="previewEmail()"
+          [phone]="previewPhone()"
+          [location]="previewLocation()"
+          [linkedin]="previewLinkedin()"
+          [summary]="previewSummary()"
+          [education]="previewEducation()"
+          [experience]="previewExperience()"
+          [skills]="previewSkills()"
+          [languages]="previewLanguages()"
+          [references]="previewReferences()"
           [fontSize]="fontSize()"
           [fontWeight]="fontWeight()"
           [lineHeight]="lineHeight()"
           [fontFamily]="fontFamily()"
           [accent]="accentColor()"
         />
+      } @else if (layout() === 'graphite-banner-timeline') {
+        <app-graphite-banner-timeline-cv
+          [accent]="accentColor()" [photoUrl]="photoUrl()"
+          [name]="previewName()" [jobTitle]="previewJobTitle()" [email]="previewEmail()" [phone]="previewPhone()" [location]="previewLocation()" [linkedin]="previewLinkedin()" [summary]="previewSummary()"
+          [education]="previewEducation()" [experience]="previewExperience()" [skills]="previewSkills()" [languages]="previewLanguages()" [certifications]="previewCertifications()" [projects]="previewProjects()" [references]="previewReferences()" [hobbies]="previewHobbies()"
+          [fontSize]="fontSize()" [fontWeight]="fontWeight()" [lineHeight]="lineHeight()" [fontFamily]="fontFamily()"
+        />
+      } @else if (layout() === 'navy-sidebar-profile') {
+        <app-navy-sidebar-profile-cv
+          [accent]="accentColor()" [photoUrl]="photoUrl()"
+          [name]="previewName()" [jobTitle]="previewJobTitle()" [email]="previewEmail()" [phone]="previewPhone()" [location]="previewLocation()" [linkedin]="previewLinkedin()" [summary]="previewSummary()"
+          [education]="previewEducation()" [experience]="previewExperience()" [skills]="previewSkills()" [languages]="previewLanguages()" [certifications]="previewCertifications()" [projects]="previewProjects()" [references]="previewReferences()" [hobbies]="previewHobbies()"
+          [fontSize]="fontSize()" [fontWeight]="fontWeight()" [lineHeight]="lineHeight()" [fontFamily]="fontFamily()"
+        />
+      } @else if (layout() === 'slate-rounded-panels') {
+        <app-slate-rounded-panels-cv
+          [accent]="accentColor()" [photoUrl]="photoUrl()"
+          [name]="previewName()" [jobTitle]="previewJobTitle()" [email]="previewEmail()" [phone]="previewPhone()" [location]="previewLocation()" [linkedin]="previewLinkedin()" [summary]="previewSummary()"
+          [education]="previewEducation()" [experience]="previewExperience()" [skills]="previewSkills()" [languages]="previewLanguages()" [certifications]="previewCertifications()" [projects]="previewProjects()" [references]="previewReferences()" [hobbies]="previewHobbies()"
+          [fontSize]="fontSize()" [fontWeight]="fontWeight()" [lineHeight]="lineHeight()" [fontFamily]="fontFamily()"
+        />
+      } @else if (layout() === 'warm-taupe-timeline') {
+        <app-warm-taupe-timeline-cv
+          [accent]="accentColor()" [photoUrl]="photoUrl()"
+          [name]="previewName()" [jobTitle]="previewJobTitle()" [email]="previewEmail()" [phone]="previewPhone()" [location]="previewLocation()" [linkedin]="previewLinkedin()" [summary]="previewSummary()"
+          [education]="previewEducation()" [experience]="previewExperience()" [skills]="previewSkills()" [languages]="previewLanguages()" [certifications]="previewCertifications()" [projects]="previewProjects()" [references]="previewReferences()" [hobbies]="previewHobbies()"
+          [fontSize]="fontSize()" [fontWeight]="fontWeight()" [lineHeight]="lineHeight()" [fontFamily]="fontFamily()"
+        />
       } @else if (layout() === 'formal-classic') {
         <app-formal-classic-cv
+          [accent]="accentColor()"
           [photoUrl]="photoUrl()"
-          [name]="form.value.fullName || 'Your Name'"
-          [jobTitle]="form.value.jobTitle || ''"
-          [email]="form.value.email || ''"
-          [phone]="form.value.phone || ''"
-          [location]="form.value.location || ''"
-          [linkedin]="form.value.linkedin || ''"
-          [summary]="form.value.summary || defaultSummary"
-          [education]="form.value.education || []"
-          [experience]="mappedExperience()"
-          [skills]="form.value.skills || []"
-          [languages]="form.value.languages || []"
-          [references]="form.value.references || []"
-          [projects]="form.value.projects || []"
+          [name]="previewName()"
+          [jobTitle]="previewJobTitle()"
+          [email]="previewEmail()"
+          [phone]="previewPhone()"
+          [location]="previewLocation()"
+          [linkedin]="previewLinkedin()"
+          [summary]="previewSummary()"
+          [education]="previewEducation()"
+          [experience]="previewExperience()"
+          [skills]="previewSkills()"
+          [languages]="previewLanguages()"
+          [references]="previewReferences()"
+          [projects]="previewProjects()"
           [fontSize]="fontSize()"
           [fontWeight]="fontWeight()"
           [lineHeight]="lineHeight()"
@@ -835,11 +891,11 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
       } @else if (layout() === 'cover-letter') {
         <app-cover-letter-cv
           [accent]="accentColor()"
-          [name]="form.value.fullName || 'Your Name'"
-          [phone]="form.value.phone || ''"
-          [email]="form.value.email || ''"
-          [location]="form.value.location || ''"
-          [bodyText]="form.value.summary || ''"
+          [name]="previewName()"
+          [phone]="previewPhone()"
+          [email]="previewEmail()"
+          [location]="previewLocation()"
+          [bodyText]="previewSummary()"
           [fontSize]="fontSize()"
           [fontWeight]="fontWeight()"
           [lineHeight]="lineHeight()"
@@ -848,19 +904,19 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
       } @else {
         <app-professional-cv
           [photoUrl]="photoUrl()"
-          [name]="form.value.fullName || 'Your Name'"
-          [jobTitle]="form.value.jobTitle || ''"
-          [email]="form.value.email || ''"
-          [phone]="form.value.phone || ''"
-          [location]="form.value.location || ''"
-          [linkedin]="form.value.linkedin || ''"
-          [summary]="form.value.summary || defaultSummary"
-          [education]="form.value.education || []"
-          [experience]="mappedExperience()"
-          [skills]="form.value.skills || []"
-          [languages]="form.value.languages || []"
-          [certifications]="form.value.certifications || []"
-          [projects]="form.value.projects || []"
+          [name]="previewName()"
+          [jobTitle]="previewJobTitle()"
+          [email]="previewEmail()"
+          [phone]="previewPhone()"
+          [location]="previewLocation()"
+          [linkedin]="previewLinkedin()"
+          [summary]="previewSummary()"
+          [education]="previewEducation()"
+          [experience]="previewExperience()"
+          [skills]="previewSkills()"
+          [languages]="previewLanguages()"
+          [certifications]="previewCertifications()"
+          [projects]="previewProjects()"
           [fontSize]="fontSize()"
           [fontWeight]="fontWeight()"
           [lineHeight]="lineHeight()"
@@ -1045,6 +1101,16 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
         width: 210mm;
         max-width: 100%;
       }
+      .sample-hint {
+        margin: 0 0 8px;
+        border-radius: 10px;
+        border: 1px dashed #bcd0ee;
+        background: #f3f8ff;
+        color: #4a6da7;
+        padding: 7px 10px;
+        font-size: 0.68rem;
+        line-height: 1.45;
+      }
       .typo-bar {
         display: flex;
         flex-wrap: wrap;
@@ -1098,6 +1164,30 @@ const LANG_LEVELS = ['Beginner', 'Intermediate', 'Fluent', 'Native'] as const;
         width: auto;
         min-width: 0;
       }
+      .accent-picker { gap: 0.35rem; }
+      .accent-swatches { display: inline-flex; align-items: center; gap: 0.25rem; }
+      .accent-swatch {
+        width: 16px;
+        height: 16px;
+        border: 1px solid rgba(15, 23, 42, 0.16);
+        border-radius: 999px;
+        cursor: pointer;
+        transition: transform .16s ease, box-shadow .16s ease;
+      }
+      .accent-swatch:hover { transform: scale(1.16); }
+      .accent-swatch.selected { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #062b50; transform: scale(1.08); }
+      .custom-color {
+        display: grid;
+        width: 22px;
+        height: 22px;
+        place-items: center;
+        overflow: hidden;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.45rem;
+        background: conic-gradient(#f43f5e, #facc15, #22c55e, #38bdf8, #a855f7, #f43f5e);
+        cursor: pointer;
+      }
+      .custom-color input { width: 32px; height: 32px; padding: 0; border: 0; cursor: pointer; opacity: .95; }
 
       /* ── Per-section font toolbar ── */
       .font-toolbar {
@@ -1198,6 +1288,7 @@ export class MakeCvComponent implements OnInit, OnDestroy {
   Languages = Languages;
   Award = Award;
   FolderKanban = FolderKanban;
+  Palette = Palette;
 
   jobTitles = JOB_TITLES;
   locations = LOCATIONS;
@@ -1211,6 +1302,7 @@ export class MakeCvComponent implements OnInit, OnDestroy {
   fontWeights = FONT_WEIGHTS;
   lineHeights = LINE_HEIGHTS;
   fontFamilies = FONT_FAMILIES;
+  accentPalette = ACCENT_PALETTE;
 
   skillLevels = SKILL_LEVELS;
   langLevels = LANG_LEVELS;
@@ -1227,7 +1319,7 @@ export class MakeCvComponent implements OnInit, OnDestroy {
   fontFamily = signal('Arial, Helvetica, sans-serif');
   sectionLines = signal(true);
   accentColor = signal('#667b97');
-  layout = signal<'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter'>('professional');
+  layout = signal<'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter' | 'warm-taupe-timeline' | 'slate-rounded-panels' | 'navy-sidebar-profile' | 'graphite-banner-timeline'>('professional');
   cvId: string | null = null;
   templateId: string | null = null;
   hobbyDraft = '';
@@ -1247,12 +1339,14 @@ export class MakeCvComponent implements OnInit, OnDestroy {
   ];
 
   form: FormGroup;
+  private presentationChangesReady = false;
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private http: HttpClient,
     private toast: ToastService,
+    private pptx: PptxExportService,
   ) {
     this.form = this.fb.group({
       fullName: [''],
@@ -1271,15 +1365,29 @@ export class MakeCvComponent implements OnInit, OnDestroy {
       references: this.fb.array([]),
       hobbies: this.fb.array([]),
     });
+    effect(() => {
+      this.fontSize();
+      this.fontWeight();
+      this.lineHeight();
+      this.fontFamily();
+      this.sectionLines();
+      this.accentColor();
+      if (this.presentationChangesReady) this.scheduleAutoSave();
+      this.presentationChangesReady = true;
+    });
     this.cvId = this.route.snapshot.queryParamMap.get('cvId');
     this.templateId = this.route.snapshot.queryParamMap.get('templateId');
     const color = this.route.snapshot.queryParamMap.get('color');
-    if (color) this.accentColor.set(color);
+    if (color) this.setAccent(color, false);
     const layoutParam = this.route.snapshot.queryParamMap.get('layout');
     if (layoutParam === 'modern-split') this.layout.set('modern-split');
     else if (layoutParam === 'clean-sidebar') this.layout.set('clean-sidebar');
     else if (layoutParam === 'elegant-frame') this.layout.set('elegant-frame');
     else if (layoutParam === 'classic-dark') this.layout.set('classic-dark');
+    else if (layoutParam === 'warm-taupe-timeline') this.layout.set('warm-taupe-timeline');
+    else if (layoutParam === 'slate-rounded-panels') this.layout.set('slate-rounded-panels');
+    else if (layoutParam === 'navy-sidebar-profile') this.layout.set('navy-sidebar-profile');
+    else if (layoutParam === 'graphite-banner-timeline') this.layout.set('graphite-banner-timeline');
     else if (layoutParam === 'formal-classic') this.layout.set('formal-classic');
     else if (layoutParam === 'cover-letter') this.layout.set('cover-letter');
   }
@@ -1290,7 +1398,7 @@ export class MakeCvComponent implements OnInit, OnDestroy {
         next: ({ cv }) => {
           const content = typeof cv.content === 'string' ? JSON.parse(cv.content || '{}') : cv.content || {};
           this.patchFromContent(content);
-          if (cv.selected_color) this.accentColor.set(cv.selected_color);
+          if (!content.accent && cv.selected_color) this.setAccent(cv.selected_color, false);
         },
         error: () => {},
       });
@@ -1338,6 +1446,55 @@ export class MakeCvComponent implements OnInit, OnDestroy {
     }));
   }
 
+  // ── Live-preview placeholders ────────────────────────────────────────────
+  // Empty sections fall back to sample content so the layout stays readable
+  // while building. Saving always uses the real form values, so anything the
+  // user types immediately replaces the matching placeholder.
+
+  private text(value: any, fallback: string): string {
+    return typeof value === 'string' && value.trim() ? value : fallback;
+  }
+
+  private rows(list: any[], hasValue: (item: any) => boolean, fallback: any[]): any[] {
+    const filled = (list || []).filter(hasValue);
+    return filled.length ? filled : fallback;
+  }
+
+  /** True while any section is still showing sample content. */
+  usingSampleData(): boolean {
+    const v = this.form.value;
+    const filled = [
+      v.fullName, v.jobTitle, v.email, v.phone, v.location, v.linkedin, v.summary,
+    ].some((value: any) => typeof value === 'string' && value.trim());
+    const lists =
+      (v.education || []).some((e: any) => e.institution || e.degree || e.field) ||
+      (v.experience || []).some((e: any) => e.company || e.position) ||
+      (v.skills || []).some((s: any) => s.name) ||
+      (v.languages || []).some((l: any) => l.name);
+    return !filled && !lists;
+  }
+
+  previewName() { return this.text(this.form.value.fullName, PREVIEW_PLACEHOLDER.name); }
+  previewJobTitle() { return this.text(this.form.value.jobTitle, PREVIEW_PLACEHOLDER.jobTitle); }
+  previewEmail() { return this.text(this.form.value.email, PREVIEW_PLACEHOLDER.email); }
+  previewPhone() { return this.text(this.form.value.phone, PREVIEW_PLACEHOLDER.phone); }
+  previewLocation() { return this.text(this.form.value.location, PREVIEW_PLACEHOLDER.location); }
+  previewLinkedin() { return this.text(this.form.value.linkedin, PREVIEW_PLACEHOLDER.linkedin); }
+  previewSummary() { return this.text(this.form.value.summary, PREVIEW_PLACEHOLDER.summary); }
+
+  previewEducation() {
+    return this.rows(this.form.value.education, (e) => e.institution || e.degree || e.field || e.startYear, PREVIEW_PLACEHOLDER.education);
+  }
+  previewExperience() {
+    return this.rows(this.mappedExperience(), (e) => e.company || e.position || (e.responsibilities || []).some((r: string) => r && r.trim()), PREVIEW_PLACEHOLDER.experience);
+  }
+  previewSkills() { return this.rows(this.form.value.skills, (s) => s.name, PREVIEW_PLACEHOLDER.skills); }
+  previewLanguages() { return this.rows(this.form.value.languages, (l) => l.name, PREVIEW_PLACEHOLDER.languages); }
+  previewCertifications() { return this.rows(this.form.value.certifications, (c) => c.name, PREVIEW_PLACEHOLDER.certifications); }
+  previewProjects() { return this.rows(this.form.value.projects, (p) => p.name || p.description, PREVIEW_PLACEHOLDER.projects); }
+  previewReferences() { return this.rows(this.form.value.references, (r) => r.name, PREVIEW_PLACEHOLDER.references); }
+  previewHobbies() { return this.rows(this.form.value.hobbies, (h) => h.name, PREVIEW_PLACEHOLDER.hobbies); }
+
   newEducation() {
     return this.fb.group({
       institution: [''],
@@ -1376,6 +1533,13 @@ export class MakeCvComponent implements OnInit, OnDestroy {
 
   bumpFont(delta: number) {
     this.fontSize.update((n) => Math.min(16, Math.max(7, n + delta)));
+  }
+
+  setAccent(value: string, schedule = true) {
+    const normalized = String(value || '').trim();
+    if (!/^#[0-9a-f]{6}$/i.test(normalized)) return;
+    this.accentColor.set(normalized.toUpperCase());
+    if (schedule) this.scheduleAutoSave();
   }
 
   addEducation() {
@@ -1531,7 +1695,7 @@ export class MakeCvComponent implements OnInit, OnDestroy {
       summary: content.summary || '',
     });
     if (content.photoUrl) this.photoUrl.set(content.photoUrl);
-    if (content.accent) this.accentColor.set(content.accent);
+    if (content.accent) this.setAccent(content.accent, false);
     if (content.typography) {
       if (content.typography.fontSize) this.fontSize.set(content.typography.fontSize);
       if (content.typography.fontWeight) this.fontWeight.set(content.typography.fontWeight);
@@ -1692,7 +1856,7 @@ export class MakeCvComponent implements OnInit, OnDestroy {
     });
   }
 
-  async downloadAs(format: 'pdf' | 'docx') {
+  async downloadAs(format: 'pdf' | 'docx' | 'pptx') {
     this.showDownloadModal.set(false);
     const id = await this.ensureCvId();
     if (id) {
@@ -1711,8 +1875,28 @@ export class MakeCvComponent implements OnInit, OnDestroy {
         window.print();
         this.toast.success('PDF downloaded!');
       }, 400);
+    } else if (format === 'pptx') {
+      await this.generatePptx();
     } else {
       this.generateDocx();
+    }
+  }
+
+  /** Exports the rendered A4 document as an editable PowerPoint deck. */
+  private async generatePptx() {
+    const preview = document.querySelector('.cv-live-root')?.firstElementChild as HTMLElement | null;
+    if (!preview) {
+      this.toast.error('Could not capture CV preview');
+      return;
+    }
+
+    const name = this.buildContent().fullName || 'My_CV';
+    try {
+      this.toast.success('Building PowerPoint…');
+      await this.pptx.export(preview, `${name.replace(/[\\/:*?"<>|]+/g, '_')}.pptx`);
+      this.toast.success('PowerPoint downloaded!');
+    } catch {
+      this.toast.error('Could not create the PowerPoint file');
     }
   }
 

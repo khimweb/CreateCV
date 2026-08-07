@@ -117,9 +117,12 @@ html.dark app-settings .security-card { background: #172747; border-color: #3147
   Fix: height:auto, no overflow clip, only .print-root is shown.
 */
 @media print {
+  /* Every CV renderer is a full-bleed 210mm × 297mm document that supplies its
+     own inner padding, so the page itself must not add margins. Adding one here
+     shrank and left-shifted the printed output compared with the screen preview. */
   @page {
     size: A4 portrait;
-    margin: 12mm;
+    margin: 0;
   }
 
   html,
@@ -171,8 +174,8 @@ html.dark app-settings .security-card { background: #172747; border-color: #3147
     top: 0 !important;
     right: auto !important;
     bottom: auto !important;
-    width: 186mm !important; /* A4 width minus page margins */
-    max-width: 186mm !important;
+    width: 210mm !important; /* full A4 width — matches the on-screen document */
+    max-width: 210mm !important;
     min-height: 0 !important;
     height: auto !important;
     max-height: none !important;
@@ -184,7 +187,19 @@ html.dark app-settings .security-card { background: #172747; border-color: #3147
     overflow: visible !important;
   }
 
-  .cv-paper {
+  /* The editor and footer remain in the document tree while printing; remove their
+     layout boxes so a full-preview download produces only the CV pages. */
+  app-root > div > app-navbar,
+  app-root > div > app-mobile-bottom-nav,
+  app-root > div > app-site-footer,
+  app-make-cv > main {
+    display: none !important;
+  }
+
+  /* Full-bleed A4 is now the default for every layout, including Cover Letter. */
+
+  .cv-paper,
+  .cv {
     width: 100% !important;
     min-height: 0 !important;
     height: auto !important;

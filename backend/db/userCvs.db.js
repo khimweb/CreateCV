@@ -32,10 +32,14 @@ async function createDraft({ userId, templateId, selectedColor }) {
   }
   
   async function updateContent(id, userId, content, title) {
+    const accent = typeof content?.accent === 'string' && /^#[0-9a-f]{6}$/i.test(content.accent)
+      ? content.accent.toUpperCase()
+      : null;
     await query(
-      `UPDATE user_cvs SET content = ?, title = COALESCE(?, title), updated_at = CURRENT_TIMESTAMP
+      `UPDATE user_cvs
+       SET content = ?, title = COALESCE(?, title), selected_color = COALESCE(?, selected_color), updated_at = CURRENT_TIMESTAMP
        WHERE id = ? AND user_id = ?`,
-      [JSON.stringify(content), title || null, id, userId]
+      [JSON.stringify(content), title || null, accent, id, userId]
     );
     return findById(id, userId);
   }

@@ -4,6 +4,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { LucideAngularModule, Save, Download, Pencil, Trash2 } from 'lucide-angular';
 import { ProfessionalCvComponent } from '../../shared/components/professional-cv/professional-cv.component';
+import { WarmTaupeTimelineCvComponent } from '../../shared/components/warm-taupe-timeline-cv/warm-taupe-timeline-cv.component';
+import { SlateRoundedPanelsCvComponent } from '../../shared/components/slate-rounded-panels-cv/slate-rounded-panels-cv.component';
+import { NavySidebarProfileCvComponent } from '../../shared/components/navy-sidebar-profile-cv/navy-sidebar-profile-cv.component';
+import { GraphiteBannerTimelineCvComponent } from '../../shared/components/graphite-banner-timeline-cv/graphite-banner-timeline-cv.component';
 
 interface CvDetail {
   id: string;
@@ -18,7 +22,7 @@ interface CvDetail {
 @Component({
   selector: 'app-my-cv-detail',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ProfessionalCvComponent],
+  imports: [CommonModule, LucideAngularModule, ProfessionalCvComponent, WarmTaupeTimelineCvComponent, SlateRoundedPanelsCvComponent, NavySidebarProfileCvComponent, GraphiteBannerTimelineCvComponent],
   template: `
     @if (cv(); as c) {
       <section class="max-w-5xl mx-auto px-4 pt-32 pb-16">
@@ -76,23 +80,54 @@ interface CvDetail {
           [style.borderTop]="'6px solid ' + c.selected_color"
         >
           <div class="print-root a4-wrap mx-auto">
-            <app-professional-cv
-              [accent]="c.selected_color"
-              [photoUrl]="c.content?.photoUrl || null"
-              [name]="c.content?.fullName || c.title"
-              [jobTitle]="c.content?.jobTitle || ''"
-              [email]="c.content?.email || ''"
-              [phone]="c.content?.phone || ''"
-              [location]="c.content?.location || ''"
-              [linkedin]="c.content?.linkedin || ''"
-              [summary]="c.content?.summary || ''"
-              [education]="arr(c.content?.education)"
-              [experience]="arr(c.content?.experience)"
-              [skills]="arr(c.content?.skills)"
-              [languages]="arr(c.content?.languages)"
-              [certifications]="arr(c.content?.certifications)"
-              [projects]="arr(c.content?.projects)"
-            />
+            @if (layoutOf(c) === 'graphite-banner-timeline') {
+              <app-graphite-banner-timeline-cv
+                [accent]="c.content?.accent || c.selected_color || '#323E4D'"
+                [photoUrl]="c.content?.photoUrl || null"
+                [name]="c.content?.fullName || c.title" [jobTitle]="c.content?.jobTitle || ''" [email]="c.content?.email || ''" [phone]="c.content?.phone || ''" [location]="c.content?.location || ''" [linkedin]="c.content?.linkedin || ''" [summary]="c.content?.summary || ''"
+                [education]="arr(c.content?.education)" [experience]="arr(c.content?.experience)" [skills]="arr(c.content?.skills)" [languages]="arr(c.content?.languages)" [certifications]="arr(c.content?.certifications)" [projects]="arr(c.content?.projects)" [references]="arr(c.content?.references)" [hobbies]="arr(c.content?.hobbies)"
+              />
+            } @else if (layoutOf(c) === 'navy-sidebar-profile') {
+              <app-navy-sidebar-profile-cv
+                [accent]="c.content?.accent || c.selected_color || '#1E3A52'"
+                [photoUrl]="c.content?.photoUrl || null"
+                [name]="c.content?.fullName || c.title" [jobTitle]="c.content?.jobTitle || ''" [email]="c.content?.email || ''" [phone]="c.content?.phone || ''" [location]="c.content?.location || ''" [linkedin]="c.content?.linkedin || ''" [summary]="c.content?.summary || ''"
+                [education]="arr(c.content?.education)" [experience]="arr(c.content?.experience)" [skills]="arr(c.content?.skills)" [languages]="arr(c.content?.languages)" [certifications]="arr(c.content?.certifications)" [projects]="arr(c.content?.projects)" [references]="arr(c.content?.references)" [hobbies]="arr(c.content?.hobbies)"
+              />
+            } @else if (layoutOf(c) === 'slate-rounded-panels') {
+              <app-slate-rounded-panels-cv
+                [accent]="c.content?.accent || c.selected_color || '#364152'"
+                [photoUrl]="c.content?.photoUrl || null"
+                [name]="c.content?.fullName || c.title" [jobTitle]="c.content?.jobTitle || ''" [email]="c.content?.email || ''" [phone]="c.content?.phone || ''" [location]="c.content?.location || ''" [linkedin]="c.content?.linkedin || ''" [summary]="c.content?.summary || ''"
+                [education]="arr(c.content?.education)" [experience]="arr(c.content?.experience)" [skills]="arr(c.content?.skills)" [languages]="arr(c.content?.languages)" [certifications]="arr(c.content?.certifications)" [projects]="arr(c.content?.projects)" [references]="arr(c.content?.references)" [hobbies]="arr(c.content?.hobbies)"
+              />
+            } @else if (layoutOf(c) === 'warm-taupe-timeline') {
+              <app-warm-taupe-timeline-cv
+                [accent]="c.content?.accent || c.selected_color || '#A87C64'"
+                [photoUrl]="c.content?.photoUrl || null"
+                [name]="c.content?.fullName || c.title" [jobTitle]="c.content?.jobTitle || ''" [email]="c.content?.email || ''" [phone]="c.content?.phone || ''" [location]="c.content?.location || ''" [linkedin]="c.content?.linkedin || ''" [summary]="c.content?.summary || ''"
+                [education]="arr(c.content?.education)" [experience]="arr(c.content?.experience)" [skills]="arr(c.content?.skills)" [languages]="arr(c.content?.languages)" [certifications]="arr(c.content?.certifications)" [projects]="arr(c.content?.projects)" [references]="arr(c.content?.references)" [hobbies]="arr(c.content?.hobbies)"
+                [fontSize]="c.content?.typography?.fontSize || 10" [fontWeight]="c.content?.typography?.fontWeight || 400" [lineHeight]="c.content?.typography?.lineHeight || 1.42" [fontFamily]="c.content?.typography?.fontFamily || undefined"
+              />
+            } @else {
+              <app-professional-cv
+                [accent]="c.selected_color"
+                [photoUrl]="c.content?.photoUrl || null"
+                [name]="c.content?.fullName || c.title"
+                [jobTitle]="c.content?.jobTitle || ''"
+                [email]="c.content?.email || ''"
+                [phone]="c.content?.phone || ''"
+                [location]="c.content?.location || ''"
+                [linkedin]="c.content?.linkedin || ''"
+                [summary]="c.content?.summary || ''"
+                [education]="arr(c.content?.education)"
+                [experience]="arr(c.content?.experience)"
+                [skills]="arr(c.content?.skills)"
+                [languages]="arr(c.content?.languages)"
+                [certifications]="arr(c.content?.certifications)"
+                [projects]="arr(c.content?.projects)"
+              />
+            }
           </div>
         </div>
       </section>
@@ -131,6 +166,17 @@ export class MyCvDetailComponent implements OnInit {
           typeof cv.default_colors === 'string' ? JSON.parse(cv.default_colors) : cv.default_colors || [],
       }),
     );
+  }
+
+  layoutOf(c: CvDetail): string {
+    const layout = c.content?.layout;
+    if (layout) return layout;
+    const name = (c.template_name || '').toLowerCase();
+    if (name.includes('graphite')) return 'graphite-banner-timeline';
+    if (name.includes('navy sidebar')) return 'navy-sidebar-profile';
+    if (name.includes('slate rounded')) return 'slate-rounded-panels';
+    if (name.includes('warm taupe')) return 'warm-taupe-timeline';
+    return 'professional';
   }
 
   arr(v: any): any[] {

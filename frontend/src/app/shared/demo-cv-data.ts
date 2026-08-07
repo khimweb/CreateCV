@@ -61,7 +61,10 @@ export const DEMO_CV = {
     { name: 'Khmer', proficiency: 'Native' },
     { name: 'English', proficiency: 'Intermediate' },
   ],
-  certifications: [] as { name?: string; issuer?: string; date?: string }[],
+  certifications: [
+    { name: 'Frontend Website Development — 2nd Place', issuer: 'BELTEI International School', date: '2025' },
+    { name: 'Google IT Support Fundamentals', issuer: 'Google Career Certificates', date: '2024' },
+  ] as { name?: string; issuer?: string; date?: string }[],
   projects: [
     {
       name: 'System HelpDesk',
