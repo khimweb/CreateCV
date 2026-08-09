@@ -459,7 +459,7 @@ export class CleanSidebarCvComponent {
     return (this.name || 'RS').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]?.toUpperCase() || '').join('');
   }
   degreeLine(ed: CvEducation): string {
-    return [ed.degree, ed.field].filter(Boolean).join(' in ') || 'Degree';
+    return [ed.degree, ed.field].filter(Boolean).join(' — ') || 'Degree';
   }
   refRole(ref: CvReference): string {
     return [ref.company, ref.position].filter(v => !!v).join(' / ');

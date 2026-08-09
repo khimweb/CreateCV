@@ -173,6 +173,23 @@ export interface CvReference {
                 </div>
               </section>
             }
+
+            <!-- PERSONAL STRENGTHS (Hobbies) -->
+            @if (hobbies.length) {
+              <section class="sb-section">
+                <h2 class="sb-heading">PERSONAL STRENGTHS</h2>
+                <div class="sb-rule"></div>
+                <div class="sb-content">
+                  <ul class="skill-list">
+                    @for (hobby of hobbies; track $index) {
+                      @if (hobby.name) {
+                        <li>{{ hobby.name }}</li>
+                      }
+                    }
+                  </ul>
+                </div>
+              </section>
+            }
           </div>
         </aside>
 
@@ -227,6 +244,24 @@ export interface CvReference {
                       }
                     </div>
                   </div>
+                }
+              </div>
+            </section>
+          }
+
+          <!-- CERTIFICATIONS -->
+          @if (certifications.length) {
+            <section class="cv-section">
+              <h2 class="sec-heading">CERTIFICATIONS</h2>
+              <div class="sec-rule"></div>
+              <div class="cert-list">
+                @for (cert of certifications; track $index) {
+                  @if (cert.name) {
+                    <div class="cert-item">
+                      <div class="cert-name">{{ cert.name }}</div>
+                      <div class="cert-meta">{{ cert.issuer }}@if (cert.issuer && cert.date) {<span> · </span>}{{ cert.date }}</div>
+                    </div>
+                  }
                 }
               </div>
             </section>
@@ -609,6 +644,11 @@ export interface CvReference {
         color: #6b7280;
       }
 
+      .cert-list { display: grid; gap: 3mm; }
+      .cert-item { break-inside: avoid; }
+      .cert-name { font-weight: 700; font-size: calc(var(--fs) * 1.08); color: #2c3e50; }
+      .cert-meta { font-size: calc(var(--fs) * 0.96); color: #6b7280; margin-top: 0.5mm; }
+
       @media print {
         :host {
           display: block;
@@ -657,6 +697,8 @@ export class GeometricSidebarCvComponent {
   @Input() skills: CvSkill[] = [];
   @Input() languages: CvLanguage[] = [];
   @Input() references: CvReference[] = [];
+  @Input() hobbies: { name?: string }[] = [];
+  @Input() certifications: { name?: string; issuer?: string; date?: string }[] = [];
   @Input() fontSize = 10;
   @Input() fontWeight = 400;
   @Input() lineHeight = 1.45;
@@ -683,7 +725,7 @@ export class GeometricSidebarCvComponent {
   }
 
   degreeLine(ed: CvEducation): string {
-    return [ed.degree, ed.field].filter(Boolean).join(' in ') || 'Degree';
+    return [ed.degree, ed.field].filter(Boolean).join(' — ') || 'Degree';
   }
 
   formatRange(start?: string, end?: string, current?: boolean): string {

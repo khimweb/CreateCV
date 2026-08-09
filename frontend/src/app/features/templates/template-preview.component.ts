@@ -115,6 +115,8 @@ interface CvTemplate {
                     [skills]="demo.skills"
                     [languages]="demo.languages"
                     [references]="demo.references"
+                    [hobbies]="demo.hobbies"
+                    [certifications]="demo.certifications"
                   />
                 } @else if (t.layout === 'formal-classic') {
                   <app-formal-classic-cv

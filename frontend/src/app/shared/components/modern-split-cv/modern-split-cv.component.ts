@@ -708,7 +708,7 @@ export class ModernSplitCvComponent {
   }
 
   degreeLine(ed: CvEducation): string {
-    return [ed.degree, ed.field].filter(Boolean).join(' in ') || 'Degree';
+    return [ed.degree, ed.field].filter(Boolean).join(' — ') || 'Degree';
   }
 
   formatRange(start?: string, end?: string, current?: boolean): string {

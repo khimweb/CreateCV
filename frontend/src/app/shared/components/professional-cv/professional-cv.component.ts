@@ -463,7 +463,7 @@ export class ProfessionalCvComponent {
 
   degreeLine(ed: CvEducation): string {
     const bits = [ed.degree, ed.field].filter(Boolean);
-    return bits.join(' in ') || 'Degree';
+    return bits.join(' — ') || 'Degree';
   }
 
   formatRange(start?: string, end?: string, current?: boolean): string {

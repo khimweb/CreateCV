@@ -200,7 +200,7 @@ export class FormalClassicCvComponent {
   @Input() fontFamily = "'Times New Roman', Times, Georgia, serif";
 
   get initials(): string { return (this.name || 'CV').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase() || '').join(''); }
-  degreeLine(ed: CvEducation): string { return [ed.degree, ed.field].filter(Boolean).join(' in ') || 'Degree'; }
+  degreeLine(ed: CvEducation): string { return [ed.degree, ed.field].filter(Boolean).join(' — ') || 'Degree'; }
   formatRange(start?: string, end?: string, current?: boolean): string { const s = start || '', e = current ? 'Present' : (end || ''); if (s && e) return `${s} – ${e}`; return s || e || ''; }
   formatExpRange(job: CvExperience): string { const s = job.startDate || '', e = job.current ? 'Present' : (job.endDate || ''); if (s && e) return `${s} – ${e}`; return s || e || ''; }
 }

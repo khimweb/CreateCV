@@ -58,6 +58,17 @@ export interface CvReference { name?: string; position?: string; company?: strin
             }
           </div>
           }
+          <!-- Personal Strengths (Hobbies) -->
+          @if (hobbies.length) {
+          <div class="sec">
+            <div class="white-pill">PERSONAL STRENGTHS</div>
+            <ul class="strength-list">
+              @for (hobby of hobbies; track $index) {
+                @if (hobby.name) { <li>{{ hobby.name }}</li> }
+              }
+            </ul>
+          </div>
+          }
           <!-- Reference -->
           @if (references.length) {
           <div class="sec">
@@ -103,6 +114,22 @@ export interface CvReference { name?: string; position?: string; company?: strin
                 <ul class="tl-ul">@for (r of job.responsibilities; track $index) { @if (r) { <li>{{ r }}</li> } }</ul>
               }
             </div>
+            }
+          </div>
+        </div>
+        }
+        <!-- Certifications -->
+        @if (certifications.length) {
+        <div class="r-sec">
+          <div class="dark-pill">CERTIFICATIONS</div>
+          <div class="cert-grid">
+            @for (cert of certifications; track $index) {
+              @if (cert.name) {
+              <div class="cert-card">
+                <div class="cert-name">{{ cert.name }}</div>
+                <div class="cert-meta">{{ cert.issuer }}@if (cert.issuer && cert.date) {<span> · </span>}{{ cert.date }}</div>
+              </div>
+              }
             }
           </div>
         </div>
@@ -238,6 +265,16 @@ export interface CvReference { name?: string; position?: string; company?: strin
     .dot { width: 11px; height: 11px; border-radius: 50%; background: #cbd5e1; }
     .dot.on { background: var(--accent); }
 
+    /* Strength list */
+    .strength-list { padding-left: 14px; list-style-type: disc; margin: 0; font-size: calc(var(--fs) * 0.95); color: #e2e8f0; }
+    .strength-list li { margin-bottom: 5px; }
+
+    /* Certifications */
+    .cert-grid { display: grid; gap: 10px; }
+    .cert-card { break-inside: avoid; }
+    .cert-name { font-weight: 700; font-size: calc(var(--fs) * 1.05); color: #1e293b; }
+    .cert-meta { font-size: calc(var(--fs) * 0.9); color: #64748b; margin-top: 1px; }
+
     /* ═══ PRINT ═══ */
     @media print {
       :host { display: block; }
@@ -262,6 +299,8 @@ export class ClassicDarkCvComponent {
   @Input() skills: CvSkill[] = [];
   @Input() languages: CvLanguage[] = [];
   @Input() references: CvReference[] = [];
+  @Input() hobbies: { name?: string }[] = [];
+  @Input() certifications: { name?: string; issuer?: string; date?: string }[] = [];
   @Input() fontSize = 10;
   @Input() fontWeight = 400;
   @Input() lineHeight = 1.5;
@@ -270,7 +309,7 @@ export class ClassicDarkCvComponent {
   get firstName(): string { const p = (this.name || 'RUFUS STEWART').trim().split(/\s+/); return p.length > 1 ? p.slice(0, -1).join(' ') : p[0]; }
   get lastName(): string { const p = (this.name || 'RUFUS STEWART').trim().split(/\s+/); return p.length > 1 ? p[p.length - 1] : ''; }
   get initials(): string { return (this.name || 'RS').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase() || '').join(''); }
-  degreeLine(ed: CvEducation): string { return [ed.degree, ed.field].filter(Boolean).join(' in ') || 'Degree'; }
+  degreeLine(ed: CvEducation): string { return [ed.degree, ed.field].filter(Boolean).join(' — ') || 'Degree'; }
   formatRange(start?: string, end?: string, current?: boolean): string { const s = start || '', e = current ? 'Present' : (end || ''); if (s && e) return `${s} - ${e}`; return s || e || ''; }
   formatExpRange(job: CvExperience): string { const s = job.startDate || '', e = job.current ? 'Present' : (job.endDate || ''); if (s && e) return `${s} - ${e}`; return s || e || ''; }
   refRole(ref: CvReference): string { return [ref.company, ref.position].filter(v => !!v).join(' / '); }

@@ -34,7 +34,7 @@ export const DEMO_CV = {
   education: [
     {
       institution: 'BELTEI International School',
-      degree: "Bachelor's Degree in Software Engineering",
+      degree: "Bachelor's Degree",
       field: 'Software Engineering',
       startYear: '2024',
       endYear: '',

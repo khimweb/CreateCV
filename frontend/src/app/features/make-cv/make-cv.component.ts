@@ -180,12 +180,7 @@ const ACCENT_PALETTE = [
                       </label>
                       <label
                         >Degree *
-                        <select formControlName="degree">
-                          <option value="">Select degree…</option>
-                          @for (d of degrees; track d) {
-                            <option [value]="d">{{ d }}</option>
-                          }
-                        </select>
+                        <input formControlName="degree" list="degree-options" placeholder="Select or type…" />
                       </label>
                     </div>
                     <label class="block mt-3"
@@ -557,6 +552,11 @@ const ACCENT_PALETTE = [
               <option [value]="i"></option>
             }
           </datalist>
+          <datalist id="degree-options">
+            @for (d of degrees; track d) {
+              <option [value]="d"></option>
+            }
+          </datalist>
           <datalist id="fields-of-study">
             @for (field of fields; track field) {
               <option [value]="field"></option>
@@ -832,6 +832,8 @@ const ACCENT_PALETTE = [
           [skills]="previewSkills()"
           [languages]="previewLanguages()"
           [references]="previewReferences()"
+          [hobbies]="previewHobbies()"
+          [certifications]="previewCertifications()"
           [fontSize]="fontSize()"
           [fontWeight]="fontWeight()"
           [lineHeight]="lineHeight()"

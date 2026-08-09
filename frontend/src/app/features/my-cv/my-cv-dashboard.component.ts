@@ -137,6 +137,8 @@ interface SavedCv {
                     [skills]="asArray(contentOf(cv).skills)"
                     [languages]="asArray(contentOf(cv).languages)"
                     [references]="asArray(contentOf(cv).references)"
+                    [hobbies]="asArray(contentOf(cv).hobbies)"
+                    [certifications]="asArray(contentOf(cv).certifications)"
                   />
                 } @else {
                   <app-professional-cv

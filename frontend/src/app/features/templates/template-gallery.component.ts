@@ -158,6 +158,8 @@ interface CvTemplate {
                     [skills]="demo.skills"
                     [languages]="demo.languages"
                     [references]="demo.references"
+                    [hobbies]="demo.hobbies"
+                    [certifications]="demo.certifications"
                     [fontSize]="9"
                     [fontWeight]="400"
                     [lineHeight]="1.35"
