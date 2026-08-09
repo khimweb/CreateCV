@@ -76,10 +76,12 @@ const ACCENT_PALETTE = [
       <div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[84px_minmax(0,1fr)] xl:grid-cols-[84px_minmax(0,1fr)_430px] gap-7">
         <aside class="hidden lg:flex flex-col gap-2">
           @for (item of steps; track item.label) {
+            @if (!item.coverOnly || layout() === 'cover-letter') {
             <button type="button" (click)="active.set(item.label)" class="step" [class.selected]="active() === item.label">
               <lucide-icon [img]="item.icon" />
               <span>{{ item.label }}</span>
             </button>
+            }
           }
         </aside>
 
@@ -144,6 +146,23 @@ const ACCENT_PALETTE = [
                 <label>LinkedIn / GitHub (optional)<input formControlName="linkedin" placeholder="linkedin.com/in/you" /></label>
               </div>
               <label class="block">Professional summary<textarea formControlName="summary" rows="5" placeholder="Write a short professional summary..."></textarea></label>
+            }
+
+            @if (active() === 'Cover Letter') {
+              <div class="flex items-center gap-4 mb-2">
+                <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="Award" /></span>
+                <h2 class="text-2xl font-bold dark:text-white">Cover Letter Details</h2>
+              </div>
+              <p class="text-sm text-slate-500 mb-4">These fields only apply to the Cover Letter template.</p>
+              <div class="grid sm:grid-cols-2 gap-5">
+                <label>Recipient / Department<input formControlName="recipientDept" placeholder="Human Resource Department" /></label>
+                <label>Greeting<input formControlName="greeting" placeholder="Dear Hiring Manager," /></label>
+              </div>
+              <div class="grid sm:grid-cols-2 gap-5 mt-4">
+                <label>Closing<input formControlName="closing" placeholder="Yours sincerely," /></label>
+                <label>Subject (optional)<input formControlName="subject" placeholder="Application for Sales Executive position" /></label>
+              </div>
+              <label class="block mt-4">Cover Letter Body<textarea formControlName="summary" rows="12" placeholder="Write your cover letter body text here. Use blank lines to separate paragraphs."></textarea></label>
             }
 
             @if (active() === 'Education') {
@@ -914,6 +933,10 @@ const ACCENT_PALETTE = [
           [email]="previewEmail()"
           [location]="previewLocation()"
           [bodyText]="previewSummary()"
+          [recipientDept]="form.value.recipientDept || 'Human Resource Department'"
+          [greeting]="form.value.greeting || 'Dear Hiring Manager,'"
+          [closing]="form.value.closing || 'Yours sincerely,'"
+          [subject]="form.value.subject || ''"
           [fontSize]="fontSize()"
           [fontWeight]="fontWeight()"
           [lineHeight]="lineHeight()"
@@ -1390,6 +1413,7 @@ export class MakeCvComponent implements OnInit, OnDestroy {
 
   steps = [
     { label: 'Personal Information', icon: UserRound },
+    { label: 'Cover Letter', icon: Award, coverOnly: true },
     { label: 'Education', icon: GraduationCap },
     { label: 'Work Experience', icon: BriefcaseBusiness },
     { label: 'Skills', icon: Star },
@@ -1418,6 +1442,10 @@ export class MakeCvComponent implements OnInit, OnDestroy {
       location: [''],
       linkedin: [''],
       summary: [''],
+      recipientDept: [''],
+      greeting: [''],
+      closing: [''],
+      subject: [''],
       education: this.fb.array([this.newEducation()]),
       experience: this.fb.array([this.newExperience()]),
       skills: this.fb.array([]),
@@ -1852,6 +1880,10 @@ export class MakeCvComponent implements OnInit, OnDestroy {
       location: content.location || '',
       linkedin: content.linkedin || '',
       summary: content.summary || '',
+      recipientDept: content.recipientDept || '',
+      greeting: content.greeting || '',
+      closing: content.closing || '',
+      subject: content.subject || '',
     });
     if (content.photoUrl) this.photoUrl.set(content.photoUrl);
     if (content.accent) this.setAccent(content.accent, false);
