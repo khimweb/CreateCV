@@ -168,7 +168,13 @@ const ACCENT_PALETTE = [
                 @for (ed of education.controls; track $index; let i = $index) {
                   <div [formGroupName]="i" class="card-block">
                     <div class="flex justify-between items-center mb-4">
-                      <h3 class="font-bold text-lg">Education {{ i + 1 }}</h3>
+                      <div class="flex items-center gap-2">
+                        <div class="flex flex-col gap-0.5">
+                          <button type="button" class="reorder-btn" [disabled]="i === 0" (click)="moveEducation(i, -1)">↑</button>
+                          <button type="button" class="reorder-btn" [disabled]="i === education.length - 1" (click)="moveEducation(i, 1)">↓</button>
+                        </div>
+                        <h3 class="font-bold text-lg">Education {{ i + 1 }}</h3>
+                      </div>
                       <button type="button" class="text-red-600 p-1" (click)="removeEducation(i)" [disabled]="education.length <= 1">
                         <lucide-icon [img]="Trash2" class="w-4 h-4" />
                       </button>
@@ -232,7 +238,13 @@ const ACCENT_PALETTE = [
                 @for (job of experience.controls; track $index; let i = $index) {
                   <div [formGroupName]="i" class="card-block">
                     <div class="flex justify-between items-center mb-4">
-                      <h3 class="font-bold text-lg">Work Experience {{ i + 1 }}</h3>
+                      <div class="flex items-center gap-2">
+                        <div class="flex flex-col gap-0.5">
+                          <button type="button" class="reorder-btn" [disabled]="i === 0" (click)="moveExperience(i, -1)">↑</button>
+                          <button type="button" class="reorder-btn" [disabled]="i === experience.length - 1" (click)="moveExperience(i, 1)">↓</button>
+                        </div>
+                        <h3 class="font-bold text-lg">Work Experience {{ i + 1 }}</h3>
+                      </div>
                       <button type="button" class="text-red-600 p-1" (click)="removeExperience(i)" [disabled]="experience.length <= 1">
                         <lucide-icon [img]="Trash2" class="w-4 h-4" />
                       </button>
@@ -276,9 +288,13 @@ const ACCENT_PALETTE = [
                     <div class="mt-3" formArrayName="responsibilities">
                       <span class="font-semibold text-sm text-slate-700">Responsibilities & Achievements</span>
                       @for (r of responsibilities(i).controls; track $index; let ri = $index) {
-                        <div class="flex gap-2 mt-2">
+                        <div class="flex gap-2 mt-2 items-start">
+                          <div class="flex flex-col shrink-0 mt-1 gap-0.5">
+                            <button type="button" class="reorder-btn" [disabled]="ri === 0" (click)="moveResp(i, ri, -1)">↑</button>
+                            <button type="button" class="reorder-btn" [disabled]="ri === responsibilities(i).length - 1" (click)="moveResp(i, ri, 1)">↓</button>
+                          </div>
                           <textarea [formControlName]="ri" rows="2" class="flex-1" placeholder="Describe a responsibility…"></textarea>
-                          <button type="button" class="text-red-500 shrink-0" (click)="removeResponsibility(i, ri)" [disabled]="responsibilities(i).length <= 1">
+                          <button type="button" class="text-red-500 shrink-0 mt-2" (click)="removeResponsibility(i, ri)" [disabled]="responsibilities(i).length <= 1">
                             <lucide-icon [img]="Trash2" class="w-4 h-4" />
                           </button>
                         </div>
@@ -1027,6 +1043,50 @@ const ACCENT_PALETTE = [
         background: #f8fafc;
         padding: 1.25rem;
       }
+      .reorder-btn {
+        border: none;
+        background: transparent;
+        color: #94a3b8;
+        font-size: 0.6rem;
+        line-height: 1;
+        padding: 2px 4px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: color 0.15s, background 0.15s;
+      }
+      .reorder-btn:hover:not(:disabled) {
+        color: #1e293b;
+        background: #e2e8f0;
+      }
+      .reorder-btn:disabled {
+        opacity: 0.25;
+        cursor: default;
+      }
+      .reorder-btn {
+        border: none;
+        background: #f1f5f9;
+        color: #64748b;
+        font-size: 0.75rem;
+        line-height: 1;
+        padding: 4px 6px;
+        cursor: pointer;
+        border-radius: 5px;
+        font-weight: 700;
+        transition: color 0.15s, background 0.15s, transform 0.1s;
+      }
+      .reorder-btn:hover:not(:disabled) {
+        color: #1e293b;
+        background: #e2e8f0;
+        transform: scale(1.1);
+      }
+      .reorder-btn:active:not(:disabled) {
+        background: #cbd5e1;
+        transform: scale(0.95);
+      }
+      .reorder-btn:disabled {
+        opacity: 0.3;
+        cursor: default;
+      }
       .add-dashed {
         width: 100%;
         display: inline-flex;
@@ -1556,12 +1616,109 @@ export class MakeCvComponent implements OnInit, OnDestroy {
   removeExperience(i: number) {
     if (this.experience.length > 1) this.experience.removeAt(i);
   }
+
+  moveExperience(i: number, direction: number) {
+    const target = i + direction;
+    if (target < 0 || target >= this.experience.length) return;
+    const vals = this.experience.value;
+    [vals[i], vals[target]] = [vals[target], vals[i]];
+    // Rebuild the array with swapped values
+    while (this.experience.length) this.experience.removeAt(0);
+    vals.forEach((v: any) => {
+      const group = this.newExperience();
+      group.patchValue(v);
+      // Rebuild responsibilities
+      const respArr = group.get('responsibilities') as any;
+      while (respArr.length) respArr.removeAt(0);
+      (v.responsibilities || ['']).forEach((r: string) => respArr.push(this.fb.control(r)));
+      this.experience.push(group);
+    });
+  }
+
+  moveEducation(i: number, direction: number) {
+    const target = i + direction;
+    if (target < 0 || target >= this.education.length) return;
+    const vals = this.education.value;
+    [vals[i], vals[target]] = [vals[target], vals[i]];
+    while (this.education.length) this.education.removeAt(0);
+    vals.forEach((v: any) => {
+      const group = this.newEducation();
+      group.patchValue(v);
+      this.education.push(group);
+    });
+  }
   addResponsibility(jobIndex: number) {
     this.responsibilities(jobIndex).push(this.fb.control(''));
   }
   removeResponsibility(jobIndex: number, ri: number) {
     const arr = this.responsibilities(jobIndex);
     if (arr.length > 1) arr.removeAt(ri);
+  }
+
+  moveResponsibility(jobIndex: number, ri: number, direction: number) {
+    const arr = this.responsibilities(jobIndex);
+    const target = ri + direction;
+    if (target < 0 || target >= arr.length) return;
+    const currentValue = arr.at(ri).value;
+    const targetValue = arr.at(target).value;
+    arr.at(ri).setValue(targetValue);
+    arr.at(target).setValue(currentValue);
+  }
+
+  // ── Drag-and-drop reorder ──
+  private dragType = '';
+  private dragParent = 0;
+  private dragIndex = 0;
+
+  onDragStart(event: DragEvent, type: string, parent: number, index: number) {
+    this.dragType = type;
+    this.dragParent = parent;
+    this.dragIndex = index;
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', `${type}:${parent}:${index}`);
+    }
+    (event.target as HTMLElement).classList.add('dragging');
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+  }
+
+  onDrop(event: DragEvent, type: string, parent: number, targetIndex: number) {
+    event.preventDefault();
+    if (type !== this.dragType || parent !== this.dragParent || targetIndex === this.dragIndex) return;
+
+    if (type === 'resp') {
+      this.moveResp(parent, this.dragIndex, targetIndex - this.dragIndex);
+    } else if (type === 'exp') {
+      this.moveExperience(this.dragIndex, targetIndex - this.dragIndex);
+    } else if (type === 'edu') {
+      this.moveEducation(this.dragIndex, targetIndex - this.dragIndex);
+    }
+  }
+
+  onDragEnd(event: DragEvent) {
+    (event.target as HTMLElement).classList.remove('dragging');
+  }
+
+  /** Swap two responsibility items by rebuilding the FormArray slice. */
+  moveResp(jobIndex: number, from: number, direction: number) {
+    const arr = this.responsibilities(jobIndex);
+    const to = from + direction;
+    if (to < 0 || to >= arr.length) return;
+    // Swap values directly between the two controls
+    const fromCtrl = arr.at(from);
+    const toCtrl = arr.at(to);
+    const tmp = fromCtrl.value;
+    fromCtrl.setValue(toCtrl.value);
+    toCtrl.setValue(tmp);
+    // Mark dirty so Angular picks up the change
+    fromCtrl.markAsDirty();
+    toCtrl.markAsDirty();
+    arr.markAsDirty();
+    this.form.updateValueAndValidity();
   }
   addSkill() {
     const name = this.skillDraft.name.trim();
