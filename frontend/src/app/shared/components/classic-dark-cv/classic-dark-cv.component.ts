@@ -118,22 +118,6 @@ export interface CvReference { name?: string; position?: string; company?: strin
           </div>
         </div>
         }
-        <!-- Certifications -->
-        @if (certifications.length) {
-        <div class="r-sec">
-          <div class="dark-pill">CERTIFICATIONS</div>
-          <div class="cert-grid">
-            @for (cert of certifications; track $index) {
-              @if (cert.name) {
-              <div class="cert-card">
-                <div class="cert-name">{{ cert.name }}</div>
-                <div class="cert-meta">{{ cert.issuer }}@if (cert.issuer && cert.date) {<span> · </span>}{{ cert.date }}</div>
-              </div>
-              }
-            }
-          </div>
-        </div>
-        }
         <!-- Skill -->
         @if (skills.length) {
         <div class="r-sec">
