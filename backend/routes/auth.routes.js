@@ -118,7 +118,8 @@ router.post('/register', async (req, res) => {
 
 // POST /api/v1/auth/google — verify a Google-issued ID token, then sign in.
 router.post('/google', async (req, res) => {
-  if (!process.env.GOOGLE_CLIENT_ID) {
+  const googleClientId = process.env.GOOGLE_CLIENT_ID || '31993800271-vrlusmo0tba6a088dveagoj7lbga5q38.apps.googleusercontent.com';
+  if (!googleClientId) {
     return res.status(503).json({ error: 'GOOGLE_SIGN_IN_UNAVAILABLE', message: 'Google sign-in is not configured.' });
   }
   if (!req.body?.credential || typeof req.body.credential !== 'string') {
@@ -128,7 +129,7 @@ router.post('/google', async (req, res) => {
   try {
     const ticket = await googleClient.verifyIdToken({
       idToken: req.body.credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: googleClientId,
     });
     const profile = ticket.getPayload();
     if (!profile?.sub || !profile.email || profile.email_verified !== true) {
