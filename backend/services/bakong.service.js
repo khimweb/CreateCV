@@ -7,7 +7,7 @@ const BAKONG_CITY = 'Phnom Penh';
 const BAKONG_TOKEN =
   process.env.BAKONG_TOKEN ||
   process.env.BAKONG_API_TOKEN ||
-  '';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiYzY4NGNhNTUwNTJmNDRjYiJ9LCJpYXQiOjE3ODg2MDgzNzcsImV4cCI6MTc5NjM4NDM3N30.005xyAtLjtWAl-C77c79t9J59nQ2i2-XZ7_LPGzwhsY';
 
 /**
  * CRC16 CCITT (0x1021, init 0xFFFF) for EMVCo / KHQR Tag 63
