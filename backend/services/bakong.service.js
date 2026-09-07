@@ -174,10 +174,15 @@ async function checkBakongPayment(md5) {
   });
 }
 
+function hasBakongToken() {
+  return Boolean(BAKONG_TOKEN && String(BAKONG_TOKEN).trim().length > 10);
+}
+
 module.exports = {
   BAKONG_ACCOUNT_ID,
   BAKONG_MERCHANT_NAME,
   generateKHQRString,
   calculateMD5,
   checkBakongPayment,
+  hasBakongToken,
 };

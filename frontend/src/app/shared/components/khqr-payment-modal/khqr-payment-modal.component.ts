@@ -183,6 +183,20 @@ interface KhqrOrderResponse {
                 </div>
               </div>
 
+              <!-- Instant Confirm Payment Button -->
+              <button type="button" 
+                      (click)="confirmPaidManually()"
+                      [disabled]="verifying()"
+                      class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs shadow-md shadow-emerald-500/20 transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer">
+                @if (verifying()) {
+                  <span class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  <span>{{ i18n.currentLang() === 'kh' ? 'កំពុងផ្ទៀងផ្ទាត់...' : 'Verifying Payment...' }}</span>
+                } @else {
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>{{ i18n.currentLang() === 'kh' ? 'ខ្ញុំបានផ្ទេរប្រាក់រួចរាល់ (ដោះសោរ CV)' : 'I Have Completed Payment (Unlock CV)' }}</span>
+                }
+              </button>
+
               <!-- Single Clean Action: Cancel / Close -->
               <button type="button" 
                       (click)="cancelPayment()"
@@ -522,6 +536,27 @@ export class KhqrPaymentModalComponent implements OnInit, OnDestroy {
     this.stopTimers();
     this.isPaid.set(true);
     this.toast.success(this.i18n.t('khqrToastPaid'));
+  }
+
+  confirmPaidManually() {
+    const order = this.orderData();
+    if (!order || this.isPaid() || this.verifying()) return;
+
+    this.verifying.set(true);
+    this.http.post<{ status: string; paid: boolean }>(`/api/v1/orders/${order.orderId}/verify`, {}).subscribe({
+      next: (res) => {
+        this.verifying.set(false);
+        if (res.paid) {
+          this.handlePaidSuccess(order.orderId);
+        } else {
+          this.toast.info('Checking with bank network...');
+        }
+      },
+      error: (err) => {
+        this.verifying.set(false);
+        this.toast.error(err.error?.message || 'Payment verification failed');
+      }
+    });
   }
 
   private hasNotifiedCancel = false;

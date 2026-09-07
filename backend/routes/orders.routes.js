@@ -99,7 +99,7 @@ router.get('/:id/status', requireAuth, async (req, res) => {
     // Check if the associated CV was already marked as paid
     if (order.user_cv_id) {
       try {
-        const cv = await db.userCvs.findById(order.user_cv_id);
+        const cv = await db.userCvs.findById(order.user_cv_id, order.user_id, true);
         if (cv && (cv.is_paid === 1 || cv.is_paid === true)) {
           await db.orders.markPaid(order.id, {
             paymentProvider: order.payment_provider || 'bakong_khqr',
@@ -224,7 +224,7 @@ router.post('/:id/verify', requireAuth, async (req, res) => {
       }
     }
 
-    if (!isRealPaid && !isAdmin) {
+    if (bakongService.hasBakongToken() && !isRealPaid && !isAdmin) {
       return res.status(400).json({
         paid: false,
         status: 'pending',
