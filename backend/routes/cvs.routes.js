@@ -52,8 +52,8 @@ router.put('/:id', requireAuth, requireApproved, async (req, res) => {
   const user = await db.users.findById(req.user.id);
   const isStaffOrAdmin = (user?.role === 'staff' || user?.role === 'admin');
   const existingCv = await db.userCvs.findById(req.params.id, req.user.id, isStaffOrAdmin);
-  if (!existingCv) {
-    return res.status(404).json({ error: 'NOT_FOUND', message: 'CV not found.' });
+  if (existingCv && existingCv.is_paid && !isStaffOrAdmin) {
+    return res.status(403).json({ error: 'PAID_CV_READONLY', message: 'Paid CVs are finalized and cannot be edited.' });
   }
 
   const { content, title } = req.body;
