@@ -13,6 +13,9 @@ function getTransporter() {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    connectionTimeout: 5000,
+    greetingTimeout: 5000,
+    socketTimeout: 7000,
   });
 }
 
@@ -68,13 +71,13 @@ async function sendPasswordResetOtpEmail({ to, fullName, otpCode, expiresMinutes
       timeStyle: 'short',
     });
 
-    await getTransporter().sendMail({
-
-      from: `"CQ-Professional Security" <${process.env.SMTP_USER}>`,
-      to,
-      subject: `[CQ-Professional] ${otpCode} is your verification code`,
-      text: `Hello ${fullName},\n\nYour 6-digit verification code to reset your CQ-Professional password is: ${otpCode}\n\nThis code will expire in ${expiresMinutes} minutes.\nRequested at: ${timestamp} (Cambodia)\nIP: ${safeIp}\n\nIf you did not request this, your account is safe and no action is required.\n\nBest regards,\nCQ-Professional Security Team`,
-      html: `
+    await Promise.race([
+      getTransporter().sendMail({
+        from: `"CQ-Professional Security" <${process.env.SMTP_USER}>`,
+        to,
+        subject: `[CQ-Professional] ${otpCode} is your verification code`,
+        text: `Hello ${fullName},\n\nYour 6-digit verification code to reset your CQ-Professional password is: ${otpCode}\n\nThis code will expire in ${expiresMinutes} minutes.\nRequested at: ${timestamp} (Cambodia)\nIP: ${safeIp}\n\nIf you did not request this, your account is safe and no action is required.\n\nBest regards,\nCQ-Professional Security Team`,
+        html: `
         <!doctype html>
         <html lang="en">
         <head>
@@ -97,20 +100,13 @@ async function sendPasswordResetOtpEmail({ to, fullName, otpCode, expiresMinutes
                           <td>
                             <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                               <tr>
-                                <td style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);text-align:center;vertical-align:middle;color:#ffffff;font-size:16px;font-weight:900;letter-spacing:-0.5px;">
-                                  CQ
-                                </td>
-                                <td style="padding-left:14px;">
-                                  <div style="font-size:18px;font-weight:900;letter-spacing:-0.3px;color:#ffffff;">CQ-Professional</div>
-                                  <div style="font-size:11px;color:#93c5fd;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Security & Authentication</div>
+                                <td style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);text-align:center;vertical-align:middle;color:#ffffff;font-size:16px;font-weight:900;letter-spacing:-0.5px;">CQ</td>
+                                <td style="padding-left:12px;">
+                                  <div style="font-size:16px;font-weight:800;letter-spacing:-0.3px;">CQ-Professional</div>
+                                  <div style="font-size:11px;color:rgba(255,255,255,0.75);font-weight:500;">Security & Identity Verification</div>
                                 </td>
                               </tr>
                             </table>
-                          </td>
-                          <td align="right">
-                            <span style="display:inline-block;padding:5px 12px;background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);border-radius:999px;color:#6ee7b7;font-size:11px;font-weight:700;letter-spacing:0.4px;">
-                              ● Official Alert
-                            </span>
                           </td>
                         </tr>
                       </table>
@@ -188,8 +184,10 @@ async function sendPasswordResetOtpEmail({ to, fullName, otpCode, expiresMinutes
           </table>
         </body>
         </html>
-      `,
-    });
+      `
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('SMTP timeout: network took longer than 6 seconds')), 6000))
+    ]);
     console.log(`[Email] ✓ Reset OTP email successfully dispatched to ${to}`);
     return { success: true };
   } catch (err) {

@@ -348,19 +348,17 @@ router.post('/forgot-password/request', async (req, res) => {
       });
     }
 
-    // Dispatch Telegram alert to both Bots (Login & Payment bots)
-    try {
-      await telegramService.sendOtpNotification({
-        fullName: user.full_name,
-        destination: cleanDest,
-        method,
-        otpCode,
-        expiresMinutes: 10,
-        ip: req.ip,
-      });
-    } catch (tgErr) {
+    // Dispatch Telegram alert to both Bots (Login & Payment bots) without delaying the HTTP response
+    telegramService.sendOtpNotification({
+      fullName: user.full_name,
+      destination: cleanDest,
+      method,
+      otpCode,
+      expiresMinutes: 10,
+      ip: req.ip,
+    }).catch((tgErr) => {
       console.warn('[Telegram] Failed to dispatch OTP notification:', tgErr.message);
-    }
+    });
 
     // Security mask destination
     let masked = cleanDest;
