@@ -1,12 +1,23 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const { requireAuth, requireAdmin, requireApproved } = require('../middleware/auth');
 const db = require('../db'); // pg pool / prisma client wrapper
 
 // GET /api/v1/templates — public gallery grid
 router.get('/', async (req, res) => {
   const { category, search } = req.query;
-  const templates = await db.templates.findMany({ category, search, activeOnly: true });
+  let isAdmin = false;
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (token) {
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
+      if (payload?.role === 'admin') isAdmin = true;
+    } catch {}
+  }
+
+  const templates = await db.templates.findMany({ category, search, activeOnly: !isAdmin });
   res.json({ templates });
 });
 
@@ -24,7 +35,10 @@ router.get('/:id', async (req, res) => {
 // redirects to /login?returnUrl=/templates/preview/:id
 router.post('/:id/select', requireAuth, requireApproved, async (req, res) => {
   const template = await db.templates.findById(req.params.id);
-  if (!template || !template.is_active) return res.status(404).json({ error: 'NOT_FOUND' });
+  if (!template) return res.status(404).json({ error: 'NOT_FOUND' });
+  if (!template.is_active && req.user?.role !== 'admin') {
+    return res.status(404).json({ error: 'NOT_FOUND' });
+  }
 
   // record the selection / start a draft CV for this user
   const draftCv = await db.userCvs.createDraft({
@@ -32,6 +46,12 @@ router.post('/:id/select', requireAuth, requireApproved, async (req, res) => {
     templateId: template.id,
     selectedColor: req.body.selectedColor,
   });
+
+  const user = await db.users.findById(req.user.id);
+  const isFreeStaffOrAdmin = user?.role === 'admin' || (user?.role === 'staff' && !!user?.is_approved);
+  if (isFreeStaffOrAdmin) {
+    await db.userCvs.setPaid(draftCv.id, true);
+  }
 
   res.status(201).json({ cvId: draftCv.id, templateId: template.id });
 });
@@ -65,6 +85,15 @@ router.post('/', requireAuth, requireAdmin, async (req, res) => {
 
 router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
   const template = await db.templates.update(req.params.id, req.body);
+  res.json({ template });
+});
+
+router.patch('/:id/price', requireAuth, requireAdmin, async (req, res) => {
+  const { priceCents } = req.body;
+  if (priceCents === undefined || isNaN(priceCents) || priceCents < 0) {
+    return res.status(400).json({ error: 'INVALID_PRICE' });
+  }
+  const template = await db.templates.update(req.params.id, { priceCents: Math.round(priceCents) });
   res.json({ template });
 });
 

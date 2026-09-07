@@ -30,18 +30,18 @@ interface CvHobby { name?: string; }
 
       <div class="body">
         <aside class="sidebar">
-          <section class="block" *ngIf="education.length"><h2>Education</h2><div class="edu" *ngFor="let item of education"><strong>{{ item.degree || item.field || 'Education' }}</strong><p>{{ item.institution }}</p><p>{{ educationDates(item) }}</p><p *ngIf="item.description">{{ item.description }}</p></div></section>
-          <section class="block" *ngIf="certifications.length"><h2>Certifications</h2><ul class="bullets"><li *ngFor="let cert of certifications">{{ cert.name }}<ng-container *ngIf="cert.issuer"> — {{ cert.issuer }}</ng-container></li></ul></section>
-          <section class="block" *ngIf="skills.length"><h2>Skills</h2><ul class="plain"><li *ngFor="let skill of skills">{{ skill.name }}</li></ul></section>
-          <section class="block" *ngIf="languages.length"><h2>Language</h2><ul class="plain"><li *ngFor="let language of languages">{{ language.name }}</li></ul></section>
-          <section class="block" *ngIf="hobbyNames.length"><h2>Interests</h2><ul class="plain"><li *ngFor="let hobby of hobbyNames">{{ hobby }}</li></ul></section>
+          <section class="block" *ngIf="education.length"><h2>{{ lbl('Education', 'Education') }}</h2><div class="edu" *ngFor="let item of education"><strong>{{ item.degree || item.field || 'Education' }}</strong><p>{{ item.institution }}</p><p>{{ educationDates(item) }}</p><p *ngIf="item.description">{{ item.description }}</p></div></section>
+          <section class="block" *ngIf="certifications.length"><h2>{{ lbl('Certifications', 'Certifications') }}</h2><ul class="bullets"><li *ngFor="let cert of certifications">{{ cert.name }}<ng-container *ngIf="cert.issuer"> — {{ cert.issuer }}</ng-container></li></ul></section>
+          <section class="block" *ngIf="skills.length"><h2>{{ lbl('Skills', 'Skills') }}</h2><ul class="plain"><li *ngFor="let skill of skills">{{ skill.name }}</li></ul></section>
+          <section class="block" *ngIf="languages.length"><h2>{{ lbl('Languages', 'Language') }}</h2><ul class="plain"><li *ngFor="let language of languages">{{ language.name }}</li></ul></section>
+          <section class="block" *ngIf="hobbyNames.length"><h2>{{ lbl('Hobbies', 'Interests') }}</h2><ul class="plain"><li *ngFor="let hobby of hobbyNames">{{ hobby }}</li></ul></section>
         </aside>
 
         <main class="content">
-          <section class="block" *ngIf="summary"><h2>About me</h2><p class="about">{{ summary }}</p></section>
-          <section class="block" *ngIf="experience.length"><h2>Experience</h2><div class="exp" *ngFor="let item of experience"><div class="exp-head"><span class="exp-title">{{ item.position || 'Position' }}</span><span class="exp-date">{{ experienceDates(item) }}</span></div><div class="exp-company">{{ item.company }}</div><p class="exp-desc" *ngFor="let responsibility of item.responsibilities">{{ responsibility }}</p></div></section>
-          <section class="block" *ngIf="projects.length"><h2>Projects</h2><div class="exp" *ngFor="let project of projects"><div class="exp-head"><span class="exp-title">{{ project.name }}</span></div><p class="exp-desc">{{ project.description || project.link }}</p></div></section>
-          <section class="block" *ngIf="references.length"><h2>Reference</h2><div class="ref-grid"><div class="ref" *ngFor="let reference of references"><div class="ref-name">{{ reference.name }}<ng-container *ngIf="reference.position"> | {{ reference.position }}</ng-container></div><div class="ref-company">{{ reference.company }}</div><div *ngIf="reference.phone">{{ reference.phone }}</div><div *ngIf="reference.email">{{ reference.email }}</div></div></div></section>
+          <section class="block" *ngIf="summary"><h2>{{ lbl('Personal Information', 'About me') }}</h2><p class="about">{{ summary }}</p></section>
+          <section class="block" *ngIf="experience.length"><h2>{{ lbl('Work Experience', 'Experience') }}</h2><div class="exp" *ngFor="let item of experience"><div class="exp-head"><span class="exp-title">{{ item.position || 'Position' }}</span><span class="exp-date">{{ experienceDates(item) }}</span></div><div class="exp-company">{{ item.company }}</div><p class="exp-desc" *ngFor="let responsibility of item.responsibilities">{{ responsibility }}</p></div></section>
+          <section class="block" *ngIf="projects.length"><h2>{{ lbl('Projects', 'Projects') }}</h2><div class="exp" *ngFor="let project of projects"><div class="exp-head"><span class="exp-title">{{ project.name }}</span></div><p class="exp-desc">{{ project.description || project.link }}</p></div></section>
+          <section class="block" *ngIf="references.length"><h2>{{ lbl('References', 'Reference') }}</h2><div class="ref-grid"><div class="ref" *ngFor="let reference of references"><div class="ref-name">{{ reference.name }}<ng-container *ngIf="reference.position"> | {{ reference.position }}</ng-container></div><div class="ref-company">{{ reference.company }}</div><div *ngIf="reference.phone">{{ reference.phone }}</div><div *ngIf="reference.email">{{ reference.email }}</div></div></div></section>
         </main>
       </div>
     </article>
@@ -106,6 +106,47 @@ export class SlateRoundedPanelsCvComponent {
   @Input() name = ''; @Input() jobTitle = ''; @Input() email = ''; @Input() phone = ''; @Input() location = ''; @Input() linkedin = ''; @Input() summary = ''; @Input() photoUrl: string | null = null;
   @Input() education: CvEducation[] = []; @Input() experience: CvExperience[] = []; @Input() skills: CvSkill[] = []; @Input() languages: CvLanguage[] = []; @Input() certifications: CvCertification[] = []; @Input() projects: CvProject[] = []; @Input() references: CvReference[] = []; @Input() hobbies: CvHobby[] = [];
   @Input() fontSize = 10; @Input() fontWeight = 400; @Input() lineHeight = 1.5; @Input() fontFamily = "'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
+  @Input() sectionLabels: Record<string, string> = {};
+  @Input() sectionOrder: string[] = [];
+
+  lbl(key: string, fallback?: string): string {
+    if (!this.sectionLabels) return fallback ?? key;
+    if (this.sectionLabels[key]) return this.sectionLabels[key];
+    const k = key.toLowerCase().replace(/[^a-z]/g, '');
+    for (const [sKey, val] of Object.entries(this.sectionLabels)) {
+      const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
+      if (sk === k) return val;
+      if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
+          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+        return val;
+      }
+      if ((k.includes('work') || k.includes('experience')) &&
+          (sk.includes('work') || sk.includes('experience'))) {
+        return val;
+      }
+      if ((k.includes('project')) && (sk.includes('project'))) {
+        return val;
+      }
+      if ((k.includes('skill')) && (sk.includes('skill'))) {
+        return val;
+      }
+      if ((k.includes('certif')) && (sk.includes('certif'))) {
+        return val;
+      }
+      if ((k.includes('lang')) && (sk.includes('lang'))) {
+        return val;
+      }
+      if ((k.includes('ref')) && (sk.includes('ref'))) {
+        return val;
+      }
+      if ((k.includes('hobb') || k.includes('interest') || k.includes('strength')) &&
+          (sk.includes('hobb') || sk.includes('interest') || sk.includes('strength'))) {
+        return val;
+      }
+    }
+    return fallback ?? key;
+  }
+
   get initials() { return this.name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'CV'; }
   get hasContact() { return !!(this.email || this.phone || this.location || this.linkedin); }
   get hobbyNames() { return this.hobbies.map(hobby => typeof hobby === 'string' ? hobby : hobby?.name).filter(Boolean) as string[]; }

@@ -13,25 +13,29 @@ async function log({ userId, email, action, ipAddress, userAgent }) {
   );
 }
 
-async function list({ page = 1, pageSize = 50, search = '', action = '' } = {}) {
+async function list({ page = 1, pageSize = 50, search = '', action = '', userId = null } = {}) {
   const offset = (page - 1) * pageSize;
   const conditions = [];
   const params = [];
 
   if (search) {
-    conditions.push(`(al.email LIKE ? OR u.full_name LIKE ?)`);
-    params.push(`%${search}%`, `%${search}%`);
+    conditions.push(`(al.email LIKE ? OR u.full_name LIKE ? OR al.ip_address LIKE ? OR al.action LIKE ?)`);
+    params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
   }
   if (action) {
     conditions.push(`al.action = ?`);
     params.push(action);
+  }
+  if (userId) {
+    conditions.push(`al.user_id = ?`);
+    params.push(userId);
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
   const { rows } = await query(
     `SELECT al.id, al.user_id, al.email, al.action, al.ip_address, al.user_agent, al.created_at,
-            u.full_name, u.is_active
+            u.full_name, u.role, u.is_active
      FROM activity_log al
      LEFT JOIN users u ON u.id = al.user_id
      ${where}
@@ -48,6 +52,26 @@ async function list({ page = 1, pageSize = 50, search = '', action = '' } = {}) 
   return { logs: rows, total: countRows[0].total };
 }
 
+async function getStats() {
+  const { rows } = await query(`
+    SELECT
+      COUNT(*) AS total,
+      SUM(CASE WHEN action = 'login' THEN 1 ELSE 0 END) AS logins,
+      SUM(CASE WHEN action = 'login_failed' THEN 1 ELSE 0 END) AS failed,
+      SUM(CASE WHEN action = 'register' THEN 1 ELSE 0 END) AS registers,
+      SUM(CASE WHEN action = 'logout' THEN 1 ELSE 0 END) AS logouts
+    FROM activity_log
+  `);
+  const r = rows[0] || {};
+  return {
+    total: Number(r.total || 0),
+    logins: Number(r.logins || 0),
+    failed: Number(r.failed || 0),
+    registers: Number(r.registers || 0),
+    logouts: Number(r.logouts || 0),
+  };
+}
+
 async function deleteLog(id) {
   await query('DELETE FROM activity_log WHERE id = ?', [id]);
 }
@@ -56,4 +80,5 @@ async function deleteAll() {
   await query('DELETE FROM activity_log');
 }
 
-module.exports = { log, list, deleteLog, deleteAll };
+module.exports = { log, list, getStats, deleteLog, deleteAll };
+

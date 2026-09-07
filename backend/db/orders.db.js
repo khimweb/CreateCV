@@ -27,8 +27,10 @@ async function create({ userId, templateId, userCvId, amountCents, currency = 'U
   
   async function findByUser(userId) {
     const { rows } = await query(
-      `SELECT so.*, t.name AS template_name
-       FROM sales_orders so JOIN cv_templates t ON t.id = so.template_id
+      `SELECT so.*, t.name AS template_name, t.category AS template_category, t.thumbnail_url, uc.title AS cv_title
+       FROM sales_orders so
+       JOIN cv_templates t ON t.id = so.template_id
+       LEFT JOIN user_cvs uc ON uc.id = so.user_cv_id
        WHERE so.user_id = ? ORDER BY so.purchased_at DESC`,
       [userId]
     );

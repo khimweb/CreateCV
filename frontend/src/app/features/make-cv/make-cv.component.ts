@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, effect, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, HostListener, inject, effect, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import gsap from 'gsap';
 import {
   LucideAngularModule,
   UserRound,
@@ -24,7 +25,9 @@ import {
   Bold,
   Minus,
   AlignJustify,
+  Pencil,
 } from 'lucide-angular';
+import { TranslationService } from '../../core/services/translation.service';
 import { ProfessionalCvComponent } from '../../shared/components/professional-cv/professional-cv.component';
 import { ModernSplitCvComponent } from '../../shared/components/modern-split-cv/modern-split-cv.component';
 import { CleanSidebarCvComponent } from '../../shared/components/clean-sidebar-cv/clean-sidebar-cv.component';
@@ -32,13 +35,21 @@ import { ElegantFrameCvComponent } from '../../shared/components/elegant-frame-c
 import { ClassicDarkCvComponent } from '../../shared/components/classic-dark-cv/classic-dark-cv.component';
 import { FormalClassicCvComponent } from '../../shared/components/formal-classic-cv/formal-classic-cv.component';
 import { CoverLetterCvComponent } from '../../shared/components/cover-letter-cv/cover-letter-cv.component';
+import { FramedCoverLetterCvComponent } from '../../shared/components/framed-cover-letter-cv/framed-cover-letter-cv.component';
+import { SidebarCoverLetterCvComponent } from '../../shared/components/sidebar-cover-letter-cv/sidebar-cover-letter-cv.component';
+import { MinimalistCoverLetterCvComponent } from '../../shared/components/minimalist-cover-letter-cv/minimalist-cover-letter-cv.component';
 import { WarmTaupeTimelineCvComponent } from '../../shared/components/warm-taupe-timeline-cv/warm-taupe-timeline-cv.component';
 import { SlateRoundedPanelsCvComponent } from '../../shared/components/slate-rounded-panels-cv/slate-rounded-panels-cv.component';
 import { NavySidebarProfileCvComponent } from '../../shared/components/navy-sidebar-profile-cv/navy-sidebar-profile-cv.component';
+import { NavyBadgeCvComponent } from '../../shared/components/navy-badge-cv/navy-badge-cv.component';
 import { GraphiteBannerTimelineCvComponent } from '../../shared/components/graphite-banner-timeline-cv/graphite-banner-timeline-cv.component';
+import { MinimalistFramedCvComponent } from '../../shared/components/minimalist-framed-cv/minimalist-framed-cv.component';
 import { ToastService } from '../../shared/components/toast/toast.service';
 import { PREVIEW_PLACEHOLDER } from '../../shared/preview-placeholders';
 import { PptxExportService } from '../../shared/services/pptx-export.service';
+import { AuthService } from '../../core/services/auth.service';
+import { WatermarkComponent } from '../../shared/components/watermark/watermark.component';
+import { KhqrPaymentModalComponent } from '../../shared/components/khqr-payment-modal/khqr-payment-modal.component';
 import {
   DEGREES,
   FIELDS_OF_STUDY,
@@ -70,33 +81,161 @@ const ACCENT_PALETTE = [
 @Component({
   selector: 'app-make-cv',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, FormalClassicCvComponent, CoverLetterCvComponent, WarmTaupeTimelineCvComponent, SlateRoundedPanelsCvComponent, NavySidebarProfileCvComponent, GraphiteBannerTimelineCvComponent],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    ReactiveFormsModule, 
+    LucideAngularModule, 
+    ProfessionalCvComponent, 
+    ModernSplitCvComponent, 
+    CleanSidebarCvComponent, 
+    ElegantFrameCvComponent, 
+    ClassicDarkCvComponent, 
+    FormalClassicCvComponent, 
+    CoverLetterCvComponent, 
+    FramedCoverLetterCvComponent, 
+    SidebarCoverLetterCvComponent, 
+    MinimalistCoverLetterCvComponent, 
+    NavyBadgeCvComponent, 
+    WarmTaupeTimelineCvComponent, 
+    SlateRoundedPanelsCvComponent, 
+    NavySidebarProfileCvComponent, 
+    GraphiteBannerTimelineCvComponent, 
+    MinimalistFramedCvComponent,
+    WatermarkComponent,
+    KhqrPaymentModalComponent
+  ],
   template: `
-    <main class="min-h-screen bg-[#f7faff] dark:bg-slate-950 pt-24 pb-28 px-4">
-      <div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[84px_minmax(0,1fr)] xl:grid-cols-[84px_minmax(0,1fr)_430px] gap-7">
-        <aside class="hidden lg:flex flex-col gap-2">
-          @for (item of steps; track item.label) {
-            @if (!item.coverOnly || layout() === 'cover-letter') {
-            <button type="button" (click)="active.set(item.label)" class="step" [class.selected]="active() === item.label">
+    <main class="min-h-screen bg-transparent pt-24 sm:pt-28 md:pt-32 pb-28 px-2.5 sm:px-6">
+      <!-- Mobile & Tablet View Mode Bar (Edit Form vs Live Preview) -->
+      <div class="xl:hidden max-w-4xl mx-auto flex items-center justify-between gap-3 mb-4">
+        <a class="text-xs font-semibold text-slate-500 hover:text-sky-600 transition flex items-center gap-1" href="/templates">
+          ← {{ i18n.currentLang() === 'kh' ? 'ត្រឡប់ទៅផ្ទាំងគំរូ' : 'Back to Templates' }}
+        </a>
+        
+        <div class="inline-flex items-center p-1 rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 shadow-sm">
+          <button
+            type="button"
+            (click)="viewMode.set('edit')"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+            [class.bg-sky-600]="viewMode() === 'edit'"
+            [class.text-white]="viewMode() === 'edit'"
+            [class.shadow-xs]="viewMode() === 'edit'"
+            [class.text-slate-600]="viewMode() !== 'edit'"
+            [class.dark:text-slate-300]="viewMode() !== 'edit'"
+          >
+            <lucide-icon [img]="Pencil" class="w-3.5 h-3.5" />
+            <span>{{ i18n.currentLang() === 'kh' ? 'កែសម្រួល' : 'Edit Form' }}</span>
+          </button>
+          <button
+            type="button"
+            (click)="viewMode.set('preview'); onPreviewModeEnter()"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+            [class.bg-emerald-600]="viewMode() === 'preview'"
+            [class.text-white]="viewMode() === 'preview'"
+            [class.shadow-xs]="viewMode() === 'preview'"
+            [class.text-slate-600]="viewMode() !== 'preview'"
+            [class.dark:text-slate-300]="viewMode() !== 'preview'"
+          >
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <lucide-icon [img]="Eye" class="w-3.5 h-3.5" />
+            <span>{{ i18n.currentLang() === 'kh' ? 'មើលផ្ទាល់' : 'Live Preview' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="max-w-[1440px] mx-auto grid grid-cols-1 xl:grid-cols-[100px_minmax(0,1fr)_420px] gap-5 xl:gap-7">
+        <!-- Desktop Left Sidebar (Only visible on XL screens >= 1280px) -->
+        <aside class="hidden xl:flex flex-col gap-2 sticky top-28 h-fit">
+          @for (item of steps; track item.key) {
+            @if (!item.coverOnly || isCoverLetter()) {
+            <button type="button" (click)="active.set(item.key)" class="step" [class.selected]="active() === item.key"
+              title="Click to navigate · Double-click label to rename">
               <lucide-icon [img]="item.icon" />
-              <span>{{ item.label }}</span>
+              @if (editingLabelKey() === item.key) {
+                <input #labelInput class="step-label-input"
+                  [value]="labelFor(item.key)"
+                  (blur)="finishEditLabel(item.key, labelInput)"
+                  (keydown.enter)="finishEditLabel(item.key, labelInput)"
+                  (keydown.escape)="editingLabelKey.set(null)"
+                  (click)="$event.stopPropagation()"
+                  autofocus />
+              } @else {
+                <span class="step-label-wrap">
+                  <span class="step-label-text">{{ labelFor(item.key) }}</span>
+                  <span class="step-edit-icon" (click)="startEditLabel(item.key, $event)" title="Rename section">✎</span>
+                </span>
+              }
+              <div class="flex items-center gap-1 mt-0.5 opacity-60 hover:opacity-100 transition" (click)="$event.stopPropagation()">
+                <button type="button" class="step-arrow-btn" [disabled]="!canMoveUp(item.key)" (click)="moveSection(item.key, -1)" title="Move section up">▲</button>
+                <button type="button" class="step-arrow-btn" [disabled]="!canMoveDown(item.key)" (click)="moveSection(item.key, 1)" title="Move section down">▼</button>
+              </div>
             </button>
             }
           }
         </aside>
 
-        <section class="min-w-0">
-          <a class="text-sm text-slate-500" href="/templates">← Back to Templates</a>
+        <section class="min-w-0" [class.hidden]="viewMode() === 'preview'" [class.xl:block]="true">
+        <!-- Modern Single Responsive Steps Navigation (Only on screens < xl) -->
+        <div class="xl:hidden sticky top-16 sm:top-20 z-30 mb-5 -mx-1 sm:mx-0">
+          <div class="p-1.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-md shadow-slate-900/5 flex gap-1.5 overflow-x-auto scrollbar-none scroll-smooth py-1.5 px-2">
+            @for (item of steps; track item.key) {
+              @if (!item.coverOnly || isCoverLetter()) {
+                <button
+                  type="button"
+                  (click)="onStepClick(item.key, $event)"
+                  class="step-chip-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0 cursor-pointer select-none"
+                  [class.active-chip]="active() === item.key"
+                  [class.inactive-chip]="active() !== item.key">
+                  @if (active() === item.key) {
+                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-300 animate-pulse"></span>
+                  }
+                  <lucide-icon [img]="item.icon" class="w-3.5 h-3.5" />
+                  <span>{{ labelFor(item.key) }}</span>
+                </button>
+              }
+            }
+          </div>
+        </div>
+          <a class="hidden xl:inline text-sm text-slate-500 hover:text-sky-600 transition" href="/templates">← Back to Templates</a>
           <div class="flex justify-between items-center mt-2 mb-6">
-            <h1 class="text-3xl font-bold dark:text-white">Build Your CV</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold dark:text-white">Build Your CV</h1>
             <span class="hidden sm:block text-sm font-bold text-emerald-600">Live form · Save Draft stores everything</span>
           </div>
 
           <form [formGroup]="form" class="rounded-3xl bg-white dark:bg-slate-900 p-6 sm:p-7 shadow-sm border border-slate-200 dark:border-slate-700 space-y-6">
             @if (active() === 'Personal Information') {
-              <div class="flex items-center gap-4 mb-2">
-                <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="UserRound" /></span>
-                <h2 class="text-2xl font-bold dark:text-white">Personal Information</h2>
+              <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+                <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+                  <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white shrink-0"><lucide-icon [img]="UserRound" /></span>
+                  <div class="flex-1 flex items-center gap-2">
+                    <input
+                      class="text-2xl font-bold text-slate-800 dark:text-white bg-transparent border-b border-dashed border-slate-300 dark:border-slate-600 hover:border-sky-500 focus:border-sky-500 focus:bg-white dark:focus:bg-slate-800 rounded px-1.5 py-0.5 outline-none transition w-full max-w-md"
+                      [value]="labelFor('Personal Information')"
+                      (input)="onLabelInput('Personal Information', $event)"
+                      placeholder="Personal Information"
+                      title="Click to rename this section"
+                    />
+                    
+                    <span class="text-xs text-slate-400 font-normal shrink-0 hidden sm:inline">✎ Rename</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0 ml-auto">
+                  <button type="button"
+                          [disabled]="!canMoveUp('Personal Information')"
+                          (click)="moveSection('Personal Information', -1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section up in the CV">
+                    ▲ Move Up
+                  </button>
+                  <button type="button"
+                          [disabled]="!canMoveDown('Personal Information')"
+                          (click)="moveSection('Personal Information', 1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section down in the CV">
+                    ▼ Move Down
+                  </button>
+                </div>
               </div>
               <div class="font-toolbar">
                 <button type="button" class="ft-btn" (click)="bumpFont(-1)" title="Decrease font size">A−</button>
@@ -144,31 +283,95 @@ const ACCENT_PALETTE = [
                   <input formControlName="location" placeholder="Select or type…" list="locations" />
                 </label>
                 <label>LinkedIn / GitHub (optional)<input formControlName="linkedin" placeholder="linkedin.com/in/you" /></label>
+                @if (layout() === 'navy-badge') {
+                  <label>Date of Birth (DOB)<input formControlName="dob" placeholder="January 06, 2005" /></label>
+                  <label>Height<input formControlName="height" placeholder="1.60m" /></label>
+                  <label>Marital Status<input formControlName="maritalStatus" placeholder="Single" /></label>
+                }
               </div>
               <label class="block">Professional summary<textarea formControlName="summary" rows="5" placeholder="Write a short professional summary..."></textarea></label>
             }
 
             @if (active() === 'Cover Letter') {
-              <div class="flex items-center gap-4 mb-2">
-                <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="Award" /></span>
-                <h2 class="text-2xl font-bold dark:text-white">Cover Letter Details</h2>
+              <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+                <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+                  <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white shrink-0"><lucide-icon [img]="Award" /></span>
+                  <div class="flex-1 flex items-center gap-2">
+                    <input
+                      class="text-2xl font-bold text-slate-800 dark:text-white bg-transparent border-b border-dashed border-slate-300 dark:border-slate-600 hover:border-sky-500 focus:border-sky-500 focus:bg-white dark:focus:bg-slate-800 rounded px-1.5 py-0.5 outline-none transition w-full max-w-md"
+                      [value]="labelFor('Cover Letter')"
+                      (input)="onLabelInput('Cover Letter', $event)"
+                      placeholder="Cover Letter"
+                      title="Click to rename this section"
+                    />
+                    
+                    <span class="text-xs text-slate-400 font-normal shrink-0 hidden sm:inline">✎ Rename</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0 ml-auto">
+                  <button type="button"
+                          [disabled]="!canMoveUp('Cover Letter')"
+                          (click)="moveSection('Cover Letter', -1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section up in the CV">
+                    ▲ Move Up
+                  </button>
+                  <button type="button"
+                          [disabled]="!canMoveDown('Cover Letter')"
+                          (click)="moveSection('Cover Letter', 1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section down in the CV">
+                    ▼ Move Down
+                  </button>
+                </div>
               </div>
-              <p class="text-sm text-slate-500 mb-4">These fields only apply to the Cover Letter template.</p>
+              <p class="text-sm text-slate-500 mb-4">These fields apply to Cover Letter templates.</p>
               <div class="grid sm:grid-cols-2 gap-5">
-                <label>Recipient / Department<input formControlName="recipientDept" placeholder="Human Resource Department" /></label>
-                <label>Greeting<input formControlName="greeting" placeholder="Dear Hiring Manager," /></label>
+                <label>Recipient Name<input formControlName="recipientName" placeholder="Gabriel Vince" /></label>
+                <label>Recipient Company / Department<input formControlName="recipientDept" placeholder="London Bridge Support Services" /></label>
               </div>
               <div class="grid sm:grid-cols-2 gap-5 mt-4">
-                <label>Closing<input formControlName="closing" placeholder="Yours sincerely," /></label>
-                <label>Subject (optional)<input formControlName="subject" placeholder="Application for Sales Executive position" /></label>
+                <label>Greeting<input formControlName="greeting" placeholder="Dear Mr. Vince," /></label>
+                <label>Closing<input formControlName="closing" placeholder="Regards" /></label>
+              </div>
+              <div class="mt-4">
+                <label>Subject (optional)<input formControlName="subject" placeholder="Application for Internship position" /></label>
               </div>
               <label class="block mt-4">Cover Letter Body<textarea formControlName="summary" rows="12" placeholder="Write your cover letter body text here. Use blank lines to separate paragraphs."></textarea></label>
             }
 
             @if (active() === 'Education') {
-              <div class="flex items-center gap-4">
-                <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="GraduationCap" /></span>
-                <h2 class="text-2xl font-bold dark:text-white">Education</h2>
+              <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+                <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+                  <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white shrink-0"><lucide-icon [img]="GraduationCap" /></span>
+                  <div class="flex-1 flex items-center gap-2">
+                    <input
+                      class="text-2xl font-bold text-slate-800 dark:text-white bg-transparent border-b border-dashed border-slate-300 dark:border-slate-600 hover:border-sky-500 focus:border-sky-500 focus:bg-white dark:focus:bg-slate-800 rounded px-1.5 py-0.5 outline-none transition w-full max-w-md"
+                      [value]="labelFor('Education')"
+                      (input)="onLabelInput('Education', $event)"
+                      placeholder="Education"
+                      title="Click to rename this section"
+                    />
+                    
+                    <span class="text-xs text-slate-400 font-normal shrink-0 hidden sm:inline">✎ Rename</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0 ml-auto">
+                  <button type="button"
+                          [disabled]="!canMoveUp('Education')"
+                          (click)="moveSection('Education', -1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section up in the CV">
+                    ▲ Move Up
+                  </button>
+                  <button type="button"
+                          [disabled]="!canMoveDown('Education')"
+                          (click)="moveSection('Education', 1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section down in the CV">
+                    ▼ Move Down
+                  </button>
+                </div>
               </div>
               <div class="font-toolbar">
                 <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
@@ -183,21 +386,54 @@ const ACCENT_PALETTE = [
                   @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
                 </select>
               </div>
-              <div formArrayName="education" class="space-y-4">
-                @for (ed of education.controls; track $index; let i = $index) {
-                  <div [formGroupName]="i" class="card-block">
-                    <div class="flex justify-between items-center mb-4">
-                      <div class="flex items-center gap-2">
-                        <div class="flex flex-col gap-0.5">
-                          <button type="button" class="reorder-btn" [disabled]="i === 0" (click)="moveEducation(i, -1)">↑</button>
-                          <button type="button" class="reorder-btn" [disabled]="i === education.length - 1" (click)="moveEducation(i, 1)">↓</button>
-                        </div>
-                        <h3 class="font-bold text-lg">Education {{ i + 1 }}</h3>
-                      </div>
-                      <button type="button" class="text-red-600 p-1" (click)="removeEducation(i)" [disabled]="education.length <= 1">
-                        <lucide-icon [img]="Trash2" class="w-4 h-4" />
+              <div class="space-y-3">
+                @if (education.length > 0) {
+                  <div class="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-sm transition">
+                    <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300 select-none">
+                      <input type="checkbox"
+                        [checked]="isAllSelected('education', education.length)"
+                        (change)="toggleSelectAll('education', education.length)"
+                        class="rounded border-slate-300 text-sky-600 focus:ring-sky-500 w-4 h-4 cursor-pointer" />
+                      <span>Select All ({{ education.length }})</span>
+                    </label>
+
+                    @if (selectedCount('education') > 0) {
+                      <button type="button"
+                        (click)="deleteSelected('education')"
+                        class="flex items-center gap-1.5 px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/50 dark:text-red-400 rounded-lg font-medium text-xs transition active:scale-95 shadow-sm">
+                        <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+                        <span>Delete Selected ({{ selectedCount('education') }})</span>
                       </button>
-                    </div>
+                    }
+                  </div>
+                }
+
+                <div formArrayName="education" class="space-y-4">
+                  @for (ed of education.controls; track ed; let i = $index) {
+                    <div [formGroupName]="i"
+                         class="card-block group transition-all duration-200 hover:shadow-md hover:border-sky-300"
+                         draggable="true"
+                         (dragstart)="onDragStart($event, 'edu', 0, i)"
+                         (dragover)="onDragOver($event)"
+                         (drop)="onDrop($event, 'edu', 0, i)"
+                         (dragend)="onDragEnd($event)">
+                      <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2">
+                          <input type="checkbox"
+                                 [checked]="isSelected('education', i)"
+                                 (change)="toggleSelect('education', i)"
+                                 class="w-4 h-4 rounded border-slate-300 text-sky-600 cursor-pointer" />
+                          <div class="flex flex-col gap-0.5 items-center">
+                            <span class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 px-0.5 text-xs select-none" title="Hold & drag to reorder">⋮⋮</span>
+                            <button type="button" class="reorder-btn" [disabled]="i === 0" (click)="moveEducation(i, -1)" title="Move up">↑</button>
+                            <button type="button" class="reorder-btn" [disabled]="i === education.length - 1" (click)="moveEducation(i, 1)" title="Move down">↓</button>
+                          </div>
+                          <h3 class="font-bold text-lg">Education {{ i + 1 }}<span class="text-sm font-normal text-slate-500 dark:text-slate-400 ml-1.5" *ngIf="ed.value.institution || ed.value.degree">— {{ ed.value.institution || ed.value.degree }}</span></h3>
+                        </div>
+                        <button type="button" class="text-slate-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 transition active:scale-95" (click)="removeEducation(i)">
+                          <lucide-icon [img]="Trash2" class="w-4 h-4" />
+                        </button>
+                      </div>
                     <div class="grid sm:grid-cols-2 gap-4">
                       <label
                         >Institution / School *
@@ -232,13 +468,42 @@ const ACCENT_PALETTE = [
                   </div>
                 }
               </div>
+              </div>
               <button type="button" class="add-dashed" (click)="addEducation()"><lucide-icon [img]="Plus" class="w-4 h-4" /> Add Education</button>
             }
 
             @if (active() === 'Work Experience') {
-              <div class="flex items-center gap-4">
-                <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="BriefcaseBusiness" /></span>
-                <h2 class="text-2xl font-bold dark:text-white">Work Experience</h2>
+              <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+                <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+                  <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white shrink-0"><lucide-icon [img]="BriefcaseBusiness" /></span>
+                  <div class="flex-1 flex items-center gap-2">
+                    <input
+                      class="text-2xl font-bold text-slate-800 dark:text-white bg-transparent border-b border-dashed border-slate-300 dark:border-slate-600 hover:border-sky-500 focus:border-sky-500 focus:bg-white dark:focus:bg-slate-800 rounded px-1.5 py-0.5 outline-none transition w-full max-w-md"
+                      [value]="labelFor('Work Experience')"
+                      (input)="onLabelInput('Work Experience', $event)"
+                      placeholder="Work Experience"
+                      title="Click to rename this section"
+                    />
+                    
+                    <span class="text-xs text-slate-400 font-normal shrink-0 hidden sm:inline">✎ Rename</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0 ml-auto">
+                  <button type="button"
+                          [disabled]="!canMoveUp('Work Experience')"
+                          (click)="moveSection('Work Experience', -1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section up in the CV">
+                    ▲ Move Up
+                  </button>
+                  <button type="button"
+                          [disabled]="!canMoveDown('Work Experience')"
+                          (click)="moveSection('Work Experience', 1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section down in the CV">
+                    ▼ Move Down
+                  </button>
+                </div>
               </div>
               <div class="font-toolbar">
                 <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
@@ -253,21 +518,54 @@ const ACCENT_PALETTE = [
                   @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
                 </select>
               </div>
-              <div formArrayName="experience" class="space-y-4">
-                @for (job of experience.controls; track $index; let i = $index) {
-                  <div [formGroupName]="i" class="card-block">
-                    <div class="flex justify-between items-center mb-4">
-                      <div class="flex items-center gap-2">
-                        <div class="flex flex-col gap-0.5">
-                          <button type="button" class="reorder-btn" [disabled]="i === 0" (click)="moveExperience(i, -1)">↑</button>
-                          <button type="button" class="reorder-btn" [disabled]="i === experience.length - 1" (click)="moveExperience(i, 1)">↓</button>
-                        </div>
-                        <h3 class="font-bold text-lg">Work Experience {{ i + 1 }}</h3>
-                      </div>
-                      <button type="button" class="text-red-600 p-1" (click)="removeExperience(i)" [disabled]="experience.length <= 1">
-                        <lucide-icon [img]="Trash2" class="w-4 h-4" />
+              <div class="space-y-3">
+                @if (experience.length > 0) {
+                  <div class="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-sm transition">
+                    <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300 select-none">
+                      <input type="checkbox"
+                        [checked]="isAllSelected('experience', experience.length)"
+                        (change)="toggleSelectAll('experience', experience.length)"
+                        class="rounded border-slate-300 text-sky-600 focus:ring-sky-500 w-4 h-4 cursor-pointer" />
+                      <span>Select All ({{ experience.length }})</span>
+                    </label>
+
+                    @if (selectedCount('experience') > 0) {
+                      <button type="button"
+                        (click)="deleteSelected('experience')"
+                        class="flex items-center gap-1.5 px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/50 dark:text-red-400 rounded-lg font-medium text-xs transition active:scale-95 shadow-sm">
+                        <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+                        <span>Delete Selected ({{ selectedCount('experience') }})</span>
                       </button>
-                    </div>
+                    }
+                  </div>
+                }
+
+                <div formArrayName="experience" class="space-y-4">
+                  @for (job of experience.controls; track job; let i = $index) {
+                    <div [formGroupName]="i"
+                         class="card-block group transition-all duration-200 hover:shadow-md hover:border-sky-300"
+                         draggable="true"
+                         (dragstart)="onDragStart($event, 'exp', 0, i)"
+                         (dragover)="onDragOver($event)"
+                         (drop)="onDrop($event, 'exp', 0, i)"
+                         (dragend)="onDragEnd($event)">
+                      <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2">
+                          <input type="checkbox"
+                                 [checked]="isSelected('experience', i)"
+                                 (change)="toggleSelect('experience', i)"
+                                 class="w-4 h-4 rounded border-slate-300 text-sky-600 cursor-pointer" />
+                          <div class="flex flex-col gap-0.5 items-center">
+                            <span class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 px-0.5 text-xs select-none" title="Hold & drag to reorder">⋮⋮</span>
+                            <button type="button" class="reorder-btn" [disabled]="i === 0" (click)="moveExperience(i, -1)" title="Move up">↑</button>
+                            <button type="button" class="reorder-btn" [disabled]="i === experience.length - 1" (click)="moveExperience(i, 1)" title="Move down">↓</button>
+                          </div>
+                          <h3 class="font-bold text-lg">Work Experience {{ i + 1 }}<span class="text-sm font-normal text-slate-500 dark:text-slate-400 ml-1.5" *ngIf="job.value.company || job.value.position">— {{ job.value.company || job.value.position }}</span></h3>
+                        </div>
+                        <button type="button" class="text-slate-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 transition active:scale-95" (click)="removeExperience(i)">
+                          <lucide-icon [img]="Trash2" class="w-4 h-4" />
+                        </button>
+                      </div>
                     <div class="grid sm:grid-cols-2 gap-4">
                       <label>Company Name *<input formControlName="company" placeholder="Company name" list="companies" /></label>
                       <label
@@ -306,14 +604,20 @@ const ACCENT_PALETTE = [
                     </label>
                     <div class="mt-3" formArrayName="responsibilities">
                       <span class="font-semibold text-sm text-slate-700">Responsibilities & Achievements</span>
-                      @for (r of responsibilities(i).controls; track $index; let ri = $index) {
-                        <div class="flex gap-2 mt-2 items-start">
-                          <div class="flex flex-col shrink-0 mt-1 gap-0.5">
-                            <button type="button" class="reorder-btn" [disabled]="ri === 0" (click)="moveResp(i, ri, -1)">↑</button>
-                            <button type="button" class="reorder-btn" [disabled]="ri === responsibilities(i).length - 1" (click)="moveResp(i, ri, 1)">↓</button>
+                      @for (r of responsibilities(i).controls; track r; let ri = $index) {
+                        <div class="flex gap-2 mt-2 items-start group transition-all duration-200 rounded-xl p-1 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                             draggable="true"
+                             (dragstart)="onDragStart($event, 'resp', i, ri)"
+                             (dragover)="onDragOver($event)"
+                             (drop)="onDrop($event, 'resp', i, ri)"
+                             (dragend)="onDragEnd($event)">
+                          <div class="flex flex-col shrink-0 mt-1 gap-0.5 items-center">
+                            <span class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 px-0.5 text-xs select-none" title="Hold & drag to reorder">⋮⋮</span>
+                            <button type="button" class="reorder-btn" [disabled]="ri === 0" (click)="moveResp(i, ri, -1)" title="Move up">↑</button>
+                            <button type="button" class="reorder-btn" [disabled]="ri === responsibilities(i).length - 1" (click)="moveResp(i, ri, 1)" title="Move down">↓</button>
                           </div>
-                          <textarea [formControlName]="ri" rows="2" class="flex-1" placeholder="Describe a responsibility…"></textarea>
-                          <button type="button" class="text-red-500 shrink-0 mt-2" (click)="removeResponsibility(i, ri)" [disabled]="responsibilities(i).length <= 1">
+                          <textarea [formControlName]="ri" rows="2" class="flex-1 transition border-slate-200 focus:border-sky-500 rounded-xl" placeholder="Describe a responsibility…"></textarea>
+                          <button type="button" class="text-slate-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 shrink-0 mt-1 transition active:scale-95" (click)="removeResponsibility(i, ri)" title="Delete responsibility">
                             <lucide-icon [img]="Trash2" class="w-4 h-4" />
                           </button>
                         </div>
@@ -323,13 +627,42 @@ const ACCENT_PALETTE = [
                   </div>
                 }
               </div>
+              </div>
               <button type="button" class="add-dashed" (click)="addExperience()"><lucide-icon [img]="Plus" class="w-4 h-4" /> Add Work Experience</button>
             }
 
             @if (active() === 'Skills') {
-              <div class="flex items-center gap-4">
-                <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="Star" /></span>
-                <h2 class="text-2xl font-bold dark:text-white">Skills <span class="opt">Optional</span></h2>
+              <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+                <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+                  <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white shrink-0"><lucide-icon [img]="Star" /></span>
+                  <div class="flex-1 flex items-center gap-2">
+                    <input
+                      class="text-2xl font-bold text-slate-800 dark:text-white bg-transparent border-b border-dashed border-slate-300 dark:border-slate-600 hover:border-sky-500 focus:border-sky-500 focus:bg-white dark:focus:bg-slate-800 rounded px-1.5 py-0.5 outline-none transition w-full max-w-md"
+                      [value]="labelFor('Skills')"
+                      (input)="onLabelInput('Skills', $event)"
+                      placeholder="Skills"
+                      title="Click to rename this section"
+                    />
+                    <span class="opt">Optional</span>
+                    <span class="text-xs text-slate-400 font-normal shrink-0 hidden sm:inline">✎ Rename</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0 ml-auto">
+                  <button type="button"
+                          [disabled]="!canMoveUp('Skills')"
+                          (click)="moveSection('Skills', -1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section up in the CV">
+                    ▲ Move Up
+                  </button>
+                  <button type="button"
+                          [disabled]="!canMoveDown('Skills')"
+                          (click)="moveSection('Skills', 1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section down in the CV">
+                    ▼ Move Down
+                  </button>
+                </div>
               </div>
               <div class="font-toolbar">
                 <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
@@ -361,23 +694,93 @@ const ACCENT_PALETTE = [
                 </div>
                 <button type="button" class="add-solid mt-4" (click)="addSkill()"><lucide-icon [img]="Plus" class="w-4 h-4" /> Add Skill</button>
               </div>
-              <div formArrayName="skills" class="space-y-3">
-                @for (s of skills.controls; track $index; let i = $index) {
-                  <div [formGroupName]="i" class="card-block flex justify-between items-center">
-                    <div>
-                      <p class="font-bold">{{ s.value.name }}</p>
-                      <p class="text-sm text-slate-500">{{ s.value.level }}</p>
-                    </div>
-                    <button type="button" class="text-red-600" (click)="removeSkill(i)"><lucide-icon [img]="Trash2" class="w-4 h-4" /></button>
+              <div class="space-y-3">
+                @if (skills.length > 0) {
+                  <div class="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-sm transition">
+                    <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300 select-none">
+                      <input type="checkbox"
+                        [checked]="isAllSelected('skills', skills.length)"
+                        (change)="toggleSelectAll('skills', skills.length)"
+                        class="rounded border-slate-300 text-sky-600 focus:ring-sky-500 w-4 h-4 cursor-pointer" />
+                      <span>Select All ({{ skills.length }})</span>
+                    </label>
+
+                    @if (selectedCount('skills') > 0) {
+                      <button type="button"
+                        (click)="deleteSelected('skills')"
+                        class="flex items-center gap-1.5 px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/50 dark:text-red-400 rounded-lg font-medium text-xs transition active:scale-95 shadow-sm">
+                        <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+                        <span>Delete Selected ({{ selectedCount('skills') }})</span>
+                      </button>
+                    }
                   </div>
                 }
+
+                <div formArrayName="skills" class="space-y-2">
+                  @for (s of skills.controls; track s; let i = $index) {
+                    <div [formGroupName]="i"
+                         class="card-block flex justify-between items-center group transition-all duration-200 hover:shadow-md hover:border-sky-300"
+                         draggable="true"
+                         (dragstart)="onDragStart($event, 'skill', 0, i)"
+                         (dragover)="onDragOver($event)"
+                         (drop)="onDrop($event, 'skill', 0, i)"
+                         (dragend)="onDragEnd($event)">
+                      <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <input type="checkbox"
+                               [checked]="isSelected('skills', i)"
+                               (change)="toggleSelect('skills', i)"
+                               class="w-4 h-4 rounded border-slate-300 text-sky-600 cursor-pointer" />
+                        <div class="flex flex-col gap-0.5 items-center">
+                          <span class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 px-0.5 text-xs select-none" title="Hold & drag to reorder">⋮⋮</span>
+                          <button type="button" class="reorder-btn" [disabled]="i === 0" (click)="moveSkill(i, -1)" title="Move up">↑</button>
+                          <button type="button" class="reorder-btn" [disabled]="i === skills.length - 1" (click)="moveSkill(i, 1)" title="Move down">↓</button>
+                        </div>
+                        <div>
+                          <p class="font-bold text-slate-800 dark:text-slate-100">{{ s.value.name }}</p>
+                          <p class="text-sm text-slate-500">{{ s.value.level }}</p>
+                        </div>
+                      </div>
+                      <button type="button" class="text-slate-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 transition active:scale-95" (click)="removeSkill(i)" title="Delete skill">
+                        <lucide-icon [img]="Trash2" class="w-4 h-4" />
+                      </button>
+                    </div>
+                  }
+                </div>
               </div>
             }
 
             @if (active() === 'Languages') {
-              <div class="flex items-center gap-4">
-                <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="Languages" /></span>
-                <h2 class="text-2xl font-bold dark:text-white">Languages <span class="opt">Optional</span></h2>
+              <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+                <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+                  <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white shrink-0"><lucide-icon [img]="Languages" /></span>
+                  <div class="flex-1 flex items-center gap-2">
+                    <input
+                      class="text-2xl font-bold text-slate-800 dark:text-white bg-transparent border-b border-dashed border-slate-300 dark:border-slate-600 hover:border-sky-500 focus:border-sky-500 focus:bg-white dark:focus:bg-slate-800 rounded px-1.5 py-0.5 outline-none transition w-full max-w-md"
+                      [value]="labelFor('Languages')"
+                      (input)="onLabelInput('Languages', $event)"
+                      placeholder="Languages"
+                      title="Click to rename this section"
+                    />
+                    <span class="opt">Optional</span>
+                    <span class="text-xs text-slate-400 font-normal shrink-0 hidden sm:inline">✎ Rename</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0 ml-auto">
+                  <button type="button"
+                          [disabled]="!canMoveUp('Languages')"
+                          (click)="moveSection('Languages', -1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section up in the CV">
+                    ▲ Move Up
+                  </button>
+                  <button type="button"
+                          [disabled]="!canMoveDown('Languages')"
+                          (click)="moveSection('Languages', 1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section down in the CV">
+                    ▼ Move Down
+                  </button>
+                </div>
               </div>
               <div class="font-toolbar">
                 <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
@@ -409,27 +812,97 @@ const ACCENT_PALETTE = [
                 </div>
                 <button type="button" class="add-solid mt-4" (click)="addLanguage()"><lucide-icon [img]="Plus" class="w-4 h-4" /> Add Language</button>
               </div>
-              <div formArrayName="languages" class="space-y-3">
-                @for (l of languages.controls; track $index; let i = $index) {
-                  <div [formGroupName]="i" class="card-block">
-                    <div class="flex justify-between items-center mb-3">
-                      <p class="font-bold">{{ l.value.name }}</p>
-                      <button type="button" class="text-red-600" (click)="removeLanguage(i)"><lucide-icon [img]="Trash2" class="w-4 h-4" /></button>
-                    </div>
-                    <div class="grid gap-2">
-                      @for (lv of langLevels; track lv) {
-                        <button type="button" class="level-bar" [class.on]="l.value.proficiency === lv" (click)="l.patchValue({ proficiency: lv })">{{ lv }}</button>
-                      }
-                    </div>
+              <div class="space-y-3">
+                @if (languages.length > 0) {
+                  <div class="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-sm transition">
+                    <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300 select-none">
+                      <input type="checkbox"
+                        [checked]="isAllSelected('languages', languages.length)"
+                        (change)="toggleSelectAll('languages', languages.length)"
+                        class="rounded border-slate-300 text-sky-600 focus:ring-sky-500 w-4 h-4 cursor-pointer" />
+                      <span>Select All ({{ languages.length }})</span>
+                    </label>
+
+                    @if (selectedCount('languages') > 0) {
+                      <button type="button"
+                        (click)="deleteSelected('languages')"
+                        class="flex items-center gap-1.5 px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/50 dark:text-red-400 rounded-lg font-medium text-xs transition active:scale-95 shadow-sm">
+                        <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+                        <span>Delete Selected ({{ selectedCount('languages') }})</span>
+                      </button>
+                    }
                   </div>
                 }
+
+                <div formArrayName="languages" class="space-y-3">
+                  @for (l of languages.controls; track l; let i = $index) {
+                    <div [formGroupName]="i"
+                         class="card-block group transition-all duration-200 hover:shadow-md hover:border-sky-300"
+                         draggable="true"
+                         (dragstart)="onDragStart($event, 'lang', 0, i)"
+                         (dragover)="onDragOver($event)"
+                         (drop)="onDrop($event, 'lang', 0, i)"
+                         (dragend)="onDragEnd($event)">
+                      <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                          <input type="checkbox"
+                                 [checked]="isSelected('languages', i)"
+                                 (change)="toggleSelect('languages', i)"
+                                 class="w-4 h-4 rounded border-slate-300 text-sky-600 cursor-pointer" />
+                          <div class="flex flex-col gap-0.5 items-center">
+                            <span class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 px-0.5 text-xs select-none" title="Hold & drag to reorder">⋮⋮</span>
+                            <button type="button" class="reorder-btn" [disabled]="i === 0" (click)="moveLanguage(i, -1)" title="Move up">↑</button>
+                            <button type="button" class="reorder-btn" [disabled]="i === languages.length - 1" (click)="moveLanguage(i, 1)" title="Move down">↓</button>
+                          </div>
+                          <p class="font-bold text-slate-800 dark:text-slate-100">{{ l.value.name }}</p>
+                        </div>
+                        <button type="button" class="text-slate-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 transition active:scale-95" (click)="removeLanguage(i)" title="Delete language">
+                          <lucide-icon [img]="Trash2" class="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div class="grid gap-2">
+                        @for (lv of langLevels; track lv) {
+                          <button type="button" class="level-bar" [class.on]="l.value.proficiency === lv" (click)="l.patchValue({ proficiency: lv })">{{ lv }}</button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
               </div>
             }
 
             @if (active() === 'Certifications') {
-              <div class="flex items-center gap-4">
-                <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="Award" /></span>
-                <h2 class="text-2xl font-bold dark:text-white">Certifications <span class="opt">Optional</span></h2>
+              <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+                <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+                  <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white shrink-0"><lucide-icon [img]="Award" /></span>
+                  <div class="flex-1 flex items-center gap-2">
+                    <input
+                      class="text-2xl font-bold text-slate-800 dark:text-white bg-transparent border-b border-dashed border-slate-300 dark:border-slate-600 hover:border-sky-500 focus:border-sky-500 focus:bg-white dark:focus:bg-slate-800 rounded px-1.5 py-0.5 outline-none transition w-full max-w-md"
+                      [value]="labelFor('Certifications')"
+                      (input)="onLabelInput('Certifications', $event)"
+                      placeholder="Certifications"
+                      title="Click to rename this section"
+                    />
+                    <span class="opt">Optional</span>
+                    <span class="text-xs text-slate-400 font-normal shrink-0 hidden sm:inline">✎ Rename</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0 ml-auto">
+                  <button type="button"
+                          [disabled]="!canMoveUp('Certifications')"
+                          (click)="moveSection('Certifications', -1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section up in the CV">
+                    ▲ Move Up
+                  </button>
+                  <button type="button"
+                          [disabled]="!canMoveDown('Certifications')"
+                          (click)="moveSection('Certifications', 1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section down in the CV">
+                    ▼ Move Down
+                  </button>
+                </div>
               </div>
               <div class="font-toolbar">
                 <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
@@ -444,26 +917,96 @@ const ACCENT_PALETTE = [
                   @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
                 </select>
               </div>
-              <div formArrayName="certifications" class="space-y-4">
-                @for (c of certifications.controls; track $index; let i = $index) {
-                  <div [formGroupName]="i" class="card-block">
-                    <div class="flex justify-between mb-3">
-                      <h3 class="font-bold">Certification {{ i + 1 }}</h3>
-                      <button type="button" class="text-red-600" (click)="removeCertification(i)"><lucide-icon [img]="Trash2" class="w-4 h-4" /></button>
-                    </div>
-                    <label>Name *<input formControlName="name" placeholder="AWS Certified Solutions Architect" list="certs" /></label>
-                    <label class="block mt-3">Issuer<input formControlName="issuer" placeholder="Amazon Web Services" /></label>
-                    <label class="block mt-3">Date<input formControlName="date" placeholder="May 2023" list="months-years" /></label>
+              <div class="space-y-3">
+                @if (certifications.length > 0) {
+                  <div class="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-sm transition">
+                    <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300 select-none">
+                      <input type="checkbox"
+                        [checked]="isAllSelected('certifications', certifications.length)"
+                        (change)="toggleSelectAll('certifications', certifications.length)"
+                        class="rounded border-slate-300 text-sky-600 focus:ring-sky-500 w-4 h-4 cursor-pointer" />
+                      <span>Select All ({{ certifications.length }})</span>
+                    </label>
+
+                    @if (selectedCount('certifications') > 0) {
+                      <button type="button"
+                        (click)="deleteSelected('certifications')"
+                        class="flex items-center gap-1.5 px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/50 dark:text-red-400 rounded-lg font-medium text-xs transition active:scale-95 shadow-sm">
+                        <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+                        <span>Delete Selected ({{ selectedCount('certifications') }})</span>
+                      </button>
+                    }
                   </div>
                 }
+
+                <div formArrayName="certifications" class="space-y-4">
+                  @for (c of certifications.controls; track c; let i = $index) {
+                    <div [formGroupName]="i"
+                         class="card-block group transition-all duration-200 hover:shadow-md hover:border-sky-300"
+                         draggable="true"
+                         (dragstart)="onDragStart($event, 'cert', 0, i)"
+                         (dragover)="onDragOver($event)"
+                         (drop)="onDrop($event, 'cert', 0, i)"
+                         (dragend)="onDragEnd($event)">
+                      <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-2">
+                          <input type="checkbox"
+                                 [checked]="isSelected('certifications', i)"
+                                 (change)="toggleSelect('certifications', i)"
+                                 class="w-4 h-4 rounded border-slate-300 text-sky-600 cursor-pointer" />
+                          <div class="flex flex-col gap-0.5 items-center">
+                            <span class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 px-0.5 text-xs select-none" title="Hold & drag to reorder">⋮⋮</span>
+                            <button type="button" class="reorder-btn" [disabled]="i === 0" (click)="moveCertification(i, -1)" title="Move up">↑</button>
+                            <button type="button" class="reorder-btn" [disabled]="i === certifications.length - 1" (click)="moveCertification(i, 1)" title="Move down">↓</button>
+                          </div>
+                          <h3 class="font-bold">Certification {{ i + 1 }}<span class="text-sm font-normal text-slate-500 dark:text-slate-400 ml-1.5" *ngIf="c.value.name">— {{ c.value.name }}</span></h3>
+                        </div>
+                        <button type="button" class="text-slate-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 transition active:scale-95" (click)="removeCertification(i)" title="Delete certification">
+                          <lucide-icon [img]="Trash2" class="w-4 h-4" />
+                        </button>
+                      </div>
+                      <label>Name *<input formControlName="name" placeholder="AWS Certified Solutions Architect" list="certs" /></label>
+                      <label class="block mt-3">Issuer<input formControlName="issuer" placeholder="Amazon Web Services" /></label>
+                      <label class="block mt-3">Date<input formControlName="date" placeholder="May 2023" list="months-years" /></label>
+                    </div>
+                  }
+                </div>
               </div>
               <button type="button" class="add-dashed" (click)="addCertification()"><lucide-icon [img]="Plus" class="w-4 h-4" /> Add Certification</button>
             }
 
             @if (active() === 'Projects') {
-              <div class="flex items-center gap-4">
-                <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="FolderKanban" /></span>
-                <h2 class="text-2xl font-bold dark:text-white">Projects <span class="opt">Optional</span></h2>
+              <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+                <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+                  <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white shrink-0"><lucide-icon [img]="FolderKanban" /></span>
+                  <div class="flex-1 flex items-center gap-2">
+                    <input
+                      class="text-2xl font-bold text-slate-800 dark:text-white bg-transparent border-b border-dashed border-slate-300 dark:border-slate-600 hover:border-sky-500 focus:border-sky-500 focus:bg-white dark:focus:bg-slate-800 rounded px-1.5 py-0.5 outline-none transition w-full max-w-md"
+                      [value]="labelFor('Projects')"
+                      (input)="onLabelInput('Projects', $event)"
+                      placeholder="Projects"
+                      title="Click to rename this section"
+                    />
+                    <span class="opt">Optional</span>
+                    <span class="text-xs text-slate-400 font-normal shrink-0 hidden sm:inline">✎ Rename</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0 ml-auto">
+                  <button type="button"
+                          [disabled]="!canMoveUp('Projects')"
+                          (click)="moveSection('Projects', -1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section up in the CV">
+                    ▲ Move Up
+                  </button>
+                  <button type="button"
+                          [disabled]="!canMoveDown('Projects')"
+                          (click)="moveSection('Projects', 1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section down in the CV">
+                    ▼ Move Down
+                  </button>
+                </div>
               </div>
               <div class="font-toolbar">
                 <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
@@ -478,28 +1021,101 @@ const ACCENT_PALETTE = [
                   @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
                 </select>
               </div>
-              <div formArrayName="projects" class="space-y-4">
-                @for (p of projects.controls; track $index; let i = $index) {
-                  <div [formGroupName]="i" class="card-block">
-                    <div class="flex justify-between mb-3">
-                      <h3 class="font-bold">Project {{ i + 1 }}</h3>
-                      <button type="button" class="text-red-600" (click)="removeProject(i)" [disabled]="projects.length <= 1">
-                        <lucide-icon [img]="Trash2" class="w-4 h-4" />
+              <div class="space-y-3">
+                @if (projects.length > 0) {
+                  <div class="flex items-center justify-between py-2 px-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-sm transition">
+                    <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300 select-none">
+                      <input type="checkbox"
+                        [checked]="isAllSelected('projects', projects.length)"
+                        (change)="toggleSelectAll('projects', projects.length)"
+                        class="rounded border-slate-300 text-sky-600 focus:ring-sky-500 w-4 h-4 cursor-pointer" />
+                      <span>Select All ({{ projects.length }})</span>
+                    </label>
+
+                    @if (selectedCount('projects') > 0) {
+                      <button type="button"
+                        (click)="deleteSelected('projects')"
+                        class="flex items-center gap-1.5 px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/50 dark:text-red-400 rounded-lg font-medium text-xs transition active:scale-95 shadow-sm">
+                        <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+                        <span>Delete Selected ({{ selectedCount('projects') }})</span>
                       </button>
-                    </div>
-                    <label>Project Name *<input formControlName="name" placeholder="System HelpDesk" /></label>
-                    <label class="block mt-3">Description *<textarea formControlName="description" rows="3" placeholder="Tech stack…"></textarea></label>
-                    <label class="block mt-3">Project Link (Optional)<input formControlName="link" placeholder="https://..." /></label>
+                    }
                   </div>
                 }
+
+                <div formArrayName="projects" class="space-y-4">
+                  @for (p of projects.controls; track p; let i = $index) {
+                    <div [formGroupName]="i"
+                         class="card-block group transition-all duration-200 hover:shadow-md hover:border-sky-300"
+                         draggable="true"
+                         (dragstart)="onDragStart($event, 'proj', 0, i)"
+                         (dragover)="onDragOver($event)"
+                         (drop)="onDrop($event, 'proj', 0, i)"
+                         (dragend)="onDragEnd($event)">
+                      <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2.5">
+                          <input type="checkbox"
+                                 [checked]="isSelected('projects', i)"
+                                 (change)="toggleSelect('projects', i)"
+                                 class="w-4 h-4 rounded border-slate-300 text-sky-600 cursor-pointer" />
+                          <div class="flex flex-col gap-0.5 items-center">
+                            <span class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 px-0.5 text-xs select-none" title="Hold & drag to reorder">⋮⋮</span>
+                            <button type="button" class="reorder-btn" [disabled]="i === 0" (click)="moveProject(i, -1)" title="Move up">↑</button>
+                            <button type="button" class="reorder-btn" [disabled]="i === projects.length - 1" (click)="moveProject(i, 1)" title="Move down">↓</button>
+                          </div>
+                          <h3 class="font-bold text-lg">
+                            Project {{ i + 1 }}
+                            @if (p.value.name) {
+                              <span class="text-sm font-normal text-slate-500 dark:text-slate-400 ml-1.5">— {{ p.value.name }}</span>
+                            }
+                          </h3>
+                        </div>
+                        <button type="button" class="text-slate-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 transition active:scale-95" (click)="removeProject(i)">
+                          <lucide-icon [img]="Trash2" class="w-4 h-4" />
+                        </button>
+                      </div>
+                      <label>Project Name *<input formControlName="name" placeholder="System HelpDesk" /></label>
+                      <label class="block mt-3">Description *<textarea formControlName="description" rows="3" placeholder="Tech stack…"></textarea></label>
+                      <label class="block mt-3">Project Link (Optional)<input formControlName="link" placeholder="https://..." /></label>
+                    </div>
+                  }
+                </div>
+                <button type="button" class="add-dashed" (click)="addProject()"><lucide-icon [img]="Plus" class="w-4 h-4" /> Add Project</button>
               </div>
-              <button type="button" class="add-dashed" (click)="addProject()"><lucide-icon [img]="Plus" class="w-4 h-4" /> Add Project</button>
             }
 
             @if (active() === 'References') {
-              <div class="flex items-center gap-4">
-                <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="UserRound" /></span>
-                <h2 class="text-2xl font-bold dark:text-white">References <span class="opt">Optional</span></h2>
+              <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+                <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+                  <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white shrink-0"><lucide-icon [img]="UserRound" /></span>
+                  <div class="flex-1 flex items-center gap-2">
+                    <input
+                      class="text-2xl font-bold text-slate-800 dark:text-white bg-transparent border-b border-dashed border-slate-300 dark:border-slate-600 hover:border-sky-500 focus:border-sky-500 focus:bg-white dark:focus:bg-slate-800 rounded px-1.5 py-0.5 outline-none transition w-full max-w-md"
+                      [value]="labelFor('References')"
+                      (input)="onLabelInput('References', $event)"
+                      placeholder="References"
+                      title="Click to rename this section"
+                    />
+                    <span class="opt">Optional</span>
+                    <span class="text-xs text-slate-400 font-normal shrink-0 hidden sm:inline">✎ Rename</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0 ml-auto">
+                  <button type="button"
+                          [disabled]="!canMoveUp('References')"
+                          (click)="moveSection('References', -1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section up in the CV">
+                    ▲ Move Up
+                  </button>
+                  <button type="button"
+                          [disabled]="!canMoveDown('References')"
+                          (click)="moveSection('References', 1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section down in the CV">
+                    ▼ Move Down
+                  </button>
+                </div>
               </div>
               <div class="font-toolbar">
                 <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
@@ -514,32 +1130,107 @@ const ACCENT_PALETTE = [
                   @for (w of fontWeights; track w.value) { <option [value]="w.value">{{ w.label }}</option> }
                 </select>
               </div>
-              <div formArrayName="references" class="space-y-4">
-                @for (r of references.controls; track $index; let i = $index) {
-                  <div [formGroupName]="i" class="card-block">
-                    <div class="flex justify-between mb-3">
-                      <h3 class="font-bold">Reference {{ i + 1 }}</h3>
-                      <button type="button" class="text-red-600" (click)="removeReference(i)"><lucide-icon [img]="Trash2" class="w-4 h-4" /></button>
-                    </div>
-                    <div class="grid sm:grid-cols-2 gap-4">
-                      <label>Full Name *<input formControlName="name" placeholder="Reference Full Name" /></label>
-                      <label>Position<input formControlName="position" placeholder="Job position" /></label>
-                    </div>
-                    <label class="block mt-3">Company<input formControlName="company" placeholder="Company name" /></label>
-                    <div class="grid sm:grid-cols-2 gap-4 mt-3">
-                      <label>Phone<input formControlName="phone" placeholder="00 123 456 789" /></label>
-                      <label>Email<input formControlName="email" type="email" placeholder="ref@example.com" /></label>
-                    </div>
+              <div class="space-y-3">
+                @if (references.length > 0) {
+                  <div class="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-sm transition">
+                    <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300 select-none">
+                      <input type="checkbox"
+                        [checked]="isAllSelected('references', references.length)"
+                        (change)="toggleSelectAll('references', references.length)"
+                        class="rounded border-slate-300 text-sky-600 focus:ring-sky-500 w-4 h-4 cursor-pointer" />
+                      <span>Select All ({{ references.length }})</span>
+                    </label>
+
+                    @if (selectedCount('references') > 0) {
+                      <button type="button"
+                        (click)="deleteSelected('references')"
+                        class="flex items-center gap-1.5 px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/50 dark:text-red-400 rounded-lg font-medium text-xs transition active:scale-95 shadow-sm">
+                        <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+                        <span>Delete Selected ({{ selectedCount('references') }})</span>
+                      </button>
+                    }
                   </div>
                 }
+
+                <div formArrayName="references" class="space-y-4">
+                  @for (r of references.controls; track r; let i = $index) {
+                    <div [formGroupName]="i"
+                         class="card-block group transition-all duration-200 hover:shadow-md hover:border-sky-300"
+                         draggable="true"
+                         (dragstart)="onDragStart($event, 'ref', 0, i)"
+                         (dragover)="onDragOver($event)"
+                         (drop)="onDrop($event, 'ref', 0, i)"
+                         (dragend)="onDragEnd($event)">
+                      <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2.5">
+                          <input type="checkbox"
+                                 [checked]="isSelected('references', i)"
+                                 (change)="toggleSelect('references', i)"
+                                 class="w-4 h-4 rounded border-slate-300 text-sky-600 cursor-pointer" />
+                          <div class="flex flex-col gap-0.5 items-center">
+                            <span class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 px-0.5 text-xs select-none" title="Hold & drag to reorder">⋮⋮</span>
+                            <button type="button" class="reorder-btn" [disabled]="i === 0" (click)="moveReference(i, -1)" title="Move up">↑</button>
+                            <button type="button" class="reorder-btn" [disabled]="i === references.length - 1" (click)="moveReference(i, 1)" title="Move down">↓</button>
+                          </div>
+                          <h3 class="font-bold text-lg">
+                            Reference {{ i + 1 }}
+                            @if (r.value.name) {
+                              <span class="text-sm font-normal text-slate-500 dark:text-slate-400 ml-1.5">— {{ r.value.name }}</span>
+                            }
+                          </h3>
+                        </div>
+                        <button type="button" class="text-slate-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 transition active:scale-95" (click)="removeReference(i)">
+                          <lucide-icon [img]="Trash2" class="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div class="grid sm:grid-cols-2 gap-4">
+                        <label>Full Name *<input formControlName="name" placeholder="Reference Full Name" /></label>
+                        <label>Position<input formControlName="position" placeholder="Job position" /></label>
+                      </div>
+                      <label class="block mt-3">Company<input formControlName="company" placeholder="Company name" /></label>
+                      <div class="grid sm:grid-cols-2 gap-4 mt-3">
+                        <label>Phone<input formControlName="phone" placeholder="00 123 456 789" /></label>
+                        <label>Email<input formControlName="email" type="email" placeholder="ref@example.com" /></label>
+                      </div>
+                    </div>
+                  }
+                </div>
+                <button type="button" class="add-dashed" (click)="addReference()"><lucide-icon [img]="Plus" class="w-4 h-4" /> Add Reference</button>
               </div>
-              <button type="button" class="add-dashed" (click)="addReference()"><lucide-icon [img]="Plus" class="w-4 h-4" /> Add Reference</button>
             }
 
             @if (active() === 'Hobbies') {
-              <div class="flex items-center gap-4">
-                <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white"><lucide-icon [img]="Star" /></span>
-                <h2 class="text-2xl font-bold dark:text-white">Hobbies <span class="opt">Optional</span></h2>
+              <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+                <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+                  <span class="grid place-items-center h-12 w-12 rounded-xl bg-[#062b50] text-white shrink-0"><lucide-icon [img]="Star" /></span>
+                  <div class="flex-1 flex items-center gap-2">
+                    <input
+                      class="text-2xl font-bold text-slate-800 dark:text-white bg-transparent border-b border-dashed border-slate-300 dark:border-slate-600 hover:border-sky-500 focus:border-sky-500 focus:bg-white dark:focus:bg-slate-800 rounded px-1.5 py-0.5 outline-none transition w-full max-w-md"
+                      [value]="labelFor('Hobbies')"
+                      (input)="onLabelInput('Hobbies', $event)"
+                      placeholder="Hobbies"
+                      title="Click to rename this section"
+                    />
+                    <span class="opt">Optional</span>
+                    <span class="text-xs text-slate-400 font-normal shrink-0 hidden sm:inline">✎ Rename</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0 ml-auto">
+                  <button type="button"
+                          [disabled]="!canMoveUp('Hobbies')"
+                          (click)="moveSection('Hobbies', -1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section up in the CV">
+                    ▲ Move Up
+                  </button>
+                  <button type="button"
+                          [disabled]="!canMoveDown('Hobbies')"
+                          (click)="moveSection('Hobbies', 1)"
+                          class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                          title="Move this section down in the CV">
+                    ▼ Move Down
+                  </button>
+                </div>
               </div>
               <div class="font-toolbar">
                 <button type="button" class="ft-btn" (click)="bumpFont(-1)">A−</button>
@@ -560,15 +1251,75 @@ const ACCENT_PALETTE = [
                 </label>
                 <button type="button" class="add-solid mt-4" (click)="addHobby()"><lucide-icon [img]="Plus" class="w-4 h-4" /> Add Hobby</button>
               </div>
-              <div formArrayName="hobbies" class="space-y-3">
-                @for (h of hobbies.controls; track $index; let i = $index) {
-                  <div [formGroupName]="i" class="card-block flex justify-between items-center">
-                    <p class="font-bold">{{ h.value.name }}</p>
-                    <button type="button" class="text-red-600" (click)="removeHobby(i)"><lucide-icon [img]="Trash2" class="w-4 h-4" /></button>
+              <div class="space-y-3">
+                @if (hobbies.length > 0) {
+                  <div class="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-sm transition">
+                    <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300 select-none">
+                      <input type="checkbox"
+                        [checked]="isAllSelected('hobbies', hobbies.length)"
+                        (change)="toggleSelectAll('hobbies', hobbies.length)"
+                        class="rounded border-slate-300 text-sky-600 focus:ring-sky-500 w-4 h-4 cursor-pointer" />
+                      <span>Select All ({{ hobbies.length }})</span>
+                    </label>
+
+                    @if (selectedCount('hobbies') > 0) {
+                      <button type="button"
+                        (click)="deleteSelected('hobbies')"
+                        class="flex items-center gap-1.5 px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/50 dark:text-red-400 rounded-lg font-medium text-xs transition active:scale-95 shadow-sm">
+                        <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+                        <span>Delete Selected ({{ selectedCount('hobbies') }})</span>
+                      </button>
+                    }
                   </div>
                 }
+
+                <div formArrayName="hobbies" class="space-y-2">
+                  @for (h of hobbies.controls; track h; let i = $index) {
+                    <div [formGroupName]="i"
+                         class="card-block flex justify-between items-center group transition-all duration-200 hover:shadow-md hover:border-sky-300"
+                         draggable="true"
+                         (dragstart)="onDragStart($event, 'hobby', 0, i)"
+                         (dragover)="onDragOver($event)"
+                         (drop)="onDrop($event, 'hobby', 0, i)"
+                         (dragend)="onDragEnd($event)">
+                      <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <input type="checkbox"
+                               [checked]="isSelected('hobbies', i)"
+                               (change)="toggleSelect('hobbies', i)"
+                               class="w-4 h-4 rounded border-slate-300 text-sky-600 cursor-pointer" />
+                        <div class="flex flex-col gap-0.5 items-center">
+                          <span class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 px-0.5 text-xs select-none" title="Hold & drag to reorder">⋮⋮</span>
+                          <button type="button" class="reorder-btn" [disabled]="i === 0" (click)="moveHobby(i, -1)" title="Move up">↑</button>
+                          <button type="button" class="reorder-btn" [disabled]="i === hobbies.length - 1" (click)="moveHobby(i, 1)" title="Move down">↓</button>
+                        </div>
+                        <p class="font-bold text-slate-800 dark:text-slate-100">{{ h.value.name }}</p>
+                      </div>
+                      <button type="button" class="text-slate-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 transition active:scale-95" (click)="removeHobby(i)" title="Delete hobby">
+                        <lucide-icon [img]="Trash2" class="w-4 h-4" />
+                      </button>
+                    </div>
+                  }
+                </div>
               </div>
             }
+          
+            <!-- Bottom Page Navigation (Switch between sections up & down) -->
+            <div class="flex items-center justify-between pt-6 mt-6 border-t border-slate-200 dark:border-slate-700">
+              @if (prevStep(); as prev) {
+                <button type="button" (click)="active.set(prev.key)"
+                        class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition active:scale-95 shadow-sm">
+                  ← Previous: {{ prev.label }}
+                </button>
+              } @else {
+                <div></div>
+              }
+              @if (nextStep(); as next) {
+                <button type="button" (click)="active.set(next.key)"
+                        class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-[#062b50] hover:bg-[#093e73] transition active:scale-95 shadow-md ml-auto">
+                  Next: {{ next.label }} →
+                </button>
+              }
+            </div>
           </form>
 
           <!-- Datalists for selectable suggestions -->
@@ -628,15 +1379,20 @@ const ACCENT_PALETTE = [
         </section>
 
         <!-- Live preview + typography -->
-        <aside class="xl:col-start-3 xl:row-start-1 xl:w-[430px]">
-          <div class="sticky top-24 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 shadow-sm space-y-3">
+        <aside class="w-full xl:col-start-3 xl:row-start-1 xl:w-[420px]" [class.hidden]="viewMode() === 'edit'" [class.xl:block]="true">
+          <div class="sticky top-24 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 sm:p-4 shadow-sm space-y-3">
             <div class="flex items-center justify-between font-bold dark:text-white">
-              <span class="text-emerald-600 text-sm">● LIVE PREVIEW</span>
-              <div class="flex gap-1.5">
+              <span class="text-emerald-600 text-sm flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                ● LIVE PREVIEW
+              </span>
+              <div class="flex items-center gap-1.5">
                 <button type="button" class="outline sm" (click)="zoomOut()">−</button>
-                <span class="self-center text-xs w-8 text-center">{{ (zoom() * 100).toFixed(0) }}%</span>
+                <button type="button" class="outline sm font-mono text-xs px-2" (click)="toggleAutoFit()">
+                  {{ isAutoFit() ? 'Fit' : ((zoom() * 100).toFixed(0) + '%') }}
+                </button>
                 <button type="button" class="outline sm" (click)="zoomIn()">+</button>
-                <button type="button" class="outline sm" (click)="fullPreview.set(true)" title="Full screen">
+                <button type="button" class="outline sm" (click)="openFullPreview()" title="Full screen">
                   <lucide-icon [img]="Eye" class="w-4 h-4" />
                 </button>
               </div>
@@ -702,8 +1458,11 @@ const ACCENT_PALETTE = [
               <p class="sample-hint">Showing sample content so you can see the layout. Your details replace it as you type.</p>
             }
 
-            <div class="h-[520px] overflow-auto rounded-xl border-2 border-slate-900 bg-slate-100">
-              <div [style.zoom]="zoom() * 0.48" class="origin-top-left">
+            <div 
+              #previewStageEl
+              class="h-[62vh] sm:h-[72vh] xl:h-[520px] min-h-[460px] overflow-auto rounded-xl border-2 border-slate-900/80 dark:border-slate-700 bg-slate-100 dark:bg-slate-950 p-2 sm:p-3 flex justify-center items-start cv-stage-scroll"
+            >
+              <div [style.zoom]="calculatedScale()" class="origin-top flex justify-center a4-wrap">
                 <ng-container *ngTemplateOutlet="cvPreview"></ng-container>
               </div>
             </div>
@@ -711,10 +1470,28 @@ const ACCENT_PALETTE = [
         </aside>
       </div>
 
-      <footer class="fixed bottom-0 inset-x-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur border-t border-slate-200 dark:border-slate-700">
-        <div class="max-w-4xl mx-auto flex justify-end gap-3 p-3">
-          <button type="button" class="outline" (click)="save()"><lucide-icon [img]="Save" /> Save Draft</button>
-          <button type="button" class="download" (click)="showDownloadModal.set(true)"><lucide-icon [img]="Download" /> Download CV</button>
+      <footer class="fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 shadow-md">
+        <div class="max-w-4xl mx-auto flex items-center justify-between gap-2 p-2.5 sm:p-3">
+          <!-- Mobile Live Preview Toggle in Footer -->
+          <button
+            type="button"
+            (click)="toggleViewMode()"
+            class="xl:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition active:scale-95 shadow-xs"
+            [class.bg-emerald-50]="viewMode() === 'edit'"
+            [class.text-emerald-700]="viewMode() === 'edit'"
+            [class.border-emerald-300]="viewMode() === 'edit'"
+            [class.bg-sky-50]="viewMode() === 'preview'"
+            [class.text-sky-700]="viewMode() === 'preview'"
+            [class.border-sky-300]="viewMode() === 'preview'"
+          >
+            <lucide-icon [img]="viewMode() === 'edit' ? Eye : Pencil" class="w-3.5 h-3.5" />
+            <span>{{ viewMode() === 'edit' ? (i18n.currentLang() === 'kh' ? 'មើលគំរូ' : 'Live Preview') : (i18n.currentLang() === 'kh' ? 'កែសម្រួល' : 'Edit Form') }}</span>
+          </button>
+
+          <div class="flex items-center gap-1.5 sm:gap-3 ml-auto">
+            <button type="button" class="outline !px-2.5 sm:!px-4 !py-1.5 sm:!py-2.5 !text-xs sm:!text-sm inline-flex items-center gap-1.5" (click)="save()"><lucide-icon [img]="Save" class="w-3.5 h-3.5 sm:w-4 sm:h-4" /> {{ i18n.currentLang() === 'kh' ? 'រក្សាទុក' : 'Save Draft' }}</button>
+            <button type="button" class="download !px-2.5 sm:!px-4 !py-1.5 sm:!py-2.5 !text-xs sm:!text-sm inline-flex items-center gap-1.5" (click)="onDownloadClick()"><lucide-icon [img]="Download" class="w-3.5 h-3.5 sm:w-4 sm:h-4" /> {{ i18n.currentLang() === 'kh' ? 'ទាញយក CV' : 'Download CV' }}</button>
+          </div>
         </div>
       </footer>
 
@@ -760,35 +1537,123 @@ const ACCENT_PALETTE = [
           </div>
         </div>
       }
+
+      <!-- KHQR Payment Modal -->
+      @if (showKhqrModal()) {
+        <app-khqr-payment-modal
+          [templateId]="templateId || undefined"
+          [userCvId]="cvId || undefined"
+          [templateName]="'CQ Professional CV'"
+          (paymentSuccess)="onKhqrPaymentSuccess($event)"
+          (downloadFormat)="downloadAs($event)"
+          (close)="showKhqrModal.set(false)"
+        />
+      }
     </main>
 
     @if (fullPreview()) {
-      <div class="fixed inset-0 z-[100] bg-slate-950/80 p-4 overflow-auto print-overlay">
-        <div class="no-print fixed right-6 top-5 z-10 flex gap-2">
-          <div class="typo-bar bg-white shadow-lg rounded-xl px-3 py-2">
-            <button type="button" class="typo-btn" (click)="bumpFont(-1)">A−</button>
-            <span class="typo-val">{{ fontSize() }}px</span>
-            <button type="button" class="typo-btn" (click)="bumpFont(1)">A+</button>
-            <select class="typo-select" [ngModel]="fontWeight()" (ngModelChange)="fontWeight.set(+$event)" [ngModelOptions]="{ standalone: true }">
-              @for (w of fontWeights; track w.value) {
-                <option [value]="w.value">{{ w.label }}</option>
-              }
-            </select>
-            <button type="button" class="typo-btn line-toggle" [class.on]="sectionLines()" (click)="sectionLines.set(!sectionLines())">Lines</button>
+      <div class="fixed top-[80px] sm:top-[88px] inset-x-0 bottom-0 z-40 bg-slate-950/95 backdrop-blur-md flex flex-col overflow-hidden print-overlay animate-[fadeIn_0.2s_ease-out] border-t border-slate-800 shadow-2xl">
+        <!-- Top Navigation & Control Header -->
+        <header class="no-print shrink-0 h-14 sm:h-16 px-3 sm:px-6 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between gap-2 text-white shadow-md">
+          <!-- Left: Close & Title -->
+          <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+            <button
+              type="button"
+              (click)="fullPreview.set(false)"
+              class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition active:scale-95 flex items-center gap-1.5 text-xs font-semibold shrink-0 border border-slate-700/80 cursor-pointer"
+              title="Close Preview (Esc)"
+            >
+              <lucide-icon [img]="X" class="w-4 h-4" />
+              <span class="hidden sm:inline">{{ i18n.currentLang() === 'kh' ? 'បិទ' : 'Close' }}</span>
+            </button>
+
+            <div class="min-w-0 hidden md:block">
+              <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                LIVE PREVIEW
+              </span>
+              <p class="text-xs text-slate-400 truncate max-w-[200px]">{{ form.value.fullName || 'My CV' }}</p>
+            </div>
           </div>
-          <button type="button" class="rounded-full bg-white p-3 shadow" (click)="fullPreview.set(false)">
-            <lucide-icon [img]="X" />
-          </button>
-        </div>
-        <div class="mx-auto mt-16 print-root a4-sheet" [class.cover-letter-print]="layout() === 'cover-letter'">
-          <ng-container *ngTemplateOutlet="cvPreview"></ng-container>
+
+          <!-- Center: Zoom Controls & Auto Fit -->
+          <div class="flex items-center gap-1 sm:gap-1.5 p-1 rounded-xl bg-slate-800/90 border border-slate-700/80 shadow-inner">
+            <button
+              type="button"
+              (click)="modalZoomOut()"
+              class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 active:scale-90 transition font-bold text-xs cursor-pointer"
+              title="Zoom Out"
+            >
+              −
+            </button>
+            <button
+              type="button"
+              (click)="modalResetFit()"
+              class="px-2.5 py-1 rounded-md font-mono text-[11px] sm:text-xs font-bold transition cursor-pointer"
+              [class.bg-sky-600]="modalZoom() === null"
+              [class.text-white]="modalZoom() === null"
+              [class.text-slate-300]="modalZoom() !== null"
+              title="Fit to Screen"
+            >
+              {{ modalZoom() === null ? (i18n.currentLang() === 'kh' ? 'សម' : 'Fit') : (modalScalePercent() + '%') }}
+            </button>
+            <button
+              type="button"
+              (click)="modalZoomIn()"
+              class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 active:scale-90 transition font-bold text-xs cursor-pointer"
+              title="Zoom In"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              (click)="modalSet100()"
+              class="hidden sm:inline-block px-2 py-1 rounded text-[10px] font-mono text-slate-400 hover:text-white hover:bg-slate-700 transition cursor-pointer"
+              title="100% Size"
+            >
+              100%
+            </button>
+          </div>
+
+          <!-- Right: Typography quick adjustments & Download -->
+          <div class="flex items-center gap-2 shrink-0">
+            <div class="hidden lg:flex items-center gap-1.5 p-1 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-300">
+              <button type="button" class="px-2 py-0.5 rounded hover:bg-slate-700 transition" (click)="bumpFont(-1)">A−</button>
+              <span class="font-mono text-[11px] text-sky-300">{{ fontSize() }}px</span>
+              <button type="button" class="px-2 py-0.5 rounded hover:bg-slate-700 transition" (click)="bumpFont(1)">A+</button>
+              <button type="button" class="px-2 py-0.5 rounded hover:bg-slate-700 transition" [class.text-sky-400]="sectionLines()" (click)="sectionLines.set(!sectionLines())">Lines</button>
+            </div>
+
+            <button
+              type="button"
+              (click)="onDownloadClick()"
+              class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-sky-600/30 flex items-center gap-1.5 transition active:scale-95 cursor-pointer"
+            >
+              <lucide-icon [img]="Download" class="w-3.5 h-3.5" />
+              <span>{{ i18n.currentLang() === 'kh' ? 'ទាញយក' : 'Download' }}</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Scrollable Document Stage (Center-aligned, auto-fit, never clipped) -->
+        <div class="flex-1 w-full overflow-auto py-6 px-2 sm:px-4 flex flex-col items-center cv-stage-scroll">
+          <div
+            class="print-root a4-sheet relative origin-top flex justify-center shadow-2xl transition-[zoom] duration-150"
+            [style.zoom]="modalScale()"
+            [class.cover-letter-print]="isCoverLetter()"
+          >
+            <ng-container *ngTemplateOutlet="cvPreview"></ng-container>
+          </div>
         </div>
       </div>
     }
 
     <ng-template #cvPreview>
-      <div class="cv-live-root">
-      @if (layout() === 'modern-split') {
+      <div class="cv-live-root relative">
+        @if (!isPaid() && !auth.isStaffOrAdmin()) {
+          <app-watermark text="CQ Professional" />
+        }
+        @if (layout() === 'modern-split') {
         <app-modern-split-cv
           [photoUrl]="photoUrl()"
           [name]="previewName()"
@@ -808,7 +1673,9 @@ const ACCENT_PALETTE = [
           [lineHeight]="lineHeight()"
           [fontFamily]="fontFamily()"
           [accent]="accentColor()"
-        />
+        
+          [sectionLabels]="sectionLabels()"
+          [sectionOrder]="sectionOrder()"/>
       } @else if (layout() === 'clean-sidebar') {
         <app-clean-sidebar-cv
           [photoUrl]="photoUrl()"
@@ -828,7 +1695,9 @@ const ACCENT_PALETTE = [
           [lineHeight]="lineHeight()"
           [fontFamily]="fontFamily()"
           [accent]="accentColor()"
-        />
+        
+          [sectionLabels]="sectionLabels()"
+          [sectionOrder]="sectionOrder()"/>
       } @else if (layout() === 'elegant-frame') {
         <app-elegant-frame-cv
           [photoUrl]="photoUrl()"
@@ -851,7 +1720,9 @@ const ACCENT_PALETTE = [
           [lineHeight]="lineHeight()"
           [fontFamily]="fontFamily()"
           [accent]="accentColor()"
-        />
+        
+          [sectionLabels]="sectionLabels()"
+          [sectionOrder]="sectionOrder()"/>
       } @else if (layout() === 'classic-dark') {
         <app-classic-dark-cv
           [photoUrl]="photoUrl()"
@@ -874,35 +1745,63 @@ const ACCENT_PALETTE = [
           [lineHeight]="lineHeight()"
           [fontFamily]="fontFamily()"
           [accent]="accentColor()"
-        />
+        
+          [sectionLabels]="sectionLabels()"
+          [sectionOrder]="sectionOrder()"/>
       } @else if (layout() === 'graphite-banner-timeline') {
         <app-graphite-banner-timeline-cv
           [accent]="accentColor()" [photoUrl]="photoUrl()"
           [name]="previewName()" [jobTitle]="previewJobTitle()" [email]="previewEmail()" [phone]="previewPhone()" [location]="previewLocation()" [linkedin]="previewLinkedin()" [summary]="previewSummary()"
           [education]="previewEducation()" [experience]="previewExperience()" [skills]="previewSkills()" [languages]="previewLanguages()" [certifications]="previewCertifications()" [projects]="previewProjects()" [references]="previewReferences()" [hobbies]="previewHobbies()"
           [fontSize]="fontSize()" [fontWeight]="fontWeight()" [lineHeight]="lineHeight()" [fontFamily]="fontFamily()"
-        />
+        
+          [sectionLabels]="sectionLabels()"
+          [sectionOrder]="sectionOrder()"/>
       } @else if (layout() === 'navy-sidebar-profile') {
         <app-navy-sidebar-profile-cv
           [accent]="accentColor()" [photoUrl]="photoUrl()"
           [name]="previewName()" [jobTitle]="previewJobTitle()" [email]="previewEmail()" [phone]="previewPhone()" [location]="previewLocation()" [linkedin]="previewLinkedin()" [summary]="previewSummary()"
           [education]="previewEducation()" [experience]="previewExperience()" [skills]="previewSkills()" [languages]="previewLanguages()" [certifications]="previewCertifications()" [projects]="previewProjects()" [references]="previewReferences()" [hobbies]="previewHobbies()"
           [fontSize]="fontSize()" [fontWeight]="fontWeight()" [lineHeight]="lineHeight()" [fontFamily]="fontFamily()"
-        />
+        
+          [sectionLabels]="sectionLabels()"
+          [sectionOrder]="sectionOrder()"/>
+      } @else if (layout() === 'minimalist-framed') {
+        <app-minimalist-framed-cv
+          [accent]="accentColor()" [photoUrl]="photoUrl()"
+          [name]="previewName()" [jobTitle]="previewJobTitle()" [email]="previewEmail()" [phone]="previewPhone()" [location]="previewLocation()" [linkedin]="previewLinkedin()" [summary]="previewSummary()"
+          [education]="previewEducation()" [experience]="previewExperience()" [skills]="previewSkills()" [languages]="previewLanguages()" [certifications]="previewCertifications()" [projects]="previewProjects()" [references]="previewReferences()" [hobbies]="previewHobbies()"
+          [fontSize]="fontSize()" [fontWeight]="fontWeight()" [lineHeight]="lineHeight()" [fontFamily]="fontFamily()"
+          [sectionLabels]="sectionLabels()"
+          [sectionOrder]="sectionOrder()"/>
+      } @else if (layout() === 'navy-badge') {
+        <app-navy-badge-cv
+          [accent]="accentColor()" [photoUrl]="photoUrl()"
+          [name]="previewName()" [jobTitle]="previewJobTitle()" [email]="previewEmail()" [phone]="previewPhone()" [location]="previewLocation()" [linkedin]="previewLinkedin()" [summary]="previewSummary()"
+          [dob]="form.value.dob" [height]="form.value.height" [maritalStatus]="form.value.maritalStatus"
+          [education]="previewEducation()" [experience]="previewExperience()" [skills]="previewSkills()" [languages]="previewLanguages()" [certifications]="previewCertifications()" [projects]="previewProjects()" [references]="previewReferences()" [hobbies]="previewHobbies()"
+          [fontSize]="fontSize()" [fontWeight]="fontWeight()" [lineHeight]="lineHeight()" [fontFamily]="fontFamily()"
+        
+          [sectionLabels]="sectionLabels()"
+          [sectionOrder]="sectionOrder()"/>
       } @else if (layout() === 'slate-rounded-panels') {
         <app-slate-rounded-panels-cv
           [accent]="accentColor()" [photoUrl]="photoUrl()"
           [name]="previewName()" [jobTitle]="previewJobTitle()" [email]="previewEmail()" [phone]="previewPhone()" [location]="previewLocation()" [linkedin]="previewLinkedin()" [summary]="previewSummary()"
           [education]="previewEducation()" [experience]="previewExperience()" [skills]="previewSkills()" [languages]="previewLanguages()" [certifications]="previewCertifications()" [projects]="previewProjects()" [references]="previewReferences()" [hobbies]="previewHobbies()"
           [fontSize]="fontSize()" [fontWeight]="fontWeight()" [lineHeight]="lineHeight()" [fontFamily]="fontFamily()"
-        />
+        
+          [sectionLabels]="sectionLabels()"
+          [sectionOrder]="sectionOrder()"/>
       } @else if (layout() === 'warm-taupe-timeline') {
         <app-warm-taupe-timeline-cv
           [accent]="accentColor()" [photoUrl]="photoUrl()"
           [name]="previewName()" [jobTitle]="previewJobTitle()" [email]="previewEmail()" [phone]="previewPhone()" [location]="previewLocation()" [linkedin]="previewLinkedin()" [summary]="previewSummary()"
           [education]="previewEducation()" [experience]="previewExperience()" [skills]="previewSkills()" [languages]="previewLanguages()" [certifications]="previewCertifications()" [projects]="previewProjects()" [references]="previewReferences()" [hobbies]="previewHobbies()"
           [fontSize]="fontSize()" [fontWeight]="fontWeight()" [lineHeight]="lineHeight()" [fontFamily]="fontFamily()"
-        />
+        
+          [sectionLabels]="sectionLabels()"
+          [sectionOrder]="sectionOrder()"/>
       } @else if (layout() === 'formal-classic') {
         <app-formal-classic-cv
           [accent]="accentColor()"
@@ -920,6 +1819,65 @@ const ACCENT_PALETTE = [
           [languages]="previewLanguages()"
           [references]="previewReferences()"
           [projects]="previewProjects()"
+          [fontSize]="fontSize()"
+          [fontWeight]="fontWeight()"
+          [lineHeight]="lineHeight()"
+          [fontFamily]="fontFamily()"
+        
+          [sectionLabels]="sectionLabels()"
+          [sectionOrder]="sectionOrder()"/>
+      } @else if (layout() === 'framed-cover-letter') {
+        <app-framed-cover-letter-cv
+          [accent]="accentColor()"
+          [name]="previewName()"
+          [jobTitle]="previewJobTitle()"
+          [phone]="previewPhone()"
+          [email]="previewEmail()"
+          [location]="previewLocation()"
+          [bodyText]="previewSummary()"
+          [recipientName]="form.value.recipientName || ''"
+          [recipientDept]="form.value.recipientDept || ''"
+          [greeting]="form.value.greeting || ''"
+          [closing]="form.value.closing || ''"
+          [subject]="form.value.subject || ''"
+          [fontSize]="fontSize()"
+          [fontWeight]="fontWeight()"
+          [lineHeight]="lineHeight()"
+          [fontFamily]="fontFamily()"
+        />
+      } @else if (layout() === 'sidebar-cover-letter') {
+        <app-sidebar-cover-letter-cv
+          [accent]="accentColor()"
+          [name]="previewName()"
+          [jobTitle]="previewJobTitle()"
+          [phone]="previewPhone()"
+          [email]="previewEmail()"
+          [location]="previewLocation()"
+          [bodyText]="previewSummary()"
+          [recipientName]="form.value.recipientName || ''"
+          [recipientDept]="form.value.recipientDept || ''"
+          [greeting]="form.value.greeting || ''"
+          [closing]="form.value.closing || ''"
+          [subject]="form.value.subject || ''"
+          [fontSize]="fontSize()"
+          [fontWeight]="fontWeight()"
+          [lineHeight]="lineHeight()"
+          [fontFamily]="fontFamily()"
+        />
+      } @else if (layout() === 'minimalist-cover-letter') {
+        <app-minimalist-cover-letter-cv
+          [accent]="accentColor()"
+          [name]="previewName()"
+          [jobTitle]="previewJobTitle()"
+          [phone]="previewPhone()"
+          [email]="previewEmail()"
+          [location]="previewLocation()"
+          [bodyText]="previewSummary()"
+          [recipientName]="form.value.recipientName || ''"
+          [recipientDept]="form.value.recipientDept || ''"
+          [greeting]="form.value.greeting || ''"
+          [closing]="form.value.closing || ''"
+          [subject]="form.value.subject || ''"
           [fontSize]="fontSize()"
           [fontWeight]="fontWeight()"
           [lineHeight]="lineHeight()"
@@ -964,7 +1922,9 @@ const ACCENT_PALETTE = [
           [fontFamily]="fontFamily()"
           [sectionLines]="sectionLines()"
           [accent]="accentColor()"
-        />
+        
+          [sectionLabels]="sectionLabels()"
+          [sectionOrder]="sectionOrder()"/>
       }
       </div>
     </ng-template>
@@ -977,7 +1937,7 @@ const ACCENT_PALETTE = [
         color: #1f2937;
         display: block;
       }
-      input,
+      input:not([type="checkbox"]):not([type="radio"]),
       textarea,
       select {
         display: block;
@@ -990,6 +1950,20 @@ const ACCENT_PALETTE = [
         font: inherit;
         outline: none;
         appearance: auto;
+      }
+      input[type="checkbox"] {
+        width: 1.15rem !important;
+        min-width: 1.15rem !important;
+        max-width: 1.15rem !important;
+        height: 1.15rem !important;
+        min-height: 1.15rem !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: inline-block !important;
+        accent-color: #0284c7;
+        cursor: pointer;
+        flex-shrink: 0 !important;
+        border-radius: 0.25rem !important;
       }
       select {
         cursor: pointer;
@@ -1019,22 +1993,140 @@ const ACCENT_PALETTE = [
         border-radius: 0.75rem;
         cursor: pointer;
       }
+      /* Modern Responsive Section Bar */
+      .step-chip-btn {
+        transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      }
+      .step-chip-btn:hover {
+        transform: translateY(-1.5px);
+      }
+      .step-chip-btn:active {
+        transform: scale(0.94);
+      }
+      .active-chip {
+        background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.38) !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      }
+      .inactive-chip {
+        background: rgba(241, 245, 249, 0.85);
+        color: #475569;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+      }
+      :host-context(.dark) .inactive-chip {
+        background: rgba(30, 41, 59, 0.85);
+        color: #cbd5e1;
+        border: 1px solid rgba(51, 65, 85, 0.8);
+      }
+      .inactive-chip:hover {
+        background: rgba(224, 242, 254, 0.95);
+        color: #0284c7;
+        border-color: #93c5fd;
+      }
+      :host-context(.dark) .inactive-chip:hover {
+        background: rgba(14, 116, 144, 0.25);
+        color: #38bdf8;
+        border-color: #0284c7;
+      }
+
       .step {
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         gap: 0.35rem;
-        padding: 0.7rem 0.3rem;
+        padding: 0.75rem 0.4rem;
         border-radius: 1rem;
         border: 1px solid #dce4ef;
         background: white;
         color: #60718b;
-        font-size: 0.65rem;
+        font-size: 0.68rem;
+        font-weight: 600;
         text-align: center;
+        width: 100%;
+        min-height: 74px;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .step:hover {
+        border-color: #93c5fd;
+        background: #f0f7ff;
+        color: #0369a1;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
+      }
+            .step-arrow-btn {
+        border: none;
+        background: transparent;
+        color: currentColor;
+        opacity: 0.5;
+        font-size: 0.55rem;
+        line-height: 1;
+        padding: 1px 3px;
+        cursor: pointer;
+        border-radius: 3px;
+        transition: opacity 0.15s, background 0.15s;
+      }
+      .step-arrow-btn:hover:not(:disabled) {
+        opacity: 1;
+        background: rgba(2, 132, 199, 0.15);
+      }
+      .step.selected .step-arrow-btn:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .step-arrow-btn:disabled {
+        opacity: 0.15;
+        cursor: default;
       }
       .step.selected {
         background: #062b50;
         color: #fff;
+        border-color: #062b50;
+        box-shadow: 0 6px 16px rgba(6, 43, 80, 0.25);
+        transform: translateY(-1px);
+      }
+      .step-label-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        line-height: 1.2;
+        width: 100%;
+      }
+      .step-label-text {
+        word-break: normal;
+        overflow-wrap: normal;
+        hyphens: none;
+        max-width: 100%;
+        text-align: center;
+        line-height: 1.15;
+      }
+      .step-edit-icon {
+        opacity: 0;
+        font-size: 0.75rem;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: opacity 0.15s;
+        line-height: 1;
+        padding: 1px;
+      }
+      .step:hover .step-edit-icon {
+        opacity: 0.7;
+      }
+      .step.selected .step-edit-icon {
+        color: #a8cfff;
+      }
+      .step-label-input {
+        width: 80px;
+        font-size: 0.62rem;
+        text-align: center;
+        border: 1px solid #a8cfff;
+        border-radius: 4px;
+        padding: 2px 3px;
+        background: rgba(255,255,255,0.2);
+        color: inherit;
+        outline: none;
       }
       .download,
       .outline {
@@ -1065,6 +2157,26 @@ const ACCENT_PALETTE = [
         border-radius: 1rem;
         background: #f8fafc;
         padding: 1.25rem;
+      }
+            .drag-handle {
+        cursor: grab;
+        user-select: none;
+        font-weight: 900;
+        font-size: 0.8rem;
+        line-height: 1;
+        letter-spacing: 1px;
+        transition: color 0.15s;
+      }
+      .drag-handle:active {
+        cursor: grabbing;
+      }
+      .card-block.dragging {
+        opacity: 0.45;
+        border: 2px dashed #0284c7 !important;
+        transform: scale(0.99);
+      }
+      .card-block {
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
       }
       .reorder-btn {
         border: none;
@@ -1184,7 +2296,7 @@ const ACCENT_PALETTE = [
       }
       .a4-sheet {
         width: 210mm;
-        max-width: 100%;
+        min-width: 210mm;
       }
       .sample-hint {
         margin: 0 0 8px;
@@ -1354,7 +2466,160 @@ const ACCENT_PALETTE = [
     `,
   ],
 })
-export class MakeCvComponent implements OnInit, OnDestroy {
+export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
+  readonly Pencil = Pencil;
+  readonly i18n = inject(TranslationService);
+
+  @ViewChild('previewStageEl') previewStageEl?: ElementRef<HTMLDivElement>;
+  private previewResizeObserver?: ResizeObserver;
+
+  viewMode = signal<'edit' | 'preview'>('edit');
+  isAutoFit = signal<boolean>(true);
+  previewStageWidth = signal<number>(400);
+  windowWidth = signal<number>(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  windowHeight = signal<number>(typeof window !== 'undefined' ? window.innerHeight : 800);
+  modalZoom = signal<number | null>(null);
+
+  calculatedScale = computed(() => {
+    if (!this.isAutoFit()) {
+      return this.zoom() * 0.48;
+    }
+    const stageW = this.previewStageWidth();
+    if (!stageW || stageW <= 0) {
+      const winW = this.windowWidth();
+      if (winW >= 1280) return 0.48;
+      const padding = winW < 640 ? 32 : 48;
+      const avail = Math.max(280, winW - padding);
+      return Math.min(1.2, Math.max(0.3, avail / 793.7));
+    }
+    const availableWidth = Math.max(240, stageW - 16);
+    const scale = availableWidth / 793.7;
+    return Math.min(1.2, Math.max(0.3, Number(scale.toFixed(3))));
+  });
+
+  modalFitScale = computed(() => {
+    const winW = this.windowWidth();
+    const winH = this.windowHeight();
+    const topBarH = winW < 640 ? 80 : 88;
+    const modalH = Math.max(300, winH - topBarH);
+    const padX = winW < 640 ? 20 : (winW < 1024 ? 36 : 64);
+    const padY = winW < 640 ? 80 : 120;
+    const availW = Math.max(260, winW - padX);
+    const availH = Math.max(320, modalH - padY);
+
+    const scaleW = availW / 793.7;
+    const scaleH = availH / 1122.5;
+
+    // On mobile (< 640px), fit to width for clear readable text, scroll vertically
+    if (winW < 640) {
+      return Math.min(1.0, Math.max(0.32, Number(scaleW.toFixed(3))));
+    }
+    // On tablet (iPad) & desktop (MacBook Pro), fit by smaller dimension so the entire CV page fits on screen!
+    const bestFit = Math.min(scaleW, scaleH);
+    return Math.min(1.0, Math.max(0.35, Number(bestFit.toFixed(3))));
+  });
+
+  modalScale = computed(() => {
+    const custom = this.modalZoom();
+    if (custom !== null) return custom;
+    return this.modalFitScale();
+  });
+
+  modalScalePercent = computed(() => Math.round(this.modalScale() * 100));
+
+  modalZoomIn() {
+    const cur = this.modalScale();
+    this.modalZoom.set(Math.min(2.0, +(cur + 0.1).toFixed(2)));
+  }
+
+  modalZoomOut() {
+    const cur = this.modalScale();
+    this.modalZoom.set(Math.max(0.25, +(cur - 0.1).toFixed(2)));
+  }
+
+  modalResetFit() {
+    this.modalZoom.set(null);
+  }
+
+  modalSet100() {
+    this.modalZoom.set(1.0);
+  }
+
+  openFullPreview() {
+    this.modalZoom.set(null);
+    if (typeof window !== 'undefined') {
+      this.windowWidth.set(window.innerWidth);
+      this.windowHeight.set(window.innerHeight);
+    }
+    this.fullPreview.set(true);
+  }
+
+  toggleViewMode() {
+    const next = this.viewMode() === 'edit' ? 'preview' : 'edit';
+    this.viewMode.set(next);
+    if (next === 'preview') {
+      this.onPreviewModeEnter();
+    }
+  }
+
+  toggleAutoFit() {
+    this.isAutoFit.set(!this.isAutoFit());
+    if (this.isAutoFit()) {
+      this.zoom.set(1);
+      this.updateStageWidth();
+    }
+  }
+
+  onPreviewModeEnter() {
+    setTimeout(() => {
+      this.updateStageWidth();
+    }, 60);
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    if (typeof window !== 'undefined') {
+      this.windowWidth.set(window.innerWidth);
+      this.windowHeight.set(window.innerHeight);
+      this.updateStageWidth();
+    }
+  }
+
+  @HostListener('window:keydown.escape')
+  onEscapePress() {
+    if (this.fullPreview()) {
+      this.fullPreview.set(false);
+    }
+  }
+
+  updateStageWidth() {
+    if (this.previewStageEl?.nativeElement) {
+      const width = this.previewStageEl.nativeElement.clientWidth;
+      if (width > 0) {
+        this.previewStageWidth.set(width);
+      }
+    }
+  }
+
+  ngAfterViewInit() {
+    if (typeof window !== 'undefined') {
+      this.windowWidth.set(window.innerWidth);
+      this.windowHeight.set(window.innerHeight);
+      if (this.previewStageEl?.nativeElement && typeof ResizeObserver !== 'undefined') {
+        this.previewResizeObserver = new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            const cr = entry.contentRect;
+            if (cr && cr.width > 0) {
+              this.previewStageWidth.set(cr.width);
+            }
+          }
+        });
+        this.previewResizeObserver.observe(this.previewStageEl.nativeElement);
+      }
+      this.updateStageWidth();
+    }
+  }
+
   UserRound = UserRound;
   Download = Download;
   Save = Save;
@@ -1395,6 +2660,19 @@ export class MakeCvComponent implements OnInit, OnDestroy {
   langDraft = { name: '', proficiency: 'Intermediate' as string };
 
   active = signal('Personal Information');
+
+  onStepClick(key: string, event?: MouseEvent) {
+    this.active.set(key);
+    if (event?.currentTarget) {
+      const el = event.currentTarget as HTMLElement;
+      gsap.fromTo(
+        el,
+        { scale: 0.88 },
+        { scale: 1, duration: 0.35, ease: 'back.out(2.2)', clearProps: 'transform' }
+      );
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }
   fullPreview = signal(false);
   photoUrl = signal<string | null>(null);
   zoom = signal(1);
@@ -1404,25 +2682,122 @@ export class MakeCvComponent implements OnInit, OnDestroy {
   fontFamily = signal('Arial, Helvetica, sans-serif');
   sectionLines = signal(true);
   accentColor = signal('#667b97');
-  layout = signal<'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter' | 'warm-taupe-timeline' | 'slate-rounded-panels' | 'navy-sidebar-profile' | 'graphite-banner-timeline'>('professional');
+  layout = signal<'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter' | 'framed-cover-letter' | 'sidebar-cover-letter' | 'minimalist-cover-letter' | 'navy-badge' | 'warm-taupe-timeline' | 'slate-rounded-panels' | 'navy-sidebar-profile' | 'graphite-banner-timeline' | 'minimalist-framed'>('professional');
   cvId: string | null = null;
   templateId: string | null = null;
   hobbyDraft = '';
 
+  isCoverLetter(): boolean {
+    return this.layout() === 'cover-letter' || this.layout() === 'framed-cover-letter' || this.layout() === 'sidebar-cover-letter' || this.layout() === 'minimalist-cover-letter';
+  }
+
   defaultSummary = 'Goal-oriented, adaptable, and always striving to learn, grow, and deliver the best results.';
 
-  steps = [
-    { label: 'Personal Information', icon: UserRound },
-    { label: 'Cover Letter', icon: Award, coverOnly: true },
-    { label: 'Education', icon: GraduationCap },
-    { label: 'Work Experience', icon: BriefcaseBusiness },
-    { label: 'Skills', icon: Star },
-    { label: 'Languages', icon: Languages },
-    { label: 'Certifications', icon: Award },
-    { label: 'Projects', icon: FolderKanban },
-    { label: 'References', icon: UserRound },
-    { label: 'Hobbies', icon: Star },
-  ];
+  /** Dynamic list of sections — reorderable by the user */
+  stepList = signal<Array<{ key: string; icon: any; coverOnly?: boolean }>>([
+    { key: 'Personal Information', icon: UserRound },
+    { key: 'Cover Letter',         icon: Award, coverOnly: true },
+    { key: 'Education',            icon: GraduationCap },
+    { key: 'Work Experience',      icon: BriefcaseBusiness },
+    { key: 'Skills',               icon: Star },
+    { key: 'Languages',            icon: Languages },
+    { key: 'Certifications',       icon: Award },
+    { key: 'Projects',             icon: FolderKanban },
+    { key: 'References',           icon: UserRound },
+    { key: 'Hobbies',              icon: Star },
+  ]);
+
+  get steps() {
+    return this.stepList();
+  }
+
+  sectionOrder = computed(() => this.stepList().map(s => s.key));
+
+  moveSection(key: string, direction: -1 | 1) {
+    const list = [...this.stepList()];
+    const idx = list.findIndex(s => s.key === key);
+    if (idx === -1) return;
+    const target = idx + direction;
+    if (target < 0 || target >= list.length) return;
+
+    const temp = list[idx];
+    list[idx] = list[target];
+    list[target] = temp;
+
+    this.stepList.set(list);
+    this.scheduleAutoSave();
+    this.toast.info(`Moved ${this.labelFor(key)} ${direction < 0 ? 'up ↑' : 'down ↓'}`);
+  }
+
+  canMoveUp(key: string): boolean {
+    const list = this.stepList();
+    const idx = list.findIndex(s => s.key === key);
+    return idx > 0;
+  }
+
+  canMoveDown(key: string): boolean {
+    const list = this.stepList();
+    const idx = list.findIndex(s => s.key === key);
+    return idx >= 0 && idx < list.length - 1;
+  }
+
+  prevStep(): { key: string; label: string } | null {
+    const list = this.stepList().filter(s => !s.coverOnly || this.isCoverLetter());
+    const idx = list.findIndex(s => s.key === this.active());
+    if (idx > 0) return { key: list[idx - 1].key, label: this.labelFor(list[idx - 1].key) };
+    return null;
+  }
+
+  nextStep(): { key: string; label: string } | null {
+    const list = this.stepList().filter(s => !s.coverOnly || this.isCoverLetter());
+    const idx = list.findIndex(s => s.key === this.active());
+    if (idx >= 0 && idx < list.length - 1) return { key: list[idx + 1].key, label: this.labelFor(list[idx + 1].key) };
+    return null;
+  }
+
+  /** User-editable display labels — persisted in CV content */
+  sectionLabels = signal<Record<string, string>>({
+    'Personal Information': 'Personal Information',
+    'Cover Letter':         'Cover Letter',
+    'Education':            'Education',
+    'Work Experience':      'Work Experience',
+    'Skills':               'Skills',
+    'Languages':            'Languages',
+    'Certifications':       'Certifications',
+    'Projects':             'Projects',
+    'References':           'References',
+    'Hobbies':              'Hobbies',
+  });
+
+  /** Which sidebar label is currently being inline-edited */
+  editingLabelKey = signal<string | null>(null);
+
+  labelFor(key: string): string {
+    return this.sectionLabels()[key] ?? key;
+  }
+
+  onLabelInput(key: string, event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input) this.setLabel(key, input.value);
+  }
+
+  setLabel(key: string, value: string) {
+    const trimmed = value.trim() || key;
+    this.sectionLabels.update(m => ({ ...m, [key]: trimmed }));
+  }
+
+  startEditLabel(key: string, event: MouseEvent) {
+    event.stopPropagation();
+    this.editingLabelKey.set(key);
+  }
+
+  finishEditLabel(key: string, input: HTMLInputElement) {
+    this.setLabel(key, input.value);
+    this.editingLabelKey.set(null);
+  }
+
+  isPaid = signal<boolean>(false);
+  showKhqrModal = signal<boolean>(false);
 
   form: FormGroup;
   private presentationChangesReady = false;
@@ -1433,6 +2808,7 @@ export class MakeCvComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private toast: ToastService,
     private pptx: PptxExportService,
+    public auth: AuthService,
   ) {
     this.form = this.fb.group({
       fullName: [''],
@@ -1442,6 +2818,10 @@ export class MakeCvComponent implements OnInit, OnDestroy {
       location: [''],
       linkedin: [''],
       summary: [''],
+      dob: [''],
+      height: [''],
+      maritalStatus: [''],
+      recipientName: [''],
       recipientDept: [''],
       greeting: [''],
       closing: [''],
@@ -1470,28 +2850,58 @@ export class MakeCvComponent implements OnInit, OnDestroy {
     const color = this.route.snapshot.queryParamMap.get('color');
     if (color) this.setAccent(color, false);
     const layoutParam = this.route.snapshot.queryParamMap.get('layout');
-    if (layoutParam === 'modern-split') this.layout.set('modern-split');
-    else if (layoutParam === 'clean-sidebar') this.layout.set('clean-sidebar');
-    else if (layoutParam === 'elegant-frame') this.layout.set('elegant-frame');
-    else if (layoutParam === 'classic-dark') this.layout.set('classic-dark');
-    else if (layoutParam === 'warm-taupe-timeline') this.layout.set('warm-taupe-timeline');
-    else if (layoutParam === 'slate-rounded-panels') this.layout.set('slate-rounded-panels');
-    else if (layoutParam === 'navy-sidebar-profile') this.layout.set('navy-sidebar-profile');
-    else if (layoutParam === 'graphite-banner-timeline') this.layout.set('graphite-banner-timeline');
-    else if (layoutParam === 'formal-classic') this.layout.set('formal-classic');
-    else if (layoutParam === 'cover-letter') this.layout.set('cover-letter');
+    if (layoutParam === 'modern-split' || this.templateId === '3') this.layout.set('modern-split');
+    else if (layoutParam === 'clean-sidebar' || this.templateId === '5') this.layout.set('clean-sidebar');
+    else if (layoutParam === 'elegant-frame' || this.templateId === '6') this.layout.set('elegant-frame');
+    else if (layoutParam === 'classic-dark' || this.templateId === '7') this.layout.set('classic-dark');
+    else if (layoutParam === 'formal-classic' || this.templateId === '8') this.layout.set('formal-classic');
+    else if (layoutParam === 'cover-letter' || this.templateId === '9') this.layout.set('cover-letter');
+    else if (layoutParam === 'warm-taupe-timeline' || this.templateId === '11') this.layout.set('warm-taupe-timeline');
+    else if (layoutParam === 'graphite-banner-timeline' || this.templateId === '12') this.layout.set('graphite-banner-timeline');
+    else if (layoutParam === 'navy-sidebar-profile' || this.templateId === '13') this.layout.set('navy-sidebar-profile');
+    else if (layoutParam === 'slate-rounded-panels' || this.templateId === '14') this.layout.set('slate-rounded-panels');
+    else if (layoutParam === 'framed-cover-letter' || this.templateId === '16') this.layout.set('framed-cover-letter');
+    else if (layoutParam === 'sidebar-cover-letter' || this.templateId === '17') this.layout.set('sidebar-cover-letter');
+    else if (layoutParam === 'minimalist-cover-letter' || this.templateId === '18') this.layout.set('minimalist-cover-letter');
+    else if (layoutParam === 'navy-badge' || this.templateId === '19') this.layout.set('navy-badge');
+    else if (layoutParam === 'minimalist-framed' || this.templateId === '20') this.layout.set('minimalist-framed');
   }
 
   ngOnInit() {
+    if (this.auth.isStaffOrAdmin()) {
+      this.isPaid.set(true);
+    }
     if (this.cvId) {
       this.http.get<{ cv: any }>(`/api/v1/cvs/${this.cvId}`).subscribe({
         next: ({ cv }) => {
+          if (cv.is_paid || this.auth.isStaffOrAdmin()) {
+            this.isPaid.set(true);
+          }
           const content = typeof cv.content === 'string' ? JSON.parse(cv.content || '{}') : cv.content || {};
-          this.patchFromContent(content);
+          const isEmpty = !content.fullName && (!content.experience || !content.experience.length);
+          if (isEmpty && (this.layout() === 'minimalist-framed' || cv.template_id === 20 || this.templateId === '20')) {
+            this.patchMinimalistFramedDefaults();
+          } else if (isEmpty && (this.layout() === 'navy-badge' || cv.template_id === 19 || this.templateId === '19')) {
+            this.patchNavyBadgeDefaults();
+          } else if (isEmpty && (this.layout() === 'navy-sidebar-profile' || cv.template_id === 13 || this.templateId === '13')) {
+            this.patchNavySidebarDefaults();
+          } else if (isEmpty && (this.layout() === 'minimalist-cover-letter' || cv.template_id === 18 || this.templateId === '18')) {
+            this.patchMinimalistCoverLetterDefaults();
+          } else {
+            this.patchFromContent(content);
+          }
           if (!content.accent && cv.selected_color) this.setAccent(cv.selected_color, false);
         },
         error: () => {},
       });
+    } else if (this.layout() === 'minimalist-framed' || this.templateId === '20') {
+      this.patchMinimalistFramedDefaults();
+    } else if (this.layout() === 'navy-badge' || this.templateId === '19') {
+      this.patchNavyBadgeDefaults();
+    } else if (this.layout() === 'navy-sidebar-profile' || this.templateId === '13') {
+      this.patchNavySidebarDefaults();
+    } else if (this.layout() === 'minimalist-cover-letter' || this.templateId === '18') {
+      this.patchMinimalistCoverLetterDefaults();
     }
 
     // Auto-save on any form change (debounced 10 seconds)
@@ -1645,42 +3055,20 @@ export class MakeCvComponent implements OnInit, OnDestroy {
     if (this.experience.length > 1) this.experience.removeAt(i);
   }
 
-  moveExperience(i: number, direction: number) {
-    const target = i + direction;
-    if (target < 0 || target >= this.experience.length) return;
-    const vals = this.experience.value;
-    [vals[i], vals[target]] = [vals[target], vals[i]];
-    // Rebuild the array with swapped values
-    while (this.experience.length) this.experience.removeAt(0);
-    vals.forEach((v: any) => {
-      const group = this.newExperience();
-      group.patchValue(v);
-      // Rebuild responsibilities
-      const respArr = group.get('responsibilities') as any;
-      while (respArr.length) respArr.removeAt(0);
-      (v.responsibilities || ['']).forEach((r: string) => respArr.push(this.fb.control(r)));
-      this.experience.push(group);
-    });
-  }
 
-  moveEducation(i: number, direction: number) {
-    const target = i + direction;
-    if (target < 0 || target >= this.education.length) return;
-    const vals = this.education.value;
-    [vals[i], vals[target]] = [vals[target], vals[i]];
-    while (this.education.length) this.education.removeAt(0);
-    vals.forEach((v: any) => {
-      const group = this.newEducation();
-      group.patchValue(v);
-      this.education.push(group);
-    });
-  }
   addResponsibility(jobIndex: number) {
     this.responsibilities(jobIndex).push(this.fb.control(''));
   }
   removeResponsibility(jobIndex: number, ri: number) {
     const arr = this.responsibilities(jobIndex);
-    if (arr.length > 1) arr.removeAt(ri);
+    if (arr.length > 1) {
+      arr.removeAt(ri);
+    } else {
+      arr.at(0).setValue('');
+    }
+    arr.markAsDirty();
+    this.form.updateValueAndValidity();
+    this.scheduleAutoSave();
   }
 
   moveResponsibility(jobIndex: number, ri: number, direction: number) {
@@ -1691,6 +3079,170 @@ export class MakeCvComponent implements OnInit, OnDestroy {
     const targetValue = arr.at(target).value;
     arr.at(ri).setValue(targetValue);
     arr.at(target).setValue(currentValue);
+  }
+
+  // ── Multi-select batch deletion ──
+  selectedItems: Record<string, Set<number>> = {
+    education: new Set(),
+    experience: new Set(),
+    skills: new Set(),
+    languages: new Set(),
+    certifications: new Set(),
+    projects: new Set(),
+    references: new Set(),
+    hobbies: new Set(),
+  };
+
+  isSelected(section: string, index: number): boolean {
+    return this.selectedItems[section]?.has(index) ?? false;
+  }
+
+  toggleSelect(section: string, index: number) {
+    if (!this.selectedItems[section]) this.selectedItems[section] = new Set();
+    if (this.selectedItems[section].has(index)) {
+      this.selectedItems[section].delete(index);
+    } else {
+      this.selectedItems[section].add(index);
+    }
+  }
+
+  isAllSelected(section: string, count: number): boolean {
+    if (count === 0) return false;
+    return (this.selectedItems[section]?.size ?? 0) === count;
+  }
+
+  toggleSelectAll(section: string, count: number) {
+    if (!this.selectedItems[section]) this.selectedItems[section] = new Set();
+    if (this.isAllSelected(section, count)) {
+      this.selectedItems[section].clear();
+    } else {
+      this.selectedItems[section] = new Set(Array.from({ length: count }, (_, i) => i));
+    }
+  }
+
+  selectedCount(section: string): number {
+    return this.selectedItems[section]?.size ?? 0;
+  }
+
+  deleteSelected(section: string) {
+    const set = this.selectedItems[section];
+    if (!set || set.size === 0) return;
+    const arr = (this as any)[section] as FormArray;
+    if (!arr) return;
+
+    const indices = Array.from(set).sort((a, b) => b - a);
+    for (const idx of indices) {
+      if (arr.length > 0) {
+        arr.removeAt(idx);
+      }
+    }
+    set.clear();
+    arr.markAsDirty();
+    this.form.updateValueAndValidity();
+    this.scheduleAutoSave();
+    this.toast.success('Deleted selected items');
+  }
+
+  // ── Reorder helpers (Robust FormArray value reordering) ──
+  reorderFormArray(arr: FormArray, from: number, to: number, createNewFn?: () => FormGroup) {
+    if (from === to || from < 0 || from >= arr.length || to < 0 || to >= arr.length) return;
+
+    const vals = arr.getRawValue();
+    const [moved] = vals.splice(from, 1);
+    vals.splice(to, 0, moved);
+
+    while (arr.length > 0) {
+      arr.removeAt(0);
+    }
+
+    vals.forEach((val: any) => {
+      if (createNewFn) {
+        const group = createNewFn();
+        group.patchValue(val);
+        if (group.get('responsibilities') && Array.isArray(val.responsibilities)) {
+          const respArr = group.get('responsibilities') as FormArray;
+          while (respArr.length > 0) respArr.removeAt(0);
+          val.responsibilities.forEach((r: string) => respArr.push(this.fb.control(r)));
+        }
+        arr.push(group);
+      } else {
+        arr.push(this.fb.group(val));
+      }
+    });
+
+    arr.markAsDirty();
+    this.form.updateValueAndValidity();
+    this.scheduleAutoSave();
+  }
+
+  moveEducation(i: number, direction: number) {
+    const to = i + direction;
+    if (to < 0 || to >= this.education.length) return;
+    this.reorderFormArray(this.education, i, to, () => this.newEducation());
+    this.toast.info(`Moved Education ${direction < 0 ? 'up ↑' : 'down ↓'}`);
+  }
+
+  moveExperience(i: number, direction: number) {
+    const to = i + direction;
+    if (to < 0 || to >= this.experience.length) return;
+    this.reorderFormArray(this.experience, i, to, () => this.newExperience());
+    this.toast.info(`Moved Work Experience ${direction < 0 ? 'up ↑' : 'down ↓'}`);
+  }
+
+  moveSkill(i: number, direction: number) {
+    const to = i + direction;
+    if (to < 0 || to >= this.skills.length) return;
+    this.reorderFormArray(this.skills, i, to, () => this.fb.group({ name: [''], level: ['Intermediate'] }));
+    this.toast.info(`Moved Skill ${direction < 0 ? 'up ↑' : 'down ↓'}`);
+  }
+
+  moveLanguage(i: number, direction: number) {
+    const to = i + direction;
+    if (to < 0 || to >= this.languages.length) return;
+    this.reorderFormArray(this.languages, i, to, () => this.fb.group({ name: [''], proficiency: ['Intermediate'] }));
+    this.toast.info(`Moved Language ${direction < 0 ? 'up ↑' : 'down ↓'}`);
+  }
+
+  moveCertification(i: number, direction: number) {
+    const to = i + direction;
+    if (to < 0 || to >= this.certifications.length) return;
+    this.reorderFormArray(this.certifications, i, to, () => this.newCertification());
+    this.toast.info(`Moved Certification ${direction < 0 ? 'up ↑' : 'down ↓'}`);
+  }
+
+  moveProject(i: number, direction: number) {
+    const to = i + direction;
+    if (to < 0 || to >= this.projects.length) return;
+    this.reorderFormArray(this.projects, i, to, () => this.newProject());
+    this.toast.info(`Moved Project ${direction < 0 ? 'up ↑' : 'down ↓'}`);
+  }
+
+  moveReference(i: number, direction: number) {
+    const to = i + direction;
+    if (to < 0 || to >= this.references.length) return;
+    this.reorderFormArray(this.references, i, to, () => this.newReference());
+    this.toast.info(`Moved Reference ${direction < 0 ? 'up ↑' : 'down ↓'}`);
+  }
+
+  moveHobby(i: number, direction: number) {
+    const to = i + direction;
+    if (to < 0 || to >= this.hobbies.length) return;
+    this.reorderFormArray(this.hobbies, i, to, () => this.fb.group({ name: [''] }));
+    this.toast.info(`Moved Hobby ${direction < 0 ? 'up ↑' : 'down ↓'}`);
+  }
+
+  moveResp(jobIndex: number, from: number, direction: number) {
+    const arr = this.responsibilities(jobIndex);
+    const to = from + direction;
+    if (to < 0 || to >= arr.length) return;
+    const vals = arr.getRawValue();
+    const [moved] = vals.splice(from, 1);
+    vals.splice(to, 0, moved);
+    while (arr.length > 0) arr.removeAt(0);
+    vals.forEach((v: string) => arr.push(this.fb.control(v)));
+    arr.markAsDirty();
+    this.form.updateValueAndValidity();
+    this.scheduleAutoSave();
   }
 
   // ── Drag-and-drop reorder ──
@@ -1706,7 +3258,8 @@ export class MakeCvComponent implements OnInit, OnDestroy {
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/plain', `${type}:${parent}:${index}`);
     }
-    (event.target as HTMLElement).classList.add('dragging');
+    const el = event.currentTarget as HTMLElement;
+    if (el) el.classList.add('dragging');
   }
 
   onDragOver(event: DragEvent) {
@@ -1719,39 +3272,44 @@ export class MakeCvComponent implements OnInit, OnDestroy {
     if (type !== this.dragType || parent !== this.dragParent || targetIndex === this.dragIndex) return;
 
     if (type === 'resp') {
-      this.moveResp(parent, this.dragIndex, targetIndex - this.dragIndex);
+      const arr = this.responsibilities(parent);
+      const vals = arr.getRawValue();
+      const [moved] = vals.splice(this.dragIndex, 1);
+      vals.splice(targetIndex, 0, moved);
+      while (arr.length > 0) arr.removeAt(0);
+      vals.forEach((v: string) => arr.push(this.fb.control(v)));
+      arr.markAsDirty();
+      this.form.updateValueAndValidity();
+      this.scheduleAutoSave();
     } else if (type === 'exp') {
-      this.moveExperience(this.dragIndex, targetIndex - this.dragIndex);
+      this.reorderFormArray(this.experience, this.dragIndex, targetIndex, () => this.newExperience());
     } else if (type === 'edu') {
-      this.moveEducation(this.dragIndex, targetIndex - this.dragIndex);
+      this.reorderFormArray(this.education, this.dragIndex, targetIndex, () => this.newEducation());
+    } else if (type === 'skill') {
+      this.reorderFormArray(this.skills, this.dragIndex, targetIndex, () => this.fb.group({ name: [''], level: ['Intermediate'] }));
+    } else if (type === 'lang') {
+      this.reorderFormArray(this.languages, this.dragIndex, targetIndex, () => this.fb.group({ name: [''], proficiency: ['Intermediate'] }));
+    } else if (type === 'cert') {
+      this.reorderFormArray(this.certifications, this.dragIndex, targetIndex, () => this.newCertification());
+    } else if (type === 'proj') {
+      this.reorderFormArray(this.projects, this.dragIndex, targetIndex, () => this.newProject());
+    } else if (type === 'ref') {
+      this.reorderFormArray(this.references, this.dragIndex, targetIndex, () => this.newReference());
+    } else if (type === 'hobby') {
+      this.reorderFormArray(this.hobbies, this.dragIndex, targetIndex, () => this.fb.group({ name: [''] }));
     }
   }
 
   onDragEnd(event: DragEvent) {
-    (event.target as HTMLElement).classList.remove('dragging');
-  }
-
-  /** Swap two responsibility items by rebuilding the FormArray slice. */
-  moveResp(jobIndex: number, from: number, direction: number) {
-    const arr = this.responsibilities(jobIndex);
-    const to = from + direction;
-    if (to < 0 || to >= arr.length) return;
-    // Swap values directly between the two controls
-    const fromCtrl = arr.at(from);
-    const toCtrl = arr.at(to);
-    const tmp = fromCtrl.value;
-    fromCtrl.setValue(toCtrl.value);
-    toCtrl.setValue(tmp);
-    // Mark dirty so Angular picks up the change
-    fromCtrl.markAsDirty();
-    toCtrl.markAsDirty();
-    arr.markAsDirty();
-    this.form.updateValueAndValidity();
+    const el = event.currentTarget as HTMLElement;
+    if (el) el.classList.remove('dragging');
+    const dragEls = document.querySelectorAll('.dragging');
+    dragEls.forEach((d) => d.classList.remove('dragging'));
   }
   addSkill() {
     const name = this.skillDraft.name.trim();
     if (!name) {
-      alert('Enter or select a skill name first.');
+      this.toast.info(this.i18n.currentLang() === 'kh' ? 'សូមបញ្ចូល ឬជ្រើសរើសជំនាញជាមុនសិន' : 'Enter or select a skill name first.');
       return;
     }
     this.skills.push(this.fb.group({ name: [name], level: [this.skillDraft.level] }));
@@ -1763,7 +3321,7 @@ export class MakeCvComponent implements OnInit, OnDestroy {
   addLanguage() {
     const name = this.langDraft.name.trim();
     if (!name) {
-      alert('Select a language first.');
+      this.toast.info(this.i18n.currentLang() === 'kh' ? 'សូមជ្រើសរើសភាសាជាមុនសិន' : 'Select a language first.');
       return;
     }
     this.languages.push(this.fb.group({ name: [name], proficiency: [this.langDraft.proficiency] }));
@@ -1818,11 +3376,11 @@ export class MakeCvComponent implements OnInit, OnDestroy {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      alert('Please choose an image file.');
+      this.toast.warning(this.i18n.currentLang() === 'kh' ? 'សូមជ្រើសរើសឯកសារជារូបភាព' : 'Please choose an image file.');
       return;
     }
     if (file.size > 1.5 * 1024 * 1024) {
-      alert('Please use a photo under 1.5 MB.');
+      this.toast.warning(this.i18n.currentLang() === 'kh' ? 'សូមជ្រើសរើសរូបថតដែលមានទំហំតូចជាង 1.5 MB' : 'Please use a photo under 1.5 MB.');
       return;
     }
     const reader = new FileReader();
@@ -1831,10 +3389,12 @@ export class MakeCvComponent implements OnInit, OnDestroy {
   }
 
   zoomIn() {
-    this.zoom.set(Math.min(1.5, this.zoom() + 0.1));
+    this.isAutoFit.set(false);
+    this.zoom.set(Math.min(2, +(this.zoom() + 0.1).toFixed(2)));
   }
   zoomOut() {
-    this.zoom.set(Math.max(0.5, this.zoom() - 0.1));
+    this.isAutoFit.set(false);
+    this.zoom.set(Math.max(0.4, +(this.zoom() - 0.1).toFixed(2)));
   }
 
   buildContent() {
@@ -1867,6 +3427,8 @@ export class MakeCvComponent implements OnInit, OnDestroy {
       },
       accent: this.accentColor(),
       layout: this.layout(),
+      sectionLabels: this.sectionLabels(),
+      sectionOrder: this.sectionOrder(),
     };
   }
 
@@ -1880,6 +3442,10 @@ export class MakeCvComponent implements OnInit, OnDestroy {
       location: content.location || '',
       linkedin: content.linkedin || '',
       summary: content.summary || '',
+      dob: content.dob || '',
+      height: content.height || '',
+      maritalStatus: content.maritalStatus || '',
+      recipientName: content.recipientName || '',
       recipientDept: content.recipientDept || '',
       greeting: content.greeting || '',
       closing: content.closing || '',
@@ -1992,6 +3558,501 @@ export class MakeCvComponent implements OnInit, OnDestroy {
     }
 
     if (content.layout) this.layout.set(content.layout);
+    if (content.sectionLabels && typeof content.sectionLabels === 'object') {
+      this.sectionLabels.update(defaults => ({ ...defaults, ...content.sectionLabels }));
+    }
+    if (Array.isArray(content.sectionOrder) && content.sectionOrder.length) {
+      const currentList = [...this.stepList()];
+      const ordered: any[] = [];
+      content.sectionOrder.forEach((k: string) => {
+        const found = currentList.find(s => s.key === k);
+        if (found) ordered.push(found);
+      });
+      currentList.forEach(s => {
+        if (!ordered.find(o => o.key === s.key)) ordered.push(s);
+      });
+      this.stepList.set(ordered);
+    }
+  }
+
+  patchMinimalistFramedDefaults() {
+    this.form.patchValue({
+      fullName: 'LORNA ALVARADO',
+      jobTitle: 'Sales Representative',
+      email: 'hello@reallygreatsite.com',
+      phone: '+123-456-7890',
+      location: '123 Anywhere St., Any City',
+      linkedin: '',
+      summary: 'I am a Sales Representative is a professional who initializes and manages relationships with customers. They serve as their point of contact and lead from initial outreach through the making of the final purchase by them or someone in their household.',
+    });
+    this.photoUrl.set(null);
+    this.setAccent('#1F2937', false);
+
+    this.skills.clear();
+    const skillsList = [
+      'Client Acquisition',
+      'B2B Sales',
+      'Negotiation',
+      'Relationship Management',
+      'Market Analysis',
+      'Sales Strategies',
+      'Negotiation Skills',
+      'Problem-Solving',
+      'Time Management',
+      'Presentation Skills',
+      'Networking',
+    ];
+    for (const sk of skillsList) {
+      this.skills.push(this.fb.group({ name: [sk], level: ['Advanced'] }));
+    }
+
+    this.education.clear();
+    this.education.push(
+      this.fb.group({
+        institution: ['Wardiere University'],
+        degree: ['Bachelor of Business Management'],
+        field: ['Business Management'],
+        startYear: ['2016'],
+        endYear: ['2020'],
+        current: [false],
+        gpa: [''],
+        description: '',
+      })
+    );
+    this.education.push(
+      this.fb.group({
+        institution: ['Wardiere University'],
+        degree: ['Bachelor of Business Management'],
+        field: ['Business Management'],
+        startYear: ['2020'],
+        endYear: ['2023'],
+        current: [false],
+        gpa: [''],
+        description: '',
+      })
+    );
+
+    this.languages.clear();
+    this.languages.push(this.fb.group({ name: ['English'], proficiency: ['Fluent'] }));
+    this.languages.push(this.fb.group({ name: ['French'], proficiency: ['Fluent'] }));
+    this.languages.push(this.fb.group({ name: ['German'], proficiency: ['Basic'] }));
+    this.languages.push(this.fb.group({ name: ['Spanish'], proficiency: ['Intermediate'] }));
+
+    this.experience.clear();
+    this.experience.push(
+      this.fb.group({
+        company: ['Timmerman Industries'],
+        position: ['Senior Sales Representative'],
+        startMonth: ['January'],
+        startYear: ['2021'],
+        endMonth: [''],
+        endYear: ['Present'],
+        startDate: ['January 2021'],
+        endDate: ['Present'],
+        current: [true],
+        responsibilities: this.fb.array([
+          this.fb.control('Developed and executed sales strategies, resulting in a 25% increase in annual revenue. Managed a portfolio of 50+ clients, achieving a 95% customer retention rate.'),
+          this.fb.control('Conducted market research to identify new business opportunities and target prospects.'),
+        ]),
+      })
+    );
+    this.experience.push(
+      this.fb.group({
+        company: ['Timmerman Industries'],
+        position: ['FMCG Sales Agent'],
+        startMonth: ['June'],
+        startYear: ['2018'],
+        endMonth: ['December'],
+        endYear: ['2020'],
+        startDate: ['June 2018'],
+        endDate: ['December 2020'],
+        current: [false],
+        responsibilities: this.fb.array([
+          this.fb.control('Prospected and qualified leads through cold calling, email campaigns, and networking events.'),
+          this.fb.control('Maintained up-to-date knowledge of product features and benefits to provide accurate information to clients.'),
+        ]),
+      })
+    );
+    this.experience.push(
+      this.fb.group({
+        company: ['Timmerman Industries'],
+        position: ['Sales Agent'],
+        startMonth: ['June'],
+        startYear: ['2017'],
+        endMonth: ['December'],
+        endYear: ['2018'],
+        startDate: ['June 2017'],
+        endDate: ['December 2018'],
+        current: [false],
+        responsibilities: this.fb.array([
+          this.fb.control('Prospected and qualified leads through cold calling, email campaigns, and networking events.'),
+          this.fb.control('Increased sales by 20% by implementing effective upselling and cross-selling strategies.'),
+          this.fb.control('Maintained up-to-date knowledge of product features and benefits to provide accurate information to clients.'),
+        ]),
+      })
+    );
+    this.experience.push(
+      this.fb.group({
+        company: ['Timmerman Industries'],
+        position: ['Sales Agent'],
+        startMonth: ['June'],
+        startYear: ['2015'],
+        endMonth: ['December'],
+        endYear: ['2017'],
+        startDate: ['June 2015'],
+        endDate: ['December 2017'],
+        current: [false],
+        responsibilities: this.fb.array([
+          this.fb.control('Prospected and qualified leads through cold calling, email campaigns, and networking events.'),
+          this.fb.control('Increased sales by 20% by implementing effective upselling and cross-selling strategies.'),
+          this.fb.control('Maintained up-to-date knowledge of product features and benefits to provide accurate information to clients.'),
+        ]),
+      })
+    );
+  }
+
+  patchMinimalistCoverLetterDefaults() {
+    this.form.patchValue({
+      fullName: 'Sophie Walton',
+      jobTitle: 'Customer Service',
+      location: '1 Ray Hall Lane, Birmingham,\nBirmingham, B43 6GG, United Kingdom',
+      phone: '0121 657 9000',
+      email: 'vc@yahoo.co.uk',
+      recipientName: 'Mr. Felsted',
+      recipientDept: 'Home Depot',
+      greeting: 'Dear Mr. Felsted',
+      closing: 'Best regards,',
+    });
+    this.setAccent('#C59B58', false);
+  }
+
+  patchNavyBadgeDefaults() {
+    this.form.patchValue({
+      fullName: 'SAING SOKAIYA',
+      jobTitle: 'ACCOUNTING ASSISTANT',
+      email: 'kaiyabai2626@gmail.com',
+      phone: '096 491 0220',
+      location: 'Trapeang Sala Village, Sangkat Dangkor, Phom Penh',
+      dob: 'January 06, 2005',
+      height: '1.60m',
+      maritalStatus: 'Single',
+      summary: '',
+    });
+    this.photoUrl.set('/assets/saing-sokaiya-photo.jpg');
+    this.setAccent('#232D42', false);
+
+    this.education.clear();
+    this.education.push(
+      this.fb.group({
+        institution: ['Beltei International University'],
+        degree: ['Majoring in Accounting at Beltei International University, Year 3 | Foundation Year GPA: 3.72'],
+        field: ['Accounting'],
+        startYear: ['2025'],
+        endYear: ['Present'],
+        current: [true],
+        gpa: ['3.72'],
+        description: '',
+      })
+    );
+    this.education.push(
+      this.fb.group({
+        institution: ['Chompu Vorn High School'],
+        degree: ['Finished High School at Chompu Vorn High School.'],
+        field: [''],
+        startYear: ['2022'],
+        endYear: ['2024'],
+        current: [false],
+        gpa: [''],
+        description: '',
+      })
+    );
+    this.education.push(
+      this.fb.group({
+        institution: ['Trapeang Sala Secondary School'],
+        degree: ['Finished Secondary School at Trapeang Sala Secondary School.'],
+        field: [''],
+        startYear: ['2019'],
+        endYear: ['2022'],
+        current: [false],
+        gpa: [''],
+        description: '',
+      })
+    );
+
+    this.experience.clear();
+    this.experience.push(
+      this.fb.group({
+        company: ['iKEY International Institute'],
+        position: ['ACCOUNTING & ADMINISTRATIVE INTERN'],
+        startMonth: [''],
+        startYear: [''],
+        endMonth: [''],
+        endYear: [''],
+        startDate: [''],
+        endDate: [''],
+        current: [false],
+        responsibilities: this.fb.array([
+          this.fb.control('Assisted with the preparation of financial statements, including Profit & Loss, Balance Sheet, and Cash Flow reports.'),
+          this.fb.control('Supported monthly expense tracking, financial documentation, and record organization.'),
+          this.fb.control('Assisted with Chart of Accounts analysis and Owner\'s Equity reporting.'),
+          this.fb.control('Prepared business documents and supported administrative operations.'),
+          this.fb.control('Developed practical knowledge of accounting procedures and financial reporting.'),
+        ]),
+      })
+    );
+    this.experience.push(
+      this.fb.group({
+        company: ['Hyundai Packaging II Co., Ltd.'],
+        position: ['CUSTOMER SERVICE STAFF'],
+        startMonth: [''],
+        startYear: [''],
+        endMonth: [''],
+        endYear: [''],
+        startDate: [''],
+        endDate: [''],
+        current: [false],
+        responsibilities: this.fb.array([
+          this.fb.control('Coordinated with production and other departments to support customer orders.'),
+          this.fb.control('Maintained organized customer information, order records, and supporting documents.'),
+          this.fb.control('Followed up on customer orders and delivery arrangements.'),
+          this.fb.control('Assisted in resolving customer concerns professionally and efficiently.'),
+          this.fb.control('Developed strong communication, coordination, documentation, and problem-solving skills.'),
+        ]),
+      })
+    );
+    this.experience.push(
+      this.fb.group({
+        company: ['Mak Sor Café'],
+        position: ['CASHIER & SHOP ASSISTANT'],
+        startMonth: [''],
+        startYear: [''],
+        endMonth: [''],
+        endYear: [''],
+        startDate: [''],
+        endDate: [''],
+        current: [false],
+        responsibilities: this.fb.array([
+          this.fb.control('Handled daily cash and mobile payment transactions accurately.'),
+          this.fb.control('Recorded daily sales and organized basic transaction records.'),
+          this.fb.control('Assisted with monitoring inventory and reporting stock shortages.'),
+          this.fb.control('Supported daily shop operations and customer service.'),
+          this.fb.control('Developed strong time-management and customer service skills.'),
+        ]),
+      })
+    );
+
+    this.projects.clear();
+    [
+      'Co-founded and led PRUKSA, a career guidance platform for Cambodian students.',
+      'Led data collection, customer validation, documentation, and outreach activities.',
+      '1st Place – AI Hackathon, First Wave.',
+      '2nd Place – UniPreneur Camp, Cluster 4.',
+    ].forEach((p) => this.projects.push(this.fb.group({ title: [p], description: [''] })));
+
+    this.skills.clear();
+    [
+      'QuickBooks Accounting',
+      'Contemporary Management',
+      'Accounting for Marketing',
+      'Psychology',
+      'Principles of Accounting I',
+      'Principles of Accounting II',
+      'English for Business',
+      'Business Writing Skills',
+      'Business Strategy',
+      'Principles of Economics',
+      'Marketing Services',
+      'Business Start-Ups',
+      'Soft Skills',
+      'Fundamental Math for Business',
+      'Consumer Behavior',
+      'Microeconomics',
+    ].forEach((s) => this.skills.push(this.fb.group({ name: [s], level: ['Advanced'] })));
+
+    this.languages.clear();
+    this.languages.push(this.fb.group({ name: ['ENGLISH'], proficiency: ['Fluent'] }));
+    this.languages.push(this.fb.group({ name: ['CHINESE'], proficiency: ['Intermediate'] }));
+
+    this.references.clear();
+    this.references.push(
+      this.fb.group({
+        name: ['Mr. OM DINA'],
+        position: ['Lecturer at Beltei International University'],
+        company: ['Beltei International University'],
+        phone: ['096 207 2076 / 012 99 63 97'],
+        email: [''],
+      })
+    );
+    this.references.push(
+      this.fb.group({
+        name: ['Mr. Chey Khimthy'],
+        position: ['Lecturer, BELTEI International University'],
+        company: ['BELTEI International University'],
+        phone: ['096 612 1951'],
+        email: [''],
+      })
+    );
+    this.references.push(
+      this.fb.group({
+        name: ['Mr. Sok Savuth'],
+        position: ['Lecturer, BELTEI International University'],
+        company: ['BELTEI International University'],
+        phone: ['066 834 169'],
+        email: [''],
+      })
+    );
+  }
+
+  patchNavySidebarDefaults() {
+    this.form.patchValue({
+      fullName: 'LORNA ALVARADO',
+      jobTitle: 'Sales Representative',
+      email: 'hello@reallygreatsite.com',
+      phone: '123-456-7890',
+      location: '123 Anywhere St., Any City',
+      summary:
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+    });
+    this.photoUrl.set('/assets/lorna-alvarado-photo.png');
+    this.setAccent('#16394F', false);
+
+    this.education.clear();
+    this.education.push(
+      this.fb.group({
+        institution: ['Borcelle University'],
+        degree: ['Bachelor of Business Management'],
+        field: ['Business Management'],
+        startYear: ['2020'],
+        endYear: ['2023'],
+        current: [false],
+        gpa: [''],
+        description: '',
+      })
+    );
+    this.education.push(
+      this.fb.group({
+        institution: ['Wardiere University'],
+        degree: ['Bachelor of Business Management'],
+        field: ['Business Management'],
+        startYear: ['2016'],
+        endYear: ['2020'],
+        current: [false],
+        gpa: [''],
+        description: '',
+      })
+    );
+    this.education.push(
+      this.fb.group({
+        institution: ['Borcelle University'],
+        degree: ['Bachelor of Business Management'],
+        field: ['Business Management'],
+        startYear: ['2012'],
+        endYear: ['2016'],
+        current: [false],
+        gpa: [''],
+        description: '',
+      })
+    );
+
+    this.experience.clear();
+    this.experience.push(
+      this.fb.group({
+        company: ['Arowwai Industries'],
+        position: ['Product Design Manager'],
+        startMonth: [''],
+        startYear: ['2016'],
+        endMonth: [''],
+        endYear: ['2020'],
+        startDate: ['2016'],
+        endDate: ['2020'],
+        current: [false],
+        description:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sem nec risus egestas accumsan. In enim nunc, tincidunt ut quam eget, luctus sollicitudin neque.',
+        responsibilities: this.fb.array([]),
+      })
+    );
+    this.experience.push(
+      this.fb.group({
+        company: ['Arowwai Industries'],
+        position: ['Marketing Manager'],
+        startMonth: [''],
+        startYear: ['2019'],
+        endMonth: [''],
+        endYear: ['2020'],
+        startDate: ['2019'],
+        endDate: ['2020'],
+        current: [false],
+        description:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sem nec risus egestas accumsan. In enim nunc, tincidunt ut quam eget, luctus sollicitudin neque.',
+        responsibilities: this.fb.array([]),
+      })
+    );
+    this.experience.push(
+      this.fb.group({
+        company: ['Arowwai Industries'],
+        position: ['Marketing Manager'],
+        startMonth: [''],
+        startYear: ['2017'],
+        endMonth: [''],
+        endYear: ['2019'],
+        startDate: ['2017'],
+        endDate: ['2019'],
+        current: [false],
+        description:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sem nec risus egestas accumsan. In enim nunc, tincidunt ut quam eget, luctus sollicitudin neque.',
+        responsibilities: this.fb.array([]),
+      })
+    );
+    this.experience.push(
+      this.fb.group({
+        company: ['Arowwai Industries'],
+        position: ['Marketing Manager'],
+        startMonth: [''],
+        startYear: ['2016'],
+        endMonth: [''],
+        endYear: ['2017'],
+        startDate: ['2016'],
+        endDate: ['2017'],
+        current: [false],
+        description:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sem nec risus egestas accumsan. In enim nunc, tincidunt ut quam eget, luctus sollicitudin neque.',
+        responsibilities: this.fb.array([]),
+      })
+    );
+
+    this.skills.clear();
+    [
+      'Management Skills',
+      'Creativity',
+      'Digital Marketing',
+      'Negotiation',
+      'Critical Thinking',
+      'Leadership',
+    ].forEach((s) => this.skills.push(this.fb.group({ name: [s], level: ['Advanced'] })));
+
+    this.languages.clear();
+    this.languages.push(this.fb.group({ name: ['English'], proficiency: ['Fluent'] }));
+    this.languages.push(this.fb.group({ name: ['Spain'], proficiency: ['Native'] }));
+
+    this.references.clear();
+    this.references.push(
+      this.fb.group({
+        name: ['Harumi Kobayashi'],
+        position: ['CEO'],
+        company: ['Wardiere Inc.'],
+        phone: ['123-456-7890'],
+        email: ['hello@reallygreatsite.com'],
+      })
+    );
+    this.references.push(
+      this.fb.group({
+        name: ['Bailey Dupont'],
+        position: ['CEO'],
+        company: ['Wardiere Inc.'],
+        phone: ['123-456-7890'],
+        email: ['hello@reallygreatsite.com'],
+      })
+    );
   }
 
   splitDate(value?: string): { month: string; year: string } {
@@ -2045,6 +4106,25 @@ export class MakeCvComponent implements OnInit, OnDestroy {
       next: () => this.toast.success('Draft saved!'),
       error: () => this.toast.error('Could not save your draft.'),
     });
+  }
+
+  onDownloadClick() {
+    if (this.isPaid() || this.auth.isStaffOrAdmin()) {
+      this.showDownloadModal.set(true);
+    } else {
+      this.showKhqrModal.set(true);
+    }
+  }
+
+  onKhqrPaymentSuccess(evt: { orderId: number; format?: 'pdf' | 'docx' | 'pptx' }) {
+    this.isPaid.set(true);
+    this.toast.success('Payment successful! Watermark removed.');
+    this.showKhqrModal.set(false);
+    if (evt.format) {
+      this.downloadAs(evt.format);
+    } else {
+      this.showDownloadModal.set(true);
+    }
   }
 
   async downloadAs(format: 'pdf' | 'docx' | 'pptx') {
@@ -2143,5 +4223,6 @@ ${cvHtml}
 
   ngOnDestroy() {
     if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
+    this.previewResizeObserver?.disconnect();
   }
 }

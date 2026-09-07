@@ -38,12 +38,27 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'payments',
+    loadComponent: () =>
+      import('./features/payments/user-payments.component').then(m => m.UserPaymentsComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'my-payments',
+    redirectTo: 'payments',
+    pathMatch: 'full',
+  },
+  {
     path: 'login',
     loadComponent: () => import('./features/auth/login.component').then(m => m.LoginComponent),
   },
   {
     path: 'register',
     loadComponent: () => import('./features/auth/register.component').then(m => m.RegisterComponent),
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./features/auth/forgot-password.component').then(m => m.ForgotPasswordComponent),
   },
   {
     path: 'about',
@@ -54,9 +69,18 @@ export const routes: Routes = [
     loadComponent: () => import('./features/contact/contact.component').then(m => m.ContactComponent),
   },
   {
+    path: 'help',
+    loadComponent: () => import('./features/help/help.component').then(m => m.HelpComponent),
+  },
+  {
     path: 'settings',
     loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent),
     canActivate: [authGuard],
+  },
+  {
+    path: 'setting',
+    redirectTo: 'settings',
+    pathMatch: 'full',
   },
   {
     path: 'admin',

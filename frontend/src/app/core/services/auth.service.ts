@@ -8,7 +8,7 @@ export interface AuthUser {
   fullName: string;
   email: string;
   avatarUrl?: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'staff' | 'admin';
   isApproved?: boolean;
 }
 
@@ -24,6 +24,25 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return !!this.currentUser() && !!localStorage.getItem(TOKEN_KEY);
+  }
+
+  isStaffOrAdmin(): boolean {
+    const u = this.currentUser();
+    return u?.role === 'admin' || (u?.role === 'staff' && !!u?.isApproved);
+  }
+
+  isAdmin(): boolean {
+    const u = this.currentUser();
+    return u?.role === 'admin';
+  }
+
+  setSession(token: string, user: AuthUser, returnUrl = '/') {
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    this.currentUser.set(user);
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    }
   }
 
   login(email: string, password: string, returnUrl = '/') {

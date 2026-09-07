@@ -123,6 +123,24 @@ CREATE TABLE reviews (
 CREATE INDEX idx_reviews_template_id ON reviews(template_id);
 
 -- ---------------------------------------------------------
+-- PASSWORD_RESET_OTPS
+-- ---------------------------------------------------------
+CREATE TABLE password_reset_otps (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id       INTEGER           NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  method        TEXT              NOT NULL CHECK (method IN ('email', 'sms')),
+  destination   TEXT              NOT NULL,
+  otp_code      TEXT              NOT NULL,
+  reset_token   TEXT,
+  is_used       INTEGER           NOT NULL DEFAULT 0,
+  expires_at    DATETIME          NOT NULL,
+  created_at    DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_otps_destination ON password_reset_otps(destination);
+CREATE INDEX idx_otps_token       ON password_reset_otps(reset_token);
+
+-- ---------------------------------------------------------
 -- Triggers
 -- ---------------------------------------------------------
 

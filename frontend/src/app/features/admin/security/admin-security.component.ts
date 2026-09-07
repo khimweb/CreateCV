@@ -1,179 +1,494 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { LucideAngularModule, Search, Trash2, Shield, Wifi, WifiOff } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  Shield,
+  ShieldCheck,
+  ShieldAlert,
+  Wifi,
+  WifiOff,
+  Search,
+  Trash2,
+  RefreshCw,
+  Filter,
+  Clock,
+  Monitor,
+  Laptop,
+  Smartphone,
+  Globe,
+  User,
+  Users,
+  CircleCheck,
+  CircleAlert,
+  TriangleAlert,
+  Key,
+  LogIn,
+  LogOut,
+  UserPlus,
+  Download,
+  ExternalLink,
+  Copy,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  LayoutGrid,
+  List,
+  Sparkles,
+  X,
+  Eye,
+  FileText,
+  Activity,
+  ArrowUpDown,
+  CheckCheck
+} from 'lucide-angular';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
-interface ActivityLog {
+export interface ActivityLog {
   id: number;
   user_id: number;
   email: string;
-  full_name: string;
+  full_name?: string;
+  role?: string;
+  is_active?: boolean | number;
   action: string;
   ip_address: string;
   user_agent: string;
   created_at: string;
-  is_active: boolean;
 }
 
-interface OnlineUser {
+export interface OnlineUser {
   id: number;
   full_name: string;
   email: string;
+  role?: string;
+  is_active?: boolean | number;
   last_login_at: string;
   is_online: number;
+}
+
+export interface SecurityStats {
+  total: number;
+  logins: number;
+  failed: number;
+  registers: number;
+  logouts: number;
+  online: number;
+}
+
+export interface ParsedClient {
+  browser: string;
+  os: string;
+  device: 'desktop' | 'mobile' | 'tablet' | 'bot';
 }
 
 @Component({
   selector: 'app-admin-security',
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
-  template: `
-    <!-- Header -->
-    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-      <div>
-        <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Security</h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Monitor user activity and login history</p>
-      </div>
-    </div>
-
-    <!-- Online Users Section -->
-    <div class="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 mb-6 shadow-sm">
-      <h2 class="font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-        <lucide-icon [img]="Wifi" class="w-4 h-4 text-emerald-500" /> User Status
-      </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        @for (u of onlineUsers(); track u.id) {
-          <div class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50">
-            <div class="relative">
-              <div class="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-400">
-                {{ u.full_name?.slice(0,1) }}
-              </div>
-              <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-slate-800"
-                    [class.bg-emerald-500]="u.is_online" [class.bg-slate-300]="!u.is_online"></span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{{ u.full_name }}</p>
-              <p class="text-[11px] flex items-center gap-1"
-                 [class.text-emerald-500]="u.is_online" [class.text-slate-400]="!u.is_online">
-                @if (u.is_online) {
-                  <lucide-icon [img]="Wifi" class="w-3 h-3" /> Online
-                } @else {
-                  <lucide-icon [img]="WifiOff" class="w-3 h-3" /> Offline
-                }
-              </p>
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-
-    <!-- Activity Log Section -->
-    <div class="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-      <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center gap-3">
-        <h2 class="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
-          <lucide-icon [img]="Shield" class="w-4 h-4 text-indigo-500" /> Activity Log
-        </h2>
-        <div class="flex-1"></div>
-        <select [(ngModel)]="actionFilter" (ngModelChange)="loadLogs()"
-                class="px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs">
-          <option value="">All actions</option>
-          <option value="login">Login</option>
-          <option value="logout">Logout</option>
-          <option value="register">Register</option>
-          <option value="login_failed">Failed Login</option>
-        </select>
-        <div class="relative">
-          <lucide-icon [img]="Search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-          <input [(ngModel)]="searchLog" (ngModelChange)="loadLogs()" placeholder="Search..."
-                 class="pl-8 pr-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs w-40
-                        focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-        </div>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400">
-            <tr>
-              <th class="text-left px-5 py-3 font-medium text-xs">User</th>
-              <th class="text-left px-5 py-3 font-medium text-xs">Action</th>
-              <th class="text-left px-5 py-3 font-medium text-xs">IP Address</th>
-              <th class="text-left px-5 py-3 font-medium text-xs">Date & Time</th>
-              <th class="text-right px-5 py-3 font-medium text-xs"></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (log of logs(); track log.id) {
-              <tr class="border-t border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors">
-                <td class="px-5 py-3">
-                  <div>
-                    <p class="text-slate-700 dark:text-slate-200 text-xs font-medium">{{ log.full_name || 'Unknown' }}</p>
-                    <p class="text-[11px] text-slate-400">{{ log.email }}</p>
-                  </div>
-                </td>
-                <td class="px-5 py-3">
-                  <span class="px-2 py-0.5 rounded text-[11px] font-medium"
-                        [ngClass]="{
-                          'bg-emerald-50 text-emerald-600': log.action === 'login',
-                          'bg-slate-100 text-slate-500': log.action === 'logout',
-                          'bg-blue-50 text-blue-600': log.action === 'register',
-                          'bg-red-50 text-red-500': log.action === 'login_failed'
-                        }">
-                    {{ log.action === 'login_failed' ? 'Failed' : log.action }}
-                  </span>
-                </td>
-                <td class="px-5 py-3 text-xs text-slate-400 font-mono">{{ log.ip_address || '—' }}</td>
-                <td class="px-5 py-3 text-xs text-slate-400">{{ log.created_at }}</td>
-                <td class="px-5 py-3 text-right">
-                  <button type="button" (click)="deleteLog(log.id)"
-                          class="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-500/10 text-red-400 hover:text-red-500 transition-colors">
-                    <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
-                  </button>
-                </td>
-              </tr>
-            }
-            @if (logs().length === 0) {
-              <tr>
-                <td colspan="5" class="px-5 py-8 text-center text-sm text-slate-400">No activity logs found</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `,
+  templateUrl: './admin-security.component.html',
+  styleUrls: ['./admin-security.component.css'],
 })
-export class AdminSecurityComponent implements OnInit {
-  readonly Search = Search;
-  readonly Trash2 = Trash2;
+export class AdminSecurityComponent implements OnInit, OnDestroy {
+  // Lucide icon handles
   readonly Shield = Shield;
+  readonly ShieldCheck = ShieldCheck;
+  readonly ShieldAlert = ShieldAlert;
   readonly Wifi = Wifi;
   readonly WifiOff = WifiOff;
+  readonly Search = Search;
+  readonly Trash2 = Trash2;
+  readonly RefreshCw = RefreshCw;
+  readonly Filter = Filter;
+  readonly Clock = Clock;
+  readonly Monitor = Monitor;
+  readonly Laptop = Laptop;
+  readonly Smartphone = Smartphone;
+  readonly Globe = Globe;
+  readonly User = User;
+  readonly Users = Users;
+  readonly CircleCheck = CircleCheck;
+  readonly CircleAlert = CircleAlert;
+  readonly TriangleAlert = TriangleAlert;
+  readonly Key = Key;
+  readonly LogIn = LogIn;
+  readonly LogOut = LogOut;
+  readonly UserPlus = UserPlus;
+  readonly Download = Download;
+  readonly ExternalLink = ExternalLink;
+  readonly Copy = Copy;
+  readonly Check = Check;
+  readonly ChevronLeft = ChevronLeft;
+  readonly ChevronRight = ChevronRight;
+  readonly LayoutGrid = LayoutGrid;
+  readonly List = List;
+  readonly Sparkles = Sparkles;
+  readonly X = X;
+  readonly Eye = Eye;
+  readonly FileText = FileText;
+  readonly Activity = Activity;
+  readonly ArrowUpDown = ArrowUpDown;
+  readonly CheckCheck = CheckCheck;
+  readonly Math = Math;
 
+  private http = inject(HttpClient);
+  private autoRefreshTimer: any = null;
+
+  // State Signals
   logs = signal<ActivityLog[]>([]);
+  totalLogs = signal<number>(0);
   onlineUsers = signal<OnlineUser[]>([]);
-  searchLog = '';
-  actionFilter = '';
+  stats = signal<SecurityStats>({
+    total: 0,
+    logins: 0,
+    failed: 0,
+    registers: 0,
+    logouts: 0,
+    online: 0,
+  });
 
-  constructor(private http: HttpClient) {}
+  loading = signal<boolean>(false);
+  autoRefresh = signal<boolean>(true);
+
+  // Filters & Pagination
+  searchLog = signal<string>('');
+  actionFilter = signal<string>(''); // '', 'login', 'login_failed', 'register', 'logout'
+  selectedUser = signal<OnlineUser | null>(null);
+  userStatusFilter = signal<'all' | 'online' | 'admin'>('all');
+  viewMode = signal<'table' | 'cards'>('table');
+  page = signal<number>(1);
+  pageSize = signal<number>(25);
+
+  // Interactivity state
+  inspectingLog = signal<ActivityLog | null>(null);
+  showClearConfirm = signal<boolean>(false);
+  copiedIp = signal<string | null>(null);
+  copiedUa = signal<boolean>(false);
+  successToast = signal<string | null>(null);
+  private toast = inject(ToastService);
+
+  // Computed Values
+  totalPages = computed(() => Math.max(1, Math.ceil(this.totalLogs() / this.pageSize())));
+
+  filteredOnlineUsers = computed(() => {
+    const list = this.onlineUsers();
+    const filter = this.userStatusFilter();
+    if (filter === 'online') {
+      return list.filter((u) => u.is_online === 1);
+    }
+    if (filter === 'admin') {
+      return list.filter((u) => u.role === 'admin');
+    }
+    return list;
+  });
+
+  onlineCount = computed(() => {
+    return this.onlineUsers().filter((u) => u.is_online === 1).length;
+  });
+
+  loginSuccessRate = computed(() => {
+    const total = this.stats().logins + this.stats().failed;
+    if (!total) return 100;
+    return Math.round((this.stats().logins / total) * 100);
+  });
 
   ngOnInit() {
+    this.loadAll();
+    this.startAutoRefresh();
+  }
+
+  ngOnDestroy() {
+    this.stopAutoRefresh();
+  }
+
+  loadAll() {
     this.loadLogs();
     this.loadOnlineUsers();
   }
 
-  loadLogs() {
-    this.http.get<{ logs: ActivityLog[] }>('/api/v1/admin/security/logs', {
-      params: { search: this.searchLog, action: this.actionFilter },
-    }).subscribe(({ logs }) => this.logs.set(logs));
+  loadLogs(isSilent = false) {
+    if (!isSilent) this.loading.set(true);
+
+    const params: any = {
+      page: this.page(),
+      pageSize: this.pageSize(),
+      search: this.searchLog().trim(),
+      action: this.actionFilter(),
+    };
+
+    if (this.selectedUser()) {
+      params.userId = this.selectedUser()!.id;
+    }
+
+    this.http.get<{ logs: ActivityLog[]; total: number; stats?: SecurityStats }>('/api/v1/admin/security/logs', { params })
+      .subscribe({
+        next: (res) => {
+          this.logs.set(res.logs || []);
+          this.totalLogs.set(res.total || 0);
+          if (res.stats) {
+            this.stats.set(res.stats);
+          }
+          if (!isSilent) this.loading.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load security logs:', err);
+          if (!isSilent) this.loading.set(false);
+        }
+      });
   }
 
   loadOnlineUsers() {
     this.http.get<{ users: OnlineUser[] }>('/api/v1/admin/security/online-users')
-      .subscribe(({ users }) => this.onlineUsers.set(users));
+      .subscribe({
+        next: (res) => {
+          this.onlineUsers.set(res.users || []);
+        },
+        error: (err) => {
+          console.error('Failed to load online users:', err);
+        }
+      });
   }
 
-  deleteLog(id: number) {
-    this.http.delete(`/api/v1/admin/security/logs/${id}`).subscribe(() => this.loadLogs());
+  startAutoRefresh() {
+    this.stopAutoRefresh();
+    if (this.autoRefresh()) {
+      this.autoRefreshTimer = setInterval(() => {
+        this.loadLogs(true);
+        this.loadOnlineUsers();
+      }, 15000);
+    }
+  }
+
+  stopAutoRefresh() {
+    if (this.autoRefreshTimer) {
+      clearInterval(this.autoRefreshTimer);
+      this.autoRefreshTimer = null;
+    }
+  }
+
+  toggleAutoRefresh() {
+    const next = !this.autoRefresh();
+    this.autoRefresh.set(next);
+    if (next) {
+      this.startAutoRefresh();
+      this.showToast('Auto-refresh enabled (15s)');
+    } else {
+      this.stopAutoRefresh();
+      this.showToast('Auto-refresh paused');
+    }
+  }
+
+  // Filter handlers
+  setActionFilter(action: string) {
+    this.actionFilter.set(action);
+    this.page.set(1);
+    this.loadLogs();
+  }
+
+  onSearchChange() {
+    this.page.set(1);
+    this.loadLogs();
+  }
+
+  clearSearch() {
+    this.searchLog.set('');
+    this.page.set(1);
+    this.loadLogs();
+  }
+
+  filterByUser(u: OnlineUser) {
+    if (this.selectedUser()?.id === u.id) {
+      this.selectedUser.set(null);
+    } else {
+      this.selectedUser.set(u);
+      this.showToast(`Filtering logs for ${u.full_name || u.email}`);
+    }
+    this.page.set(1);
+    this.loadLogs();
+  }
+
+  clearUserFilter() {
+    this.selectedUser.set(null);
+    this.page.set(1);
+    this.loadLogs();
+  }
+
+  setUserStatusFilter(tab: 'all' | 'online' | 'admin') {
+    this.userStatusFilter.set(tab);
+  }
+
+  // Pagination
+  goToPage(p: number) {
+    if (p < 1 || p > this.totalPages()) return;
+    this.page.set(p);
+    this.loadLogs();
+  }
+
+  setPageSize(size: number) {
+    this.pageSize.set(size);
+    this.page.set(1);
+    this.loadLogs();
+  }
+
+  // Clipboard
+  copyIp(ip: string, event?: Event) {
+    if (event) event.stopPropagation();
+    if (!ip) return;
+    navigator.clipboard.writeText(ip).then(() => {
+      this.copiedIp.set(ip);
+      this.showToast(`IP copied: ${ip}`);
+      setTimeout(() => {
+        if (this.copiedIp() === ip) this.copiedIp.set(null);
+      }, 2000);
+    });
+  }
+
+  copyUserAgent(ua: string) {
+    if (!ua) return;
+    navigator.clipboard.writeText(ua).then(() => {
+      this.copiedUa.set(true);
+      this.showToast('User agent copied to clipboard');
+      setTimeout(() => this.copiedUa.set(false), 2000);
+    });
+  }
+
+  // Actions
+  inspectLog(log: ActivityLog) {
+    this.inspectingLog.set(log);
+  }
+
+  closeInspect() {
+    this.inspectingLog.set(null);
+    this.copiedUa.set(false);
+  }
+
+  deleteLog(id: number, event?: Event) {
+    if (event) event.stopPropagation();
+    if (!confirm('Are you sure you want to delete this security log entry?')) return;
+
+    this.http.delete(`/api/v1/admin/security/logs/${id}`).subscribe({
+      next: () => {
+        this.showToast('Log entry deleted');
+        if (this.inspectingLog()?.id === id) {
+          this.closeInspect();
+        }
+        this.loadLogs();
+      },
+      error: (err) => console.error('Failed to delete log:', err)
+    });
+  }
+
+  openClearConfirm() {
+    this.showClearConfirm.set(true);
+  }
+
+  cancelClearConfirm() {
+    this.showClearConfirm.set(false);
+  }
+
+  confirmClearAll() {
+    this.http.delete('/api/v1/admin/security/logs').subscribe({
+      next: () => {
+        this.showClearConfirm.set(false);
+        this.showToast('All activity logs cleared successfully');
+        this.loadLogs();
+      },
+      error: (err) => {
+        console.error('Failed to clear logs:', err);
+        this.showClearConfirm.set(false);
+      }
+    });
+  }
+
+  // Export logs
+  exportLogs(format: 'csv' | 'json') {
+    const list = this.logs();
+    if (!list.length) {
+      this.toast.warning('No logs available to export.');
+      return;
+    }
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    let blob: Blob;
+    let filename: string;
+
+    if (format === 'json') {
+      const dataStr = JSON.stringify(list, null, 2);
+      blob = new Blob([dataStr], { type: 'application/json' });
+      filename = `security-audit-logs-${timestamp}.json`;
+    } else {
+      const headers = ['ID', 'User ID', 'User Name', 'Email', 'Role', 'Action', 'IP Address', 'User Agent', 'Date UTC'];
+      const rows = list.map((l) => [
+        l.id,
+        l.user_id || '',
+        `"${(l.full_name || '').replace(/"/g, '""')}"`,
+        `"${(l.email || '').replace(/"/g, '""')}"`,
+        l.role || '',
+        l.action,
+        `"${l.ip_address || ''}"`,
+        `"${(l.user_agent || '').replace(/"/g, '""')}"`,
+        `"${l.created_at || ''}"`,
+      ]);
+      const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+      blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      filename = `security-audit-logs-${timestamp}.csv`;
+    }
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    this.showToast(`Exported ${list.length} records as ${format.toUpperCase()}`);
+  }
+
+  // Helpers
+  parseUserAgent(ua: string): ParsedClient {
+    if (!ua) return { browser: 'Unknown', os: 'Unknown OS', device: 'desktop' };
+
+    let os = 'Unknown OS';
+    if (ua.includes('Macintosh') || ua.includes('Mac OS')) os = 'macOS';
+    else if (ua.includes('Windows')) os = 'Windows';
+    else if (ua.includes('Android')) os = 'Android';
+    else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+    else if (ua.includes('Linux')) os = 'Linux';
+
+    let browser = 'Unknown Browser';
+    if (ua.includes('Edg/')) browser = 'Edge';
+    else if (ua.includes('Chrome/') && !ua.includes('Edg/')) browser = 'Chrome';
+    else if (ua.includes('Safari/') && !ua.includes('Chrome/')) browser = 'Safari';
+    else if (ua.includes('Firefox/')) browser = 'Firefox';
+    else if (ua.includes('Postman')) browser = 'Postman';
+    else if (ua.includes('curl/')) browser = 'cURL';
+
+    let device: 'desktop' | 'mobile' | 'tablet' | 'bot' = 'desktop';
+    if (ua.includes('Mobile') || ua.includes('iPhone') || ua.includes('Android')) device = 'mobile';
+    else if (ua.includes('iPad') || ua.includes('Tablet')) device = 'tablet';
+    else if (ua.includes('bot') || ua.includes('crawler')) device = 'bot';
+
+    return { browser, os, device };
+  }
+
+  formatRelativeTime(dateStr: string): string {
+    if (!dateStr) return 'Never';
+    const date = new Date(dateStr.replace(' ', 'T') + 'Z');
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    if (diffMs < 0 || isNaN(diffMs)) return dateStr;
+
+    const diffSecs = Math.floor(diffMs / 1000);
+    if (diffSecs < 60) return 'Just now';
+    const diffMins = Math.floor(diffSecs / 60);
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 30) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  }
+
+  private showToast(msg: string) {
+    this.toast.info(msg);
   }
 }

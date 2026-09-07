@@ -19,11 +19,11 @@ interface CvHobby { name?: string; }
       <div class="photo" [class.has-photo]="photoUrl" [style.background-image]="photoUrl ? 'url(' + photoUrl + ')' : null"><span *ngIf="!photoUrl">{{ initials }}</span></div>
       <aside class="sidebar">
         <div class="sidebar-spacer"></div>
-        <section *ngIf="summary" class="sidebar-section about"><h2>About me</h2><p>{{ summary }}</p></section>
-        <section *ngIf="education.length" class="sidebar-section"><h2>Education</h2><div class="education" *ngFor="let item of education"><strong>{{ item.degree || item.field || 'Education' }}</strong><span>{{ item.institution }}</span><small>{{ educationDates(item) }}</small><p *ngIf="item.description">{{ item.description }}</p></div></section>
-        <section *ngIf="skills.length" class="sidebar-section"><h2>Skills</h2><div class="skill" *ngFor="let skill of skills"><div><span>{{ skill.name }}</span><em>{{ skill.level }}</em></div><i><b [style.width.%]="skillPercent(skill.level)"></b></i></div></section>
-        <section *ngIf="languages.length" class="sidebar-section"><h2>Languages</h2><div class="language" *ngFor="let language of languages"><span>{{ language.name }}</span><small>{{ language.proficiency || 'Working proficiency' }}</small></div></section>
-        <section *ngIf="hobbyNames.length" class="sidebar-section hobbies"><h2>Interests</h2><span *ngFor="let hobby of hobbyNames">{{ hobby }}</span></section>
+        <section *ngIf="summary" class="sidebar-section about" [style.order]="getSectionOrder('Personal Information')"><h2>{{ lbl('Personal Information', 'About me') }}</h2><p>{{ summary }}</p></section>
+        <section *ngIf="education.length" class="sidebar-section" [style.order]="getSectionOrder('Education')"><h2>{{ lbl('Education', 'Education') }}</h2><div class="education" *ngFor="let item of education"><strong>{{ item.degree || item.field || 'Education' }}</strong><span>{{ item.institution }}</span><small>{{ educationDates(item) }}</small><p *ngIf="item.description">{{ item.description }}</p></div></section>
+        <section *ngIf="skills.length" class="sidebar-section" [style.order]="getSectionOrder('Skills')"><h2>{{ lbl('Skills', 'Skills') }}</h2><div class="skill" *ngFor="let skill of skills"><div><span>{{ skill.name }}</span><em>{{ skill.level }}</em></div><i><b [style.width.%]="skillPercent(skill.level)"></b></i></div></section>
+        <section *ngIf="languages.length" class="sidebar-section" [style.order]="getSectionOrder('Languages')"><h2>{{ lbl('Languages', 'Languages') }}</h2><div class="language" *ngFor="let language of languages"><span>{{ language.name }}</span><small>{{ language.proficiency || 'Working proficiency' }}</small></div></section>
+        <section *ngIf="hobbyNames.length" class="sidebar-section hobbies" [style.order]="getSectionOrder('Hobbies')"><h2>{{ lbl('Hobbies', 'Interests') }}</h2><span *ngFor="let hobby of hobbyNames">{{ hobby }}</span></section>
       </aside>
       <main class="content">
         <header class="hero">
@@ -36,10 +36,10 @@ interface CvHobby { name?: string; }
           <div class="contact-item" *ngIf="email"><i>✉</i><span>{{ email }}</span></div>
           <div class="contact-item" *ngIf="location"><i>⌖</i><span>{{ location }}</span></div>
         </section>
-        <section *ngIf="experience.length" class="main-section"><h2>Experience</h2><div class="timeline"><article *ngFor="let item of experience" class="timeline-item"><i class="timeline-node" aria-hidden="true"></i><div class="timeline-body"><div class="timeline-header"><h3>{{ item.position || 'Position' }}</h3><time>{{ experienceDates(item) }}</time></div><h4>{{ item.company }}</h4><p *ngFor="let responsibility of item.responsibilities">{{ responsibility }}</p></div></article></div></section>
-        <section *ngIf="certifications.length" class="main-section compact"><h2>Certificates</h2><div class="compact-grid"><article *ngFor="let cert of certifications"><strong>{{ cert.name }}</strong><span>{{ cert.issuer }}<ng-container *ngIf="cert.issuer && cert.date"> · </ng-container>{{ cert.date }}</span></article></div></section>
-        <section *ngIf="projects.length" class="main-section compact"><h2>Selected projects</h2><div class="compact-grid"><article *ngFor="let project of projects"><strong>{{ project.name }}</strong><span>{{ project.description || project.link }}</span></article></div></section>
-        <section *ngIf="references.length" class="main-section references"><h2>References</h2><div class="reference-grid"><article *ngFor="let reference of references"><strong>{{ reference.name }}</strong><span>{{ reference.position }}<ng-container *ngIf="reference.company"> · {{ reference.company }}</ng-container></span><small *ngIf="reference.phone || reference.email">{{ reference.phone }}<ng-container *ngIf="reference.phone && reference.email"> · </ng-container>{{ reference.email }}</small></article></div></section>
+        <section *ngIf="experience.length" class="main-section" [style.order]="getSectionOrder('Work Experience')"><h2>{{ lbl('Work Experience', 'Experience') }}</h2><div class="timeline"><article *ngFor="let item of experience" class="timeline-item"><i class="timeline-node" aria-hidden="true"></i><div class="timeline-body"><div class="timeline-header"><h3>{{ item.position || 'Position' }}</h3><time>{{ experienceDates(item) }}</time></div><h4>{{ item.company }}</h4><p *ngFor="let responsibility of item.responsibilities">{{ responsibility }}</p></div></article></div></section>
+        <section *ngIf="certifications.length" class="main-section compact" [style.order]="getSectionOrder('Certifications')"><h2>{{ lbl('Certifications', 'Certificates') }}</h2><div class="compact-grid"><article *ngFor="let cert of certifications"><strong>{{ cert.name }}</strong><span>{{ cert.issuer }}<ng-container *ngIf="cert.issuer && cert.date"> · </ng-container>{{ cert.date }}</span></article></div></section>
+        <section *ngIf="projects.length" class="main-section compact" [style.order]="getSectionOrder('Projects')"><h2>{{ lbl('Projects', 'Selected projects') }}</h2><div class="compact-grid"><article *ngFor="let project of projects"><strong>{{ project.name }}</strong><span>{{ project.description || project.link }}</span></article></div></section>
+        <section *ngIf="references.length" class="main-section references" [style.order]="getSectionOrder('References')"><h2>{{ lbl('References', 'References') }}</h2><div class="reference-grid"><article *ngFor="let reference of references"><strong>{{ reference.name }}</strong><span>{{ reference.position }}<ng-container *ngIf="reference.company"> · {{ reference.company }}</ng-container></span><small *ngIf="reference.phone || reference.email">{{ reference.phone }}<ng-container *ngIf="reference.phone && reference.email"> · </ng-container>{{ reference.email }}</small></article></div></section>
       </main>
     </article>
   `,
@@ -48,9 +48,12 @@ interface CvHobby { name?: string; }
     :host { display: block; }
     .cv-paper { --accent: #A87C64; --fs: 10px; --fw: 400; --lh: 1.42; --font: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; position: relative; display: grid; grid-template-columns: 32% 68%; width: 210mm; min-height: 297mm; overflow: hidden; background: #FAF8F5; color: #2C1E18; font-family: var(--font); font-size: var(--fs); font-weight: var(--fw); line-height: var(--lh); box-sizing: border-box; }
     .photo { position: absolute; z-index: 3; top: 8mm; left: 14mm; width: 39mm; height: 39mm; display: grid; place-items: center; border: 1.5mm solid #FAF8F5; border-radius: 50%; overflow: hidden; background: #6d4d3d center / cover no-repeat; color: #FAF8F5; font-family: Georgia, serif; font-size: 20px; font-weight: 700; letter-spacing: .06em; box-shadow: 0 4px 15px rgba(0,0,0,.28), 0 0 0 1px rgba(44,30,24,.25); }
-    .sidebar { min-height: 297mm; padding: 0 6mm 11mm; box-sizing: border-box; background: #2C1E18; color: #F7EEE8; }
+    .sidebar { min-height: 297mm; padding: 0 6mm 11mm; box-sizing: border-box; background: #2C1E18; color: #F7EEE8; display: flex; flex-direction: column; }
+    .sidebar-spacer { order: 0; }
     .sidebar-spacer { height: 55mm; }
-    .content { min-width: 0; padding-bottom: 13mm; }
+    .content { min-width: 0; padding-bottom: 13mm; display: flex; flex-direction: column; }
+    .hero { order: 0; }
+    .contact { order: 1; }
     .hero { min-height: 42mm; box-sizing: border-box; margin-top: 10mm; padding: 9mm 13mm 9mm 8mm; background: var(--accent); color: #fffaf7; }
     .hero h1 { margin: 0 0 1.5mm; font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; font-size: calc(var(--fs) * 2.6); font-weight: 700; line-height: 1.08; letter-spacing: .08em; text-transform: uppercase; }
     .role { margin: 0; font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; font-size: calc(var(--fs) * 1.4); font-weight: 400; letter-spacing: .1em; line-height: 1.3; text-transform: none; }
@@ -113,6 +116,60 @@ export class WarmTaupeTimelineCvComponent {
   @Input() name = ''; @Input() jobTitle = ''; @Input() email = ''; @Input() phone = ''; @Input() location = ''; @Input() linkedin = ''; @Input() summary = ''; @Input() photoUrl: string | null = null;
   @Input() education: CvEducation[] = []; @Input() experience: CvExperience[] = []; @Input() skills: CvSkill[] = []; @Input() languages: CvLanguage[] = []; @Input() certifications: CvCertification[] = []; @Input() projects: CvProject[] = []; @Input() references: CvReference[] = []; @Input() hobbies: CvHobby[] = [];
   @Input() fontSize = 10; @Input() fontWeight = 400; @Input() lineHeight = 1.42; @Input() fontFamily = "'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
+  @Input() sectionLabels: Record<string, string> = {};
+  @Input() sectionOrder: string[] = [];
+
+  getSectionOrder(key: string): number {
+    if (!this.sectionOrder || !this.sectionOrder.length) return 0;
+    const k = key.toLowerCase().replace(/[^a-z]/g, '');
+    for (let i = 0; i < this.sectionOrder.length; i++) {
+      const sk = this.sectionOrder[i].toLowerCase().replace(/[^a-z]/g, '');
+      if (sk === k || (k.includes('project') && sk.includes('project')) || (k.includes('ref') && sk.includes('ref')) || (k.includes('cert') && sk.includes('cert')) || (k.includes('work') && sk.includes('work')) || (k.includes('exp') && sk.includes('exp')) || (k.includes('edu') && sk.includes('edu')) || (k.includes('skill') && sk.includes('skill')) || (k.includes('lang') && sk.includes('lang')) || (k.includes('hobb') && sk.includes('hobb')) || ((k.includes('about') || k.includes('profile')) && (sk.includes('personal') || sk.includes('about') || sk.includes('profile')))) {
+        return i + 1;
+      }
+    }
+    return 0;
+  }
+
+
+  lbl(key: string, fallback?: string): string {
+    if (!this.sectionLabels) return fallback ?? key;
+    if (this.sectionLabels[key]) return this.sectionLabels[key];
+    const k = key.toLowerCase().replace(/[^a-z]/g, '');
+    for (const [sKey, val] of Object.entries(this.sectionLabels)) {
+      const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
+      if (sk === k) return val;
+      if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
+          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+        return val;
+      }
+      if ((k.includes('work') || k.includes('experience')) &&
+          (sk.includes('work') || sk.includes('experience'))) {
+        return val;
+      }
+      if ((k.includes('project')) && (sk.includes('project'))) {
+        return val;
+      }
+      if ((k.includes('skill')) && (sk.includes('skill'))) {
+        return val;
+      }
+      if ((k.includes('certif')) && (sk.includes('certif'))) {
+        return val;
+      }
+      if ((k.includes('lang')) && (sk.includes('lang'))) {
+        return val;
+      }
+      if ((k.includes('ref')) && (sk.includes('ref'))) {
+        return val;
+      }
+      if ((k.includes('hobb') || k.includes('interest') || k.includes('strength')) &&
+          (sk.includes('hobb') || sk.includes('interest') || sk.includes('strength'))) {
+        return val;
+      }
+    }
+    return fallback ?? key;
+  }
+
   get initials() { return this.name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'CV'; }
   get hasContact() { return !!(this.email || this.phone || this.location || this.linkedin); }
   get hobbyNames() { return this.hobbies.map(hobby => typeof hobby === 'string' ? hobby : hobby?.name).filter(Boolean) as string[]; }

@@ -102,67 +102,73 @@ export interface CvTypography {
       <main class="cv-body">
         <section class="timeline">
           @if (experience.length) {
-            <h2>Work Experience</h2>
-            @for (job of experience; track $index) {
-              <div class="job">
-                <i></i>
-                <h3>
-                  {{ job.position || 'Position' }}
-                  <small>{{ formatRange(job.startDate, job.endDate, job.current) }}</small>
-                </h3>
-                <em>{{ job.company }}</em>
-                @if (job.responsibilities?.length) {
-                  <ul>
-                    @for (r of job.responsibilities; track $index) {
-                      @if (r) {
-                        <li>{{ r }}</li>
+            <div class="sec-wrap" [style.order]="getSectionOrder('Work Experience')">
+              <h2>{{ lbl("Work Experience") }}</h2>
+              @for (job of experience; track $index) {
+                <div class="job">
+                  <i></i>
+                  <h3>
+                    {{ job.position || 'Position' }}
+                    <small>{{ formatRange(job.startDate, job.endDate, job.current) }}</small>
+                  </h3>
+                  <em>{{ job.company }}</em>
+                  @if (job.responsibilities?.length) {
+                    <ul>
+                      @for (r of job.responsibilities; track $index) {
+                        @if (r) {
+                          <li>{{ r }}</li>
+                        }
                       }
-                    }
-                  </ul>
-                }
-              </div>
-            }
+                    </ul>
+                  }
+                </div>
+              }
+            </div>
           }
 
           @if (education.length) {
-            <h2>Education</h2>
-            @for (ed of education; track $index) {
-              <div class="job">
-                <i></i>
-                <h3>
-                  {{ degreeLine(ed) }}
-                  <small>{{ formatRange(ed.startYear, ed.endYear, ed.current) }}</small>
-                </h3>
-                <em>{{ ed.institution }}</em>
-                @if (ed.gpa) {
-                  <p>GPA: {{ ed.gpa }}</p>
-                }
-                @if (ed.description) {
-                  <p>{{ ed.description }}</p>
-                }
-              </div>
-            }
+            <div class="sec-wrap" [style.order]="getSectionOrder('Education')">
+              <h2>{{ lbl("Education") }}</h2>
+              @for (ed of education; track $index) {
+                <div class="job">
+                  <i></i>
+                  <h3>
+                    {{ degreeLine(ed) }}
+                    <small>{{ formatRange(ed.startYear, ed.endYear, ed.current) }}</small>
+                  </h3>
+                  <em>{{ ed.institution }}</em>
+                  @if (ed.gpa) {
+                    <p>GPA: {{ ed.gpa }}</p>
+                  }
+                  @if (ed.description) {
+                    <p>{{ ed.description }}</p>
+                  }
+                </div>
+              }
+            </div>
           }
 
           @if (projects.length) {
-            <h2>Projects</h2>
-            @for (p of projects; track $index) {
-              <div class="job">
-                <i></i>
-                <h3>{{ p.name }}</h3>
-                @if (p.description) {
-                  <p>{{ p.description }}</p>
-                }
-                @if (p.link) {
-                  <a [href]="p.link" target="_blank" rel="noopener">{{ p.link }}</a>
-                }
-              </div>
-            }
+            <div class="sec-wrap" [style.order]="getSectionOrder('Projects')">
+              <h2>{{ lbl("Projects") }}</h2>
+              @for (p of projects; track $index) {
+                <div class="job">
+                  <i></i>
+                  <h3>{{ p.name }}</h3>
+                  @if (p.description) {
+                    <p>{{ p.description }}</p>
+                  }
+                  @if (p.link) {
+                    <a [href]="p.link" target="_blank" rel="noopener">{{ p.link }}</a>
+                  }
+                </div>
+              }
+            </div>
           }
         </section>
         <aside>
           @if (skills.length) {
-            <h2>Skills</h2>
+            <h2>{{ lbl("Skills") }}</h2>
             <div class="skills">
               @for (s of skills; track $index) {
                 @if (s.name) {
@@ -173,7 +179,7 @@ export interface CvTypography {
             </div>
           }
           @if (languages.length) {
-            <h2>Languages</h2>
+            <h2>{{ lbl("Languages") }}</h2>
             <div class="labels">
               @for (l of languages; track $index) {
                 @if (l.name) {
@@ -183,7 +189,7 @@ export interface CvTypography {
             </div>
           }
           @if (certifications.length) {
-            <h2>Certifications</h2>
+            <h2>{{ lbl("Certifications") }}</h2>
             @for (c of certifications; track $index) {
               @if (c.name) {
                 <h3>{{ c.name }}</h3>
@@ -280,11 +286,13 @@ export interface CvTypography {
         min-height: calc(297mm - 112px);
         align-items: start;
       }
-      .timeline {
+      .timeline { display: flex; flex-direction: column;
+
         padding: 28px 20px 25px 28px;
         border-right: 1px solid #edf0f3;
       }
-      aside {
+      aside { display: flex; flex-direction: column;
+
         padding: 20px 17px;
       }
       h2 {
@@ -451,6 +459,60 @@ export class ProfessionalCvComponent {
   @Input() lineHeight = 1.4;
   @Input() fontFamily = 'Arial, Helvetica, sans-serif';
   @Input() sectionLines = true;
+  @Input() sectionLabels: Record<string, string> = {};
+  @Input() sectionOrder: string[] = [];
+
+  getSectionOrder(key: string): number {
+    if (!this.sectionOrder || !this.sectionOrder.length) return 0;
+    const k = key.toLowerCase().replace(/[^a-z]/g, '');
+    for (let i = 0; i < this.sectionOrder.length; i++) {
+      const sk = this.sectionOrder[i].toLowerCase().replace(/[^a-z]/g, '');
+      if (sk === k || (k.includes('project') && sk.includes('project')) || (k.includes('ref') && sk.includes('ref')) || (k.includes('cert') && sk.includes('cert')) || (k.includes('work') && sk.includes('work')) || (k.includes('exp') && sk.includes('exp')) || (k.includes('edu') && sk.includes('edu')) || (k.includes('skill') && sk.includes('skill')) || (k.includes('lang') && sk.includes('lang')) || (k.includes('hobb') && sk.includes('hobb')) || ((k.includes('about') || k.includes('profile')) && (sk.includes('personal') || sk.includes('about') || sk.includes('profile')))) {
+        return i + 1;
+      }
+    }
+    return 0;
+  }
+
+
+  lbl(key: string, fallback?: string): string {
+    if (!this.sectionLabels) return fallback ?? key;
+    if (this.sectionLabels[key]) return this.sectionLabels[key];
+    const k = key.toLowerCase().replace(/[^a-z]/g, '');
+    for (const [sKey, val] of Object.entries(this.sectionLabels)) {
+      const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
+      if (sk === k) return val;
+      if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
+          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+        return val;
+      }
+      if ((k.includes('work') || k.includes('experience')) &&
+          (sk.includes('work') || sk.includes('experience'))) {
+        return val;
+      }
+      if ((k.includes('project')) && (sk.includes('project'))) {
+        return val;
+      }
+      if ((k.includes('skill')) && (sk.includes('skill'))) {
+        return val;
+      }
+      if ((k.includes('certif')) && (sk.includes('certif'))) {
+        return val;
+      }
+      if ((k.includes('lang')) && (sk.includes('lang'))) {
+        return val;
+      }
+      if ((k.includes('ref')) && (sk.includes('ref'))) {
+        return val;
+      }
+      if ((k.includes('hobb') || k.includes('interest') || k.includes('strength')) &&
+          (sk.includes('hobb') || sk.includes('interest') || sk.includes('strength'))) {
+        return val;
+      }
+    }
+    return fallback ?? key;
+  }
+
 
   get initials(): string {
     const parts = (this.name || 'CV').trim().split(/\s+/).filter(Boolean);

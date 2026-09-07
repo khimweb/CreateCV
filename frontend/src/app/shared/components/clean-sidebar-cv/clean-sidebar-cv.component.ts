@@ -48,7 +48,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
 
           <!-- CONTACT -->
           <div class="sb-block">
-            <div class="sb-heading">CONTACT</div>
+            <div class="sb-heading">{{ lbl('Personal Information', 'CONTACT') }}</div>
             <div class="sb-content">
               @if (phone) {
                 <div class="contact-row">
@@ -74,7 +74,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
           <!-- EDUCATION -->
           @if (education.length) {
             <div class="sb-block">
-              <div class="sb-heading">EDUCATION</div>
+              <div class="sb-heading">{{ lbl('Education', 'EDUCATION') }}</div>
               <div class="sb-content">
                 @for (ed of education; track $index) {
                   <div class="edu-item">
@@ -90,7 +90,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
           <!-- LANGUAGE -->
           @if (languages.length) {
             <div class="sb-block">
-              <div class="sb-heading">LANGUAGE</div>
+              <div class="sb-heading">{{ lbl('Languages', 'LANGUAGE') }}</div>
               <div class="sb-content">
                 @for (lang of languages; track $index) {
                   @if (lang.name) {
@@ -109,7 +109,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
           <!-- REFERENCE -->
           @if (references.length) {
             <div class="sb-block">
-              <div class="sb-heading">REFERENCE</div>
+              <div class="sb-heading">{{ lbl('References', 'REFERENCE') }}</div>
               <div class="sb-content">
                 @for (ref of references; track $index) {
                   @if (ref.name) {
@@ -134,7 +134,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
           <!-- ABOUT ME -->
           @if (summary) {
             <section class="cv-section">
-              <div class="sec-pill">ABOUT ME</div>
+              <div class="sec-pill">{{ lbl('Personal Information', 'ABOUT ME') }}</div>
               <p class="about-text">{{ summary }}</p>
             </section>
           }
@@ -142,7 +142,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
           <!-- EXPERIENCE -->
           @if (experience.length) {
             <section class="cv-section">
-              <div class="sec-pill">EXPERIENCE</div>
+              <div class="sec-pill">{{ lbl('Work Experience', 'EXPERIENCE') }}</div>
               <div class="exp-list">
                 @for (job of experience; track $index) {
                   <div class="exp-item">
@@ -168,7 +168,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
           <!-- SKILL -->
           @if (skills.length) {
             <section class="cv-section">
-              <div class="sec-pill">SKILL</div>
+              <div class="sec-pill">{{ lbl('Skills', 'SKILL') }}</div>
               <div class="skill-list">
                 @for (skill of skills; track $index) {
                   @if (skill.name) {
@@ -446,6 +446,47 @@ export class CleanSidebarCvComponent {
   @Input() fontWeight = 400;
   @Input() lineHeight = 1.5;
   @Input() fontFamily = 'Arial, Helvetica, sans-serif';
+  @Input() sectionLabels: Record<string, string> = {};
+  @Input() sectionOrder: string[] = [];
+
+  lbl(key: string, fallback?: string): string {
+    if (!this.sectionLabels) return fallback ?? key;
+    if (this.sectionLabels[key]) return this.sectionLabels[key];
+    const k = key.toLowerCase().replace(/[^a-z]/g, '');
+    for (const [sKey, val] of Object.entries(this.sectionLabels)) {
+      const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
+      if (sk === k) return val;
+      if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
+          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+        return val;
+      }
+      if ((k.includes('work') || k.includes('experience')) &&
+          (sk.includes('work') || sk.includes('experience'))) {
+        return val;
+      }
+      if ((k.includes('project')) && (sk.includes('project'))) {
+        return val;
+      }
+      if ((k.includes('skill')) && (sk.includes('skill'))) {
+        return val;
+      }
+      if ((k.includes('certif')) && (sk.includes('certif'))) {
+        return val;
+      }
+      if ((k.includes('lang')) && (sk.includes('lang'))) {
+        return val;
+      }
+      if ((k.includes('ref')) && (sk.includes('ref'))) {
+        return val;
+      }
+      if ((k.includes('hobb') || k.includes('interest') || k.includes('strength')) &&
+          (sk.includes('hobb') || sk.includes('interest') || sk.includes('strength'))) {
+        return val;
+      }
+    }
+    return fallback ?? key;
+  }
+
 
   get firstName(): string {
     const p = (this.name || 'RUFUS STEWART').trim().split(/\s+/);

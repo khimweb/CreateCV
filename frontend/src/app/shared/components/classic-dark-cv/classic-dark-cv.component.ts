@@ -24,7 +24,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
         <div class="card">
           <!-- Contact -->
           <div class="sec">
-            <div class="white-pill">CONTACT</div>
+            <div class="white-pill">{{ lbl('Personal Information', 'CONTACT') }}</div>
             <div class="ct-list">
               @if (phone) { <div class="ct-item"><div class="ct-circle"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6.57-6.57A19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.58a16 16 0 0 0 6 6l.94-.94a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><span>{{ phone }}</span></div> }
               @if (email) { <div class="ct-item"><div class="ct-circle"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><span>{{ email }}</span></div> }
@@ -34,7 +34,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
           <!-- Education -->
           @if (education.length) {
           <div class="sec">
-            <div class="white-pill">EDUCATION</div>
+            <div class="white-pill">{{ lbl('Education', 'EDUCATION') }}</div>
             @for (ed of education; track $index) {
               <div class="edu-block">
                 <div class="edu-deg">{{ degreeLine(ed) }}</div>
@@ -47,7 +47,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
           <!-- Language -->
           @if (languages.length) {
           <div class="sec">
-            <div class="white-pill">LANGUAGE</div>
+            <div class="white-pill">{{ lbl('Languages', 'LANGUAGE') }}</div>
             @for (lang of languages; track $index) {
               @if (lang.name) {
               <div class="lang-row">
@@ -61,7 +61,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
           <!-- Personal Strengths (Hobbies) -->
           @if (hobbies.length) {
           <div class="sec">
-            <div class="white-pill">PERSONAL STRENGTHS</div>
+            <div class="white-pill">{{ lbl('Hobbies', 'PERSONAL STRENGTHS') }}</div>
             <ul class="strength-list">
               @for (hobby of hobbies; track $index) {
                 @if (hobby.name) { <li>{{ hobby.name }}</li> }
@@ -72,7 +72,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
           <!-- Reference -->
           @if (references.length) {
           <div class="sec">
-            <div class="white-pill">REFERENCE</div>
+            <div class="white-pill">{{ lbl('References', 'REFERENCE') }}</div>
             @for (ref of references; track $index) {
               @if (ref.name) {
               <div class="ref-block">
@@ -96,14 +96,14 @@ export interface CvReference { name?: string; position?: string; company?: strin
         <!-- About Me -->
         @if (summary) {
         <div class="r-sec">
-          <div class="dark-pill">ABOUT ME</div>
+          <div class="dark-pill">{{ lbl('Personal Information', 'ABOUT ME') }}</div>
           <p class="about">{{ summary }}</p>
         </div>
         }
         <!-- Experience -->
         @if (experience.length) {
         <div class="r-sec">
-          <div class="dark-pill">EXPERIENCE</div>
+          <div class="dark-pill">{{ lbl('Work Experience', 'EXPERIENCE') }}</div>
           <div class="timeline">
             @for (job of experience; track $index) {
             <div class="tl-item">
@@ -121,7 +121,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
         <!-- Skill -->
         @if (skills.length) {
         <div class="r-sec">
-          <div class="dark-pill">SKILL</div>
+          <div class="dark-pill">{{ lbl('Skills', 'SKILL') }}</div>
           <div class="sk-list">
             @for (sk of skills; track $index) {
               @if (sk.name) {
@@ -289,6 +289,47 @@ export class ClassicDarkCvComponent {
   @Input() fontWeight = 400;
   @Input() lineHeight = 1.5;
   @Input() fontFamily = "'Segoe UI', Arial, sans-serif";
+  @Input() sectionLabels: Record<string, string> = {};
+  @Input() sectionOrder: string[] = [];
+
+  lbl(key: string, fallback?: string): string {
+    if (!this.sectionLabels) return fallback ?? key;
+    if (this.sectionLabels[key]) return this.sectionLabels[key];
+    const k = key.toLowerCase().replace(/[^a-z]/g, '');
+    for (const [sKey, val] of Object.entries(this.sectionLabels)) {
+      const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
+      if (sk === k) return val;
+      if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
+          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+        return val;
+      }
+      if ((k.includes('work') || k.includes('experience')) &&
+          (sk.includes('work') || sk.includes('experience'))) {
+        return val;
+      }
+      if ((k.includes('project')) && (sk.includes('project'))) {
+        return val;
+      }
+      if ((k.includes('skill')) && (sk.includes('skill'))) {
+        return val;
+      }
+      if ((k.includes('certif')) && (sk.includes('certif'))) {
+        return val;
+      }
+      if ((k.includes('lang')) && (sk.includes('lang'))) {
+        return val;
+      }
+      if ((k.includes('ref')) && (sk.includes('ref'))) {
+        return val;
+      }
+      if ((k.includes('hobb') || k.includes('interest') || k.includes('strength')) &&
+          (sk.includes('hobb') || sk.includes('interest') || sk.includes('strength'))) {
+        return val;
+      }
+    }
+    return fallback ?? key;
+  }
+
 
   get firstName(): string { const p = (this.name || 'RUFUS STEWART').trim().split(/\s+/); return p.length > 1 ? p.slice(0, -1).join(' ') : p[0]; }
   get lastName(): string { const p = (this.name || 'RUFUS STEWART').trim().split(/\s+/); return p.length > 1 ? p[p.length - 1] : ''; }

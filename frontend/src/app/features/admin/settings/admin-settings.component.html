@@ -1,0 +1,648 @@
+<section class="space-y-6 animate-fadeIn pb-16">
+  <!-- Top Navigation & Action Header -->
+  <header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-500/20">
+          <lucide-icon [img]="SlidersHorizontal" class="w-3 h-3" />
+          System Configuration & Governance
+        </span>
+        <span class="text-xs text-slate-400 dark:text-slate-500">Platform Control</span>
+      </div>
+      <h1 class="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
+        Platform & Administrative Settings
+      </h1>
+      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        Configure global platform behavior, provision administrative staff, manage notifications, and control active sessions.
+      </p>
+    </div>
+
+    <!-- Quick Action Toolbar -->
+    <div class="flex items-center gap-3">
+      @if (isDirty()) {
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20 animate-pulse">
+          <lucide-icon [img]="CircleAlert" class="w-3.5 h-3.5" />
+          Unsaved Changes
+        </span>
+      }
+
+      <button
+        type="button"
+        (click)="saveSystemSettings()"
+        [disabled]="savingSettings()"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 active:scale-95 shadow-md shadow-indigo-500/25 transition-all duration-200 disabled:opacity-50"
+      >
+        <lucide-icon [img]="Save" class="w-4 h-4" [class.animate-spin]="savingSettings()" />
+        {{ savingSettings() ? 'Saving Changes...' : 'Save Settings' }}
+      </button>
+    </div>
+  </header>
+
+  <!-- Maintenance Mode Warning Banner (if active) -->
+  @if (settings().maintenance_mode === 'true') {
+    <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-4 animate-pulse">
+      <div class="flex items-center gap-3">
+        <div class="p-2 rounded-xl bg-amber-500 text-white">
+          <lucide-icon [img]="TriangleAlert" class="w-5 h-5" />
+        </div>
+        <div>
+          <h3 class="font-bold text-sm text-amber-900 dark:text-amber-200">Maintenance Mode is Active</h3>
+          <p class="text-xs text-amber-700 dark:text-amber-300/80">Public users cannot access or generate new CV documents while maintenance mode is enabled.</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        (click)="toggleBooleanSetting('maintenance_mode')"
+        class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white transition-all active:scale-95 shadow-sm"
+      >
+        Disable Now
+      </button>
+    </div>
+  }
+
+  <!-- Navigation Tabs Pill Bar -->
+  <div class="flex items-center gap-1.5 p-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-x-auto">
+    <button
+      type="button"
+      (click)="activeTab.set('general')"
+      class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0"
+      [ngClass]="activeTab() === 'general'
+        ? 'bg-indigo-600 text-white shadow-sm'
+        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'"
+    >
+      <lucide-icon [img]="SlidersHorizontal" class="w-4 h-4" />
+      <span>General & Platform</span>
+    </button>
+
+    <button
+      type="button"
+      (click)="activeTab.set('team')"
+      class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0"
+      [ngClass]="activeTab() === 'team'
+        ? 'bg-indigo-600 text-white shadow-sm'
+        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'"
+    >
+      <lucide-icon [img]="Users" class="w-4 h-4" />
+      <span>Administrators & Staff ({{ staffUsers().length }})</span>
+    </button>
+
+    <button
+      type="button"
+      (click)="activeTab.set('notifications')"
+      class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0"
+      [ngClass]="activeTab() === 'notifications'
+        ? 'bg-indigo-600 text-white shadow-sm'
+        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'"
+    >
+      <lucide-icon [img]="Bell" class="w-4 h-4" />
+      <span>Notifications & Alerts</span>
+    </button>
+
+    <button
+      type="button"
+      (click)="activeTab.set('session')"
+      class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0"
+      [ngClass]="activeTab() === 'session'
+        ? 'bg-indigo-600 text-white shadow-sm'
+        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'"
+    >
+      <lucide-icon [img]="Lock" class="w-4 h-4" />
+      <span>Session & Danger Zone</span>
+    </button>
+  </div>
+
+  <!-- TAB 1: General & Platform Configuration -->
+  @if (activeTab() === 'general') {
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-fadeIn">
+      <!-- Left 7 cols: Inputs -->
+      <div class="lg:col-span-7 space-y-6">
+        <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 shadow-sm space-y-5">
+          <div class="border-b border-slate-100 dark:border-slate-800 pb-4">
+            <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+              <lucide-icon [img]="Settings" class="w-4 h-4 text-indigo-500" />
+              Platform Identity & Public Information
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">Core brand information presented in document footers and customer communications.</p>
+          </div>
+
+          <div class="space-y-4">
+            <!-- App Name -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Platform Application Name</label>
+              <input
+                type="text"
+                [(ngModel)]="settings().app_name"
+                class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              />
+            </div>
+
+            <!-- Support Email -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Official Support Email</label>
+              <div class="relative">
+                <lucide-icon [img]="Mail" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="email"
+                  [(ngModel)]="settings().support_email"
+                  class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Default Currency -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Default Currency</label>
+                <select
+                  [(ngModel)]="settings().default_currency"
+                  class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                >
+                  <option value="USD ($)">USD ($) - US Dollar</option>
+                  <option value="EUR (€)">EUR (€) - Euro</option>
+                  <option value="GBP (£)">GBP (£) - British Pound</option>
+                  <option value="KHR (៛)">KHR (៛) - Khmer Riel</option>
+                </select>
+              </div>
+
+              <!-- Inactivity Session Timeout -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Admin Session Timeout</label>
+                <select
+                  [(ngModel)]="settings().session_timeout_minutes"
+                  class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                >
+                  <option value="15">15 Minutes</option>
+                  <option value="30">30 Minutes</option>
+                  <option value="60">1 Hour (Recommended)</option>
+                  <option value="120">2 Hours</option>
+                  <option value="1440">24 Hours</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right 5 cols: Toggles & Feature Gates -->
+      <div class="lg:col-span-5 space-y-4">
+        <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 shadow-sm space-y-4">
+          <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+            <lucide-icon [img]="ShieldCheck" class="w-4 h-4 text-emerald-500" />
+            Feature Policies & Access
+          </h3>
+          <p class="text-xs text-slate-400">Toggle operational gates and platform features in real time.</p>
+
+          <div class="divide-y divide-slate-100 dark:divide-slate-800 space-y-3 pt-2">
+            <!-- Allow User Registrations -->
+            <div class="flex items-center justify-between pt-3">
+              <div class="pr-4">
+                <p class="text-xs font-bold text-slate-800 dark:text-slate-200">Public User Registrations</p>
+                <p class="text-[11px] text-slate-400">Allow new candidates to register accounts</p>
+              </div>
+              <button
+                type="button"
+                (click)="toggleBooleanSetting('allow_registration')"
+                class="w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200"
+                [ngClass]="settings().allow_registration === 'true' ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'"
+              >
+                <div
+                  class="bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200"
+                  [ngClass]="settings().allow_registration === 'true' ? 'translate-x-6' : 'translate-x-0'"
+                ></div>
+              </button>
+            </div>
+
+            <!-- Free Downloads Policy -->
+            <div class="flex items-center justify-between pt-3">
+              <div class="pr-4">
+                <p class="text-xs font-bold text-slate-800 dark:text-slate-200">Free CV Downloads</p>
+                <p class="text-[11px] text-slate-400">Permit exporting without completing payment</p>
+              </div>
+              <button
+                type="button"
+                (click)="toggleBooleanSetting('free_downloads_enabled')"
+                class="w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200"
+                [ngClass]="settings().free_downloads_enabled === 'true' ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-700'"
+              >
+                <div
+                  class="bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200"
+                  [ngClass]="settings().free_downloads_enabled === 'true' ? 'translate-x-6' : 'translate-x-0'"
+                ></div>
+              </button>
+            </div>
+
+            <!-- Maintenance Mode -->
+            <div class="flex items-center justify-between pt-3">
+              <div class="pr-4">
+                <p class="text-xs font-bold text-rose-600 dark:text-rose-400">Maintenance Mode</p>
+                <p class="text-[11px] text-slate-400">Suspends public access during maintenance</p>
+              </div>
+              <button
+                type="button"
+                (click)="toggleBooleanSetting('maintenance_mode')"
+                class="w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200"
+                [ngClass]="settings().maintenance_mode === 'true' ? 'bg-rose-600' : 'bg-slate-300 dark:bg-slate-700'"
+              >
+                <div
+                  class="bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200"
+                  [ngClass]="settings().maintenance_mode === 'true' ? 'translate-x-6' : 'translate-x-0'"
+                ></div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Summary Card -->
+        <div class="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-500/10 border border-indigo-200/50 dark:border-indigo-500/20 text-xs text-indigo-900 dark:text-indigo-200 flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <lucide-icon [img]="CircleCheck" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            Settings apply platform-wide immediately
+          </span>
+          <button
+            type="button"
+            (click)="saveSystemSettings()"
+            class="font-bold underline hover:no-underline text-indigo-700 dark:text-indigo-300"
+          >
+            Save All
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- TAB 2: Administrators & Staff Team -->
+  @if (activeTab() === 'team') {
+    <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 shadow-sm space-y-6 animate-fadeIn">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
+        <div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+            <lucide-icon [img]="Users" class="w-4 h-4 text-indigo-500" />
+            Administrative Team & Personnel
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">Manage users authorized with administrative and management console clearance.</p>
+        </div>
+
+        <button
+          type="button"
+          (click)="openAddStaffModal()"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 active:scale-95 shadow-md shadow-indigo-500/20 transition-all"
+        >
+          <lucide-icon [img]="UserPlus" class="w-4 h-4" />
+          Add Administrator
+        </button>
+      </div>
+
+      <!-- Staff Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (staff of staffUsers(); track staff.id) {
+          <div class="p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-white dark:hover:bg-slate-800 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md flex flex-col justify-between gap-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-sm shrink-0">
+                  {{ (staff.full_name || staff.email).slice(0, 2).toUpperCase() }}
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <h4 class="font-bold text-xs text-slate-900 dark:text-white truncate">
+                      {{ staff.full_name || 'Staff User' }}
+                    </h4>
+                    @if (staff.id === currentUserId()) {
+                      <span class="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
+                        You
+                      </span>
+                    }
+                  </div>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{{ staff.email }}</p>
+                </div>
+              </div>
+
+              <!-- Role Badge -->
+              <span class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase shrink-0"
+                [ngClass]="staff.role === 'admin'
+                  ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300'
+                  : 'bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-300'"
+              >
+                {{ staff.role }}
+              </span>
+            </div>
+
+            <!-- Footer Details & Actions -->
+            <div class="pt-3 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-[11px]">
+              <span class="text-slate-400">
+                Active: {{ formatRelativeTime(staff.last_login_at) }}
+              </span>
+
+              @if (staff.id !== currentUserId()) {
+                <button
+                  type="button"
+                  (click)="promptDeleteStaff(staff)"
+                  class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-500/10 p-1.5 rounded-lg transition-colors"
+                  title="Revoke administrator clearance"
+                >
+                  <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+                </button>
+              } @else {
+                <span class="text-[10px] font-bold text-slate-400">Current Session</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- TAB 3: Notifications & Webhook Alerts -->
+  @if (activeTab() === 'notifications') {
+    <div class="max-w-3xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm space-y-6 animate-fadeIn">
+      <div class="border-b border-slate-100 dark:border-slate-800 pb-4">
+        <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+          <lucide-icon [img]="Bell" class="w-4 h-4 text-indigo-500" />
+          Administrative Alerts & Email Notifications
+        </h3>
+        <p class="text-xs text-slate-400 mt-0.5">Control automated system communications and operational alerts dispatched to administrators.</p>
+      </div>
+
+      <div class="divide-y divide-slate-100 dark:divide-slate-800 space-y-4">
+        <!-- New Sales Order -->
+        <div class="flex items-center justify-between pt-4">
+          <div>
+            <h4 class="font-bold text-xs text-slate-900 dark:text-white">Commercial Sales & Orders Alerts</h4>
+            <p class="text-[11px] text-slate-400">Receive instant email dispatch whenever a user completes an order or CV purchase</p>
+          </div>
+          <button
+            type="button"
+            (click)="toggleBooleanSetting('email_notifications_sales')"
+            class="w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200"
+            [ngClass]="settings().email_notifications_sales === 'true' ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'"
+          >
+            <div
+              class="bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200"
+              [ngClass]="settings().email_notifications_sales === 'true' ? 'translate-x-6' : 'translate-x-0'"
+            ></div>
+          </button>
+        </div>
+
+        <!-- Security Flags -->
+        <div class="flex items-center justify-between pt-4">
+          <div>
+            <h4 class="font-bold text-xs text-slate-900 dark:text-white">Security & Threat Warning Alerts</h4>
+            <p class="text-[11px] text-slate-400">Get notified immediately upon repeated failed logins, credential brute-forcing, or IP anomalies</p>
+          </div>
+          <button
+            type="button"
+            (click)="toggleBooleanSetting('email_notifications_security')"
+            class="w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200"
+            [ngClass]="settings().email_notifications_security === 'true' ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'"
+          >
+            <div
+              class="bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200"
+              [ngClass]="settings().email_notifications_security === 'true' ? 'translate-x-6' : 'translate-x-0'"
+            ></div>
+          </button>
+        </div>
+      </div>
+
+      <div class="pt-4 flex justify-end">
+        <button
+          type="button"
+          (click)="saveSystemSettings()"
+          [disabled]="savingSettings()"
+          class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-500/20 active:scale-95 transition-all disabled:opacity-50"
+        >
+          <lucide-icon [img]="Save" class="w-3.5 h-3.5" />
+          Save Notification Preferences
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- TAB 4: Session & Danger Zone -->
+  @if (activeTab() === 'session') {
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start animate-fadeIn">
+      <!-- Active Session Card -->
+      <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 shadow-sm space-y-4">
+        <div class="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+          <lucide-icon [img]="Lock" class="w-4 h-4 text-indigo-500" />
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">Active Administrator Session</h3>
+        </div>
+
+        <div class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+          <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between">
+            <div>
+              <p class="font-bold text-slate-900 dark:text-white">Logged In Administrator</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">{{ auth.currentUser()?.email }}</p>
+            </div>
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/20 px-2 py-0.5 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Active Now
+            </span>
+          </div>
+
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Logging out will invalidate the session token on this browser. You will need to sign in again to access administrative tools.
+          </p>
+
+          <button
+            type="button"
+            (click)="logout()"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-500/10 border border-orange-200/60 dark:border-orange-500/20 hover:bg-orange-100 transition-all active:scale-95"
+          >
+            <lucide-icon [img]="LogOut" class="w-4 h-4" />
+            Log Out Session
+          </button>
+        </div>
+      </div>
+
+      <!-- Cache & System Maintenance -->
+      <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 shadow-sm space-y-4">
+        <div class="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+          <lucide-icon [img]="Database" class="w-4 h-4 text-teal-500" />
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">System Maintenance & Cache</h3>
+        </div>
+
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          Purge runtime in-memory caches, force template catalog synchronization, and vacuum SQLite indices.
+        </p>
+
+        <button
+          type="button"
+          (click)="clearSystemCache()"
+          [disabled]="clearingCache()"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-500/10 border border-teal-200/60 dark:border-teal-500/20 hover:bg-teal-100 transition-all active:scale-95 disabled:opacity-50"
+        >
+          <lucide-icon [img]="RefreshCw" class="w-4 h-4" [class.animate-spin]="clearingCache()" />
+          {{ clearingCache() ? 'Purging Cache...' : 'Flush System Cache' }}
+        </button>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="col-span-full rounded-3xl bg-rose-50/40 dark:bg-rose-500/5 border border-rose-200/70 dark:border-rose-500/20 p-6 shadow-sm space-y-3">
+        <div class="flex items-center gap-2">
+          <lucide-icon [img]="Trash2" class="w-4 h-4 text-rose-600" />
+          <h3 class="font-bold text-base text-rose-700 dark:text-rose-400">Danger Zone</h3>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xl">
+          Permanently delete this administrator account. This will invalidate all your credentials and remove your personal administrative record.
+        </p>
+        <button
+          type="button"
+          (click)="confirmDeleteAccount.set(true)"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md shadow-rose-500/20 transition-all active:scale-95"
+        >
+          <lucide-icon [img]="Trash2" class="w-4 h-4" />
+          Delete Administrator Account
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Add Administrator Modal -->
+  @if (showAddStaffModal()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fadeIn">
+      <div class="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+            <lucide-icon [img]="UserPlus" class="w-4 h-4 text-indigo-600" />
+            Provision New Administrator
+          </h3>
+          <button type="button" (click)="closeAddStaffModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <lucide-icon [img]="X" class="w-4 h-4" />
+          </button>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
+            <input
+              type="text"
+              [(ngModel)]="newStaff.fullName"
+              placeholder="e.g. Sophy Seng"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
+            <input
+              type="email"
+              [(ngModel)]="newStaff.email"
+              placeholder="staff@cv-builder.store"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Initial Password</label>
+            <input
+              type="password"
+              [(ngModel)]="newStaff.password"
+              placeholder="Minimum 8 characters"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Clearance Role</label>
+            <select
+              [(ngModel)]="newStaff.role"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="admin">Administrator (Full Access)</option>
+              <option value="staff">Staff (Operational Access)</option>
+            </select>
+          </div>
+
+          @if (addStaffError()) {
+            <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center gap-2">
+              <lucide-icon [img]="CircleAlert" class="w-4 h-4 shrink-0" />
+              <span>{{ addStaffError() }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button
+            type="button"
+            (click)="closeAddStaffModal()"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="submitAddStaff()"
+            [disabled]="addingStaff()"
+            class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-500/20 active:scale-95 disabled:opacity-50"
+          >
+            {{ addingStaff() ? 'Creating...' : 'Create Account' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Staff Member Modal -->
+  @if (staffToDelete()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fadeIn">
+      <div class="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 text-center space-y-4">
+        <div class="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-500/20 text-rose-600 flex items-center justify-center mx-auto">
+          <lucide-icon [img]="Trash2" class="w-6 h-6" />
+        </div>
+        <div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">Revoke Administrator Access?</h3>
+          <p class="text-xs text-slate-400 mt-1">
+            Are you sure you want to remove <span class="font-bold text-slate-700 dark:text-slate-200">{{ staffToDelete()?.full_name || staffToDelete()?.email }}</span> from the administrative team?
+          </p>
+        </div>
+        <div class="flex items-center justify-center gap-3 pt-2">
+          <button
+            type="button"
+            (click)="cancelDeleteStaff()"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="confirmDeleteStaff()"
+            class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md shadow-rose-500/20 active:scale-95"
+          >
+            Revoke Clearance
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Own Account Modal -->
+  @if (confirmDeleteAccount()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fadeIn">
+      <div class="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 text-center space-y-4">
+        <div class="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-500/20 text-rose-600 flex items-center justify-center mx-auto">
+          <lucide-icon [img]="TriangleAlert" class="w-6 h-6" />
+        </div>
+        <div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">Permanently Delete Admin Account?</h3>
+          <p class="text-xs text-slate-400 mt-1">
+            This will immediately remove your credentials and log you out. This action cannot be undone.
+          </p>
+        </div>
+        <div class="flex items-center justify-center gap-3 pt-2">
+          <button
+            type="button"
+            (click)="confirmDeleteAccount.set(false)"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="deleteAccount()"
+            class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md shadow-rose-500/20 active:scale-95"
+          >
+            Delete Forever
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

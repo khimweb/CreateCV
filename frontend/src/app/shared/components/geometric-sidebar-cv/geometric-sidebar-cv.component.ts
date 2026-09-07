@@ -76,7 +76,7 @@ export interface CvReference {
           <div class="sidebar-body">
             <!-- CONTACT -->
             <section class="sb-section">
-              <h2 class="sb-heading">CONTACT</h2>
+              <h2 class="sb-heading">{{ lbl('Personal Information', 'CONTACT') }}</h2>
               <div class="sb-rule"></div>
               <div class="sb-content">
                 @if (phone) {
@@ -121,7 +121,7 @@ export interface CvReference {
             <!-- EDUCATION -->
             @if (education.length) {
               <section class="sb-section">
-                <h2 class="sb-heading">EDUCATION</h2>
+                <h2 class="sb-heading">{{ lbl('Education', 'EDUCATION') }}</h2>
                 <div class="sb-rule"></div>
                 <div class="sb-content">
                   @for (ed of education; track $index) {
@@ -143,7 +143,7 @@ export interface CvReference {
             <!-- SKILLS -->
             @if (skills.length) {
               <section class="sb-section">
-                <h2 class="sb-heading">SKILLS</h2>
+                <h2 class="sb-heading">{{ lbl('Skills', 'SKILLS') }}</h2>
                 <div class="sb-rule"></div>
                 <div class="sb-content">
                   <ul class="skill-list">
@@ -160,7 +160,7 @@ export interface CvReference {
             <!-- LANGUAGE -->
             @if (languages.length) {
               <section class="sb-section">
-                <h2 class="sb-heading">LANGUAGE</h2>
+                <h2 class="sb-heading">{{ lbl('Languages', 'LANGUAGE') }}</h2>
                 <div class="sb-rule"></div>
                 <div class="sb-content">
                   <ul class="lang-list">
@@ -177,7 +177,7 @@ export interface CvReference {
             <!-- PERSONAL STRENGTHS (Hobbies) -->
             @if (hobbies.length) {
               <section class="sb-section">
-                <h2 class="sb-heading">PERSONAL STRENGTHS</h2>
+                <h2 class="sb-heading">{{ lbl('Hobbies', 'PERSONAL STRENGTHS') }}</h2>
                 <div class="sb-rule"></div>
                 <div class="sb-content">
                   <ul class="skill-list">
@@ -210,7 +210,7 @@ export interface CvReference {
           <!-- ABOUT ME -->
           @if (summary) {
             <section class="cv-section">
-              <h2 class="sec-heading">ABOUT ME</h2>
+              <h2 class="sec-heading">{{ lbl('Personal Information', 'ABOUT ME') }}</h2>
               <div class="sec-rule"></div>
               <p class="about-text">{{ summary }}</p>
             </section>
@@ -219,7 +219,7 @@ export interface CvReference {
           <!-- EXPERIENCE -->
           @if (experience.length) {
             <section class="cv-section">
-              <h2 class="sec-heading">EXPERIENCE</h2>
+              <h2 class="sec-heading">{{ lbl('Work Experience', 'EXPERIENCE') }}</h2>
               <div class="sec-rule"></div>
               <div class="exp-list">
                 @for (job of experience; track $index) {
@@ -252,7 +252,7 @@ export interface CvReference {
           <!-- CERTIFICATIONS -->
           @if (certifications.length) {
             <section class="cv-section">
-              <h2 class="sec-heading">CERTIFICATIONS</h2>
+              <h2 class="sec-heading">{{ lbl('Certifications', 'CERTIFICATIONS') }}</h2>
               <div class="sec-rule"></div>
               <div class="cert-list">
                 @for (cert of certifications; track $index) {
@@ -270,7 +270,7 @@ export interface CvReference {
           <!-- REFERENCE -->
           @if (references.length) {
             <section class="cv-section">
-              <h2 class="sec-heading">REFERENCE</h2>
+              <h2 class="sec-heading">{{ lbl('References', 'REFERENCE') }}</h2>
               <div class="sec-rule"></div>
               <div class="ref-grid">
                 @for (ref of references; track $index) {
@@ -703,6 +703,47 @@ export class GeometricSidebarCvComponent {
   @Input() fontWeight = 400;
   @Input() lineHeight = 1.45;
   @Input() fontFamily = "'Segoe UI', Arial, Helvetica, sans-serif";
+  @Input() sectionLabels: Record<string, string> = {};
+  @Input() sectionOrder: string[] = [];
+
+  lbl(key: string, fallback?: string): string {
+    if (!this.sectionLabels) return fallback ?? key;
+    if (this.sectionLabels[key]) return this.sectionLabels[key];
+    const k = key.toLowerCase().replace(/[^a-z]/g, '');
+    for (const [sKey, val] of Object.entries(this.sectionLabels)) {
+      const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
+      if (sk === k) return val;
+      if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
+          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+        return val;
+      }
+      if ((k.includes('work') || k.includes('experience')) &&
+          (sk.includes('work') || sk.includes('experience'))) {
+        return val;
+      }
+      if ((k.includes('project')) && (sk.includes('project'))) {
+        return val;
+      }
+      if ((k.includes('skill')) && (sk.includes('skill'))) {
+        return val;
+      }
+      if ((k.includes('certif')) && (sk.includes('certif'))) {
+        return val;
+      }
+      if ((k.includes('lang')) && (sk.includes('lang'))) {
+        return val;
+      }
+      if ((k.includes('ref')) && (sk.includes('ref'))) {
+        return val;
+      }
+      if ((k.includes('hobb') || k.includes('interest') || k.includes('strength')) &&
+          (sk.includes('hobb') || sk.includes('interest') || sk.includes('strength'))) {
+        return val;
+      }
+    }
+    return fallback ?? key;
+  }
+
 
   get firstName(): string {
     const p = (this.name || 'ISABEL SCHUMACHER').trim().split(/\s+/);

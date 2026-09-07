@@ -129,6 +129,7 @@ export class CoverLetterCvComponent {
   @Input() fontWeight = 400;
   @Input() lineHeight = 1.6;
   @Input() fontFamily = "'Times New Roman', Times, Georgia, serif";
+  @Input() sectionOrder: string[] = [];
 
   get bodyParagraphs(): string[] {
     if (!this.bodyText) return [

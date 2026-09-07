@@ -40,14 +40,14 @@ export interface CvProject { name?: string; description?: string; link?: string;
 
       <!-- OBJECTIVE / SUMMARY -->
       @if (summary) {
-        <section><h3 class="sec-title">OBJECTIVE</h3><p class="body-text">{{ summary }}</p></section>
+        <section><h3 class="sec-title">{{ lbl('Personal Information', 'OBJECTIVE') }}</h3><p class="body-text">{{ summary }}</p></section>
         <hr class="divider" />
       }
 
       <!-- EDUCATION -->
       @if (education.length) {
         <section>
-          <h3 class="sec-title">EDUCATION</h3>
+          <h3 class="sec-title">{{ lbl('Education', 'EDUCATION') }}</h3>
           @for (ed of education; track $index) {
             <div class="sub-title">{{ degreeLine(ed) }}</div>
             <ul>
@@ -63,7 +63,7 @@ export interface CvProject { name?: string; description?: string; link?: string;
       <!-- WORK EXPERIENCE -->
       @if (experience.length) {
         <section>
-          <h3 class="sec-title">WORK EXPERIENCE</h3>
+          <h3 class="sec-title">{{ lbl('Work Experience', 'WORK EXPERIENCE') }}</h3>
           @for (job of experience; track $index) {
             <div class="job-title">{{ job.position || 'Position' }}{{ job.company ? ' | ' + job.company : '' }} ({{ formatExpRange(job) }})</div>
             @if (job.responsibilities?.length) {
@@ -77,7 +77,7 @@ export interface CvProject { name?: string; description?: string; link?: string;
       <!-- PROJECTS -->
       @if (projects.length) {
         <section>
-          <h3 class="sec-title">PROJECTS &amp; ACHIEVEMENTS</h3>
+          <h3 class="sec-title">{{ lbl('Projects', 'PROJECTS & ACHIEVEMENTS') }}</h3>
           <ul>@for (p of projects; track $index) { @if (p.name) { <li><strong>{{ p.name }}</strong>{{ p.description ? ' – ' + p.description : '' }}</li> } }</ul>
         </section>
         <hr class="divider" />
@@ -86,7 +86,7 @@ export interface CvProject { name?: string; description?: string; link?: string;
       <!-- SKILLS -->
       @if (skills.length) {
         <section>
-          <h3 class="sec-title">TECHNICAL SKILLS</h3>
+          <h3 class="sec-title">{{ lbl('Skills', 'TECHNICAL SKILLS') }}</h3>
           <ul>@for (sk of skills; track $index) { @if (sk.name) { <li><strong>{{ sk.name }}</strong>{{ sk.level ? ' (' + sk.level + ')' : '' }}</li> } }</ul>
         </section>
         <hr class="divider" />
@@ -95,7 +95,7 @@ export interface CvProject { name?: string; description?: string; link?: string;
       <!-- LANGUAGES -->
       @if (languages.length) {
         <section>
-          <h3 class="sec-title">LANGUAGES</h3>
+          <h3 class="sec-title">{{ lbl('Languages', 'LANGUAGES') }}</h3>
           <ul>@for (l of languages; track $index) { @if (l.name) { <li>{{ l.name }}{{ l.proficiency ? ' (' + l.proficiency + ')' : '' }}</li> } }</ul>
         </section>
         <hr class="divider" />
@@ -104,7 +104,7 @@ export interface CvProject { name?: string; description?: string; link?: string;
       <!-- REFERENCES -->
       @if (references.length) {
         <section>
-          <h3 class="sec-title">REFERENCES</h3>
+          <h3 class="sec-title">{{ lbl('References', 'REFERENCES') }}</h3>
           <ul>@for (ref of references; track $index) { @if (ref.name) { <li><strong>{{ ref.name }}</strong>{{ ref.position ? ' | ' + ref.position : '' }}{{ ref.company ? ', ' + ref.company : '' }}{{ ref.phone ? ' | ' + ref.phone : '' }}</li> } }</ul>
         </section>
       }
@@ -198,6 +198,46 @@ export class FormalClassicCvComponent {
   @Input() fontWeight = 400;
   @Input() lineHeight = 1.4;
   @Input() fontFamily = "'Times New Roman', Times, Georgia, serif";
+  @Input() sectionLabels: Record<string, string> = {};
+  @Input() sectionOrder: string[] = [];
+
+  lbl(key: string, fallback?: string): string {
+    if (!this.sectionLabels) return fallback ?? key;
+    if (this.sectionLabels[key]) return this.sectionLabels[key];
+    const k = key.toLowerCase().replace(/[^a-z]/g, '');
+    for (const [sKey, val] of Object.entries(this.sectionLabels)) {
+      const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
+      if (sk === k) return val;
+      if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
+          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+        return val;
+      }
+      if ((k.includes('work') || k.includes('experience')) &&
+          (sk.includes('work') || sk.includes('experience'))) {
+        return val;
+      }
+      if ((k.includes('project')) && (sk.includes('project'))) {
+        return val;
+      }
+      if ((k.includes('skill')) && (sk.includes('skill'))) {
+        return val;
+      }
+      if ((k.includes('certif')) && (sk.includes('certif'))) {
+        return val;
+      }
+      if ((k.includes('lang')) && (sk.includes('lang'))) {
+        return val;
+      }
+      if ((k.includes('ref')) && (sk.includes('ref'))) {
+        return val;
+      }
+      if ((k.includes('hobb') || k.includes('interest') || k.includes('strength')) &&
+          (sk.includes('hobb') || sk.includes('interest') || sk.includes('strength'))) {
+        return val;
+      }
+    }
+    return fallback ?? key;
+  }
 
   get initials(): string { return (this.name || 'CV').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase() || '').join(''); }
   degreeLine(ed: CvEducation): string { return [ed.degree, ed.field].filter(Boolean).join(' — ') || 'Degree'; }

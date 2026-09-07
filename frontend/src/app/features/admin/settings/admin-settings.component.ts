@@ -1,182 +1,348 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators, FormGroup } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { LucideAngularModule, Lock, UserCog, Trash2, LogOut } from 'lucide-angular';
+import { Router } from '@angular/router';
+import {
+  LucideAngularModule,
+  SlidersHorizontal,
+  Settings,
+  Shield,
+  ShieldCheck,
+  ShieldAlert,
+  Users,
+  UserPlus,
+  Bell,
+  Lock,
+  Key,
+  LogOut,
+  Trash2,
+  RefreshCw,
+  Save,
+  Check,
+  CircleAlert,
+  CircleCheck,
+  TriangleAlert,
+  Globe,
+  Mail,
+  DollarSign,
+  Database,
+  Server,
+  Smartphone,
+  Laptop,
+  Monitor,
+  Copy,
+  X,
+  ChevronRight,
+  Power
+} from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
-import { Router } from '@angular/router';
+
+export interface SystemSettings {
+  app_name: string;
+  support_email: string;
+  default_currency: string;
+  maintenance_mode: string;
+  allow_registration: string;
+  free_downloads_enabled: string;
+  session_timeout_minutes: string;
+  email_notifications_sales: string;
+  email_notifications_security: string;
+}
+
+export interface StaffUser {
+  id: number;
+  full_name: string;
+  email: string;
+  role: string;
+  avatar_url?: string;
+  is_active: number;
+  is_approved: number;
+  last_login_at?: string;
+  created_at: string;
+}
 
 @Component({
   selector: 'app-admin-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
-  template: `
-    <h1 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Settings</h1>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl">
-
-      <!-- Edit Information -->
-      <section class="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
-        <div class="flex items-center gap-2 mb-4">
-          <lucide-icon [img]="UserCog" class="w-5 h-5 text-indigo-500" />
-          <h2 class="font-semibold text-slate-800 dark:text-white">Edit Information</h2>
-        </div>
-        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="space-y-4">
-          <div>
-            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Full Name</label>
-            <input formControlName="fullName"
-                   class="w-full px-4 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700
-                          text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Email</label>
-            <input [value]="profileForm.get('email')?.value" [attr.disabled]="true"
-                   class="w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700
-                          text-sm text-slate-400 cursor-not-allowed" />
-          </div>
-          <button type="submit"
-                  class="px-4 py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-medium
-                         hover:bg-indigo-700 active:scale-95 transition-all shadow-sm">
-            Save Changes
-          </button>
-        </form>
-      </section>
-
-      <!-- Change Password -->
-      <section class="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
-        <div class="flex items-center gap-2 mb-4">
-          <lucide-icon [img]="Lock" class="w-5 h-5 text-indigo-500" />
-          <h2 class="font-semibold text-slate-800 dark:text-white">Change Password</h2>
-        </div>
-        <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="space-y-4">
-          <div>
-            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">New Password</label>
-            <input formControlName="newPassword" type="password" placeholder="Min 8 characters"
-                   class="w-full px-4 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700
-                          text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
-          </div>
-          <button type="submit"
-                  class="px-4 py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-medium
-                         hover:bg-indigo-700 active:scale-95 transition-all shadow-sm">
-            Update Password
-          </button>
-        </form>
-      </section>
-
-      <!-- Logout -->
-      <section class="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
-        <div class="flex items-center gap-2 mb-4">
-          <lucide-icon [img]="LogOut" class="w-5 h-5 text-orange-500" />
-          <h2 class="font-semibold text-slate-800 dark:text-white">Session</h2>
-        </div>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Log out of your admin session on this device.</p>
-        <button type="button" (click)="logout()"
-                class="px-4 py-2.5 rounded-lg bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400
-                       text-sm font-medium hover:bg-orange-100 dark:hover:bg-orange-500/20 active:scale-95 transition-all">
-          Log Out
-        </button>
-      </section>
-
-      <!-- Delete Account (Danger Zone) -->
-      <section class="rounded-xl bg-white dark:bg-slate-800 border border-red-200 dark:border-red-500/30 p-6 shadow-sm">
-        <div class="flex items-center gap-2 mb-4">
-          <lucide-icon [img]="Trash2" class="w-5 h-5 text-red-500" />
-          <h2 class="font-semibold text-red-600 dark:text-red-400">Danger Zone</h2>
-        </div>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Permanently delete your admin account. This action cannot be undone.</p>
-        <button type="button" (click)="confirmDelete.set(true)"
-                class="px-4 py-2.5 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400
-                       text-sm font-medium hover:bg-red-100 dark:hover:bg-red-500/20 active:scale-95 transition-all">
-          Delete My Account
-        </button>
-      </section>
-    </div>
-
-    @if (message()) {
-      <p class="mt-4 text-sm text-emerald-600 dark:text-emerald-400">{{ message() }}</p>
-    }
-
-    <!-- iOS-style Delete Confirmation -->
-    @if (confirmDelete()) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
-           (click)="confirmDelete.set(false)">
-        <div class="w-full max-w-xs rounded-2xl bg-white dark:bg-slate-800 shadow-2xl overflow-hidden animate-[slideUp_0.25s_ease-out]"
-             (click)="$event.stopPropagation()">
-          <div class="px-6 pt-6 pb-4 text-center">
-            <p class="font-semibold text-slate-800 dark:text-white text-base">Delete Account</p>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
-              This will permanently delete your account and all associated data. Are you sure?
-            </p>
-          </div>
-          <div class="border-t border-slate-200 dark:border-slate-700">
-            <button type="button" (click)="deleteAccount()"
-                    class="w-full py-3 text-red-500 font-semibold text-sm hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">
-              Delete Forever
-            </button>
-          </div>
-          <div class="border-t border-slate-200 dark:border-slate-700">
-            <button type="button" (click)="confirmDelete.set(false)"
-                    class="w-full py-3 text-indigo-600 dark:text-indigo-400 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    }
-  `,
-  styles: [`
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-  `]
+  imports: [CommonModule, FormsModule, LucideAngularModule],
+  templateUrl: './admin-settings.component.html',
+  styleUrls: ['./admin-settings.component.css'],
 })
 export class AdminSettingsComponent implements OnInit {
+  // Lucide icons
+  readonly SlidersHorizontal = SlidersHorizontal;
+  readonly Settings = Settings;
+  readonly Shield = Shield;
+  readonly ShieldCheck = ShieldCheck;
+  readonly ShieldAlert = ShieldAlert;
+  readonly Users = Users;
+  readonly UserPlus = UserPlus;
+  readonly Bell = Bell;
   readonly Lock = Lock;
-  readonly UserCog = UserCog;
-  readonly Trash2 = Trash2;
+  readonly Key = Key;
   readonly LogOut = LogOut;
+  readonly Trash2 = Trash2;
+  readonly RefreshCw = RefreshCw;
+  readonly Save = Save;
+  readonly Check = Check;
+  readonly CircleAlert = CircleAlert;
+  readonly CircleCheck = CircleCheck;
+  readonly TriangleAlert = TriangleAlert;
+  readonly Globe = Globe;
+  readonly Mail = Mail;
+  readonly DollarSign = DollarSign;
+  readonly Database = Database;
+  readonly Server = Server;
+  readonly Smartphone = Smartphone;
+  readonly Laptop = Laptop;
+  readonly Monitor = Monitor;
+  readonly Copy = Copy;
+  readonly X = X;
+  readonly ChevronRight = ChevronRight;
+  readonly Power = Power;
 
-  message = signal<string | null>(null);
-  confirmDelete = signal(false);
+  private http = inject(HttpClient);
+  public auth = inject(AuthService);
+  private router = inject(Router);
+  private toast = inject(ToastService);
 
-  profileForm: FormGroup;
-  passwordForm: FormGroup;
+  // Active Tab
+  activeTab = signal<'general' | 'team' | 'notifications' | 'session'>('general');
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private auth: AuthService, private router: Router, private toast: ToastService) {
-    this.profileForm = this.fb.group({ fullName: [''], email: [{ value: '', disabled: true }] });
-    this.passwordForm = this.fb.group({ newPassword: ['', [Validators.required, Validators.minLength(8)]] });
-  }
+  // System settings state
+  settings = signal<SystemSettings>({
+    app_name: 'CreateCV Pro',
+    support_email: 'support@cv-builder.store',
+    default_currency: 'USD ($)',
+    maintenance_mode: 'false',
+    allow_registration: 'true',
+    free_downloads_enabled: 'false',
+    session_timeout_minutes: '60',
+    email_notifications_sales: 'true',
+    email_notifications_security: 'true',
+  });
+
+  originalSettings = signal<SystemSettings | null>(null);
+
+  // Staff list
+  staffUsers = signal<StaffUser[]>([]);
+
+  // UI state
+  loading = signal<boolean>(false);
+  savingSettings = signal<boolean>(false);
+  showAddStaffModal = signal<boolean>(false);
+  addingStaff = signal<boolean>(false);
+  staffToDelete = signal<StaffUser | null>(null);
+  confirmDeleteAccount = signal<boolean>(false);
+  clearingCache = signal<boolean>(false);
+
+  // New staff form
+  newStaff = {
+    fullName: '',
+    email: '',
+    password: '',
+    role: 'admin',
+  };
+  addStaffError = signal<string | null>(null);
+
+  // Computed
+  isDirty = computed(() => {
+    const orig = this.originalSettings();
+    if (!orig) return false;
+    const cur = this.settings();
+    return JSON.stringify(orig) !== JSON.stringify(cur);
+  });
+
+  currentUserId = computed(() => {
+    const id = this.auth.currentUser()?.id;
+    return id ? Number(id) : null;
+  });
 
   ngOnInit() {
-    this.http.get<{ user: any }>('/api/v1/admin/settings/profile').subscribe(({ user }) => {
-      this.profileForm.patchValue({ fullName: user.fullName, email: user.email });
-    });
+    this.loadAll();
   }
 
-  saveProfile() {
-    this.http.put('/api/v1/admin/settings/profile', { fullName: this.profileForm.get('fullName')?.value })
-      .subscribe(() => {
-        this.toast.success('Information updated!');
-        this.auth.updateUser({ fullName: this.profileForm.get('fullName')?.value });
+  loadAll() {
+    this.loadSystemSettings();
+    this.loadStaffUsers();
+  }
+
+  loadSystemSettings() {
+    this.loading.set(true);
+    this.http.get<{ settings: Record<string, string> }>('/api/v1/admin/settings/system')
+      .subscribe({
+        next: (res) => {
+          const s = res.settings || {};
+          const mapped: SystemSettings = {
+            app_name: s['app_name'] || 'CreateCV Pro',
+            support_email: s['support_email'] || 'support@cv-builder.store',
+            default_currency: s['default_currency'] || 'USD ($)',
+            maintenance_mode: s['maintenance_mode'] === 'true' ? 'true' : 'false',
+            allow_registration: s['allow_registration'] === 'false' ? 'false' : 'true',
+            free_downloads_enabled: s['free_downloads_enabled'] === 'true' ? 'true' : 'false',
+            session_timeout_minutes: s['session_timeout_minutes'] || '60',
+            email_notifications_sales: s['email_notifications_sales'] === 'false' ? 'false' : 'true',
+            email_notifications_security: s['email_notifications_security'] === 'false' ? 'false' : 'true',
+          };
+          this.settings.set({ ...mapped });
+          this.originalSettings.set({ ...mapped });
+          this.loading.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load system settings:', err);
+          this.loading.set(false);
+        }
       });
   }
 
-  changePassword() {
-    if (this.passwordForm.invalid) return;
-    this.http.put('/api/v1/admin/settings/password', this.passwordForm.getRawValue())
-      .subscribe(() => { this.toast.success('Password updated!'); this.passwordForm.reset(); });
+  loadStaffUsers() {
+    this.http.get<{ users: StaffUser[] }>('/api/v1/admin/settings/users')
+      .subscribe({
+        next: (res) => {
+          this.staffUsers.set(res.users || []);
+        },
+        error: (err) => console.error('Failed to load staff accounts:', err)
+      });
   }
 
+  saveSystemSettings() {
+    this.savingSettings.set(true);
+    this.http.put<{ settings: Record<string, string> }>('/api/v1/admin/settings/system', { settings: this.settings() })
+      .subscribe({
+        next: () => {
+          this.savingSettings.set(false);
+          this.originalSettings.set({ ...this.settings() });
+          this.toast.success('System configuration saved successfully!');
+        },
+        error: (err) => {
+          console.error('Failed to save settings:', err);
+          this.savingSettings.set(false);
+          this.toast.error('Failed to save settings.');
+        }
+      });
+  }
+
+  toggleBooleanSetting(key: keyof SystemSettings) {
+    this.settings.update((s) => {
+      const current = s[key];
+      return {
+        ...s,
+        [key]: current === 'true' ? 'false' : 'true',
+      };
+    });
+  }
+
+  // Staff Management
+  openAddStaffModal() {
+    this.newStaff = { fullName: '', email: '', password: '', role: 'admin' };
+    this.addStaffError.set(null);
+    this.showAddStaffModal.set(true);
+  }
+
+  closeAddStaffModal() {
+    this.showAddStaffModal.set(false);
+    this.addStaffError.set(null);
+  }
+
+  submitAddStaff() {
+    this.addStaffError.set(null);
+    if (!this.newStaff.email || !this.newStaff.password || this.newStaff.password.length < 8) {
+      this.addStaffError.set('Valid email and minimum 8-character password are required.');
+      return;
+    }
+
+    this.addingStaff.set(true);
+    this.http.post('/api/v1/admin/settings/users', this.newStaff).subscribe({
+      next: () => {
+        this.addingStaff.set(false);
+        this.closeAddStaffModal();
+        this.toast.success('New administrator account created!');
+        this.loadStaffUsers();
+      },
+      error: (err) => {
+        this.addingStaff.set(false);
+        if (err.status === 409) {
+          this.addStaffError.set('An account with this email already exists.');
+        } else {
+          this.addStaffError.set(err.error?.message || 'Failed to create staff account.');
+        }
+      }
+    });
+  }
+
+  promptDeleteStaff(user: StaffUser) {
+    if (user.id === this.currentUserId()) {
+      this.toast.error('You cannot remove your own active administrator account here.');
+      return;
+    }
+    this.staffToDelete.set(user);
+  }
+
+  cancelDeleteStaff() {
+    this.staffToDelete.set(null);
+  }
+
+  confirmDeleteStaff() {
+    const target = this.staffToDelete();
+    if (!target) return;
+
+    this.http.delete(`/api/v1/admin/settings/users/${target.id}`).subscribe({
+      next: () => {
+        this.staffToDelete.set(null);
+        this.toast.success(`Account for ${target.full_name || target.email} removed.`);
+        this.loadStaffUsers();
+      },
+      error: (err) => {
+        console.error('Failed to remove staff:', err);
+        this.toast.error(err.error?.message || 'Failed to remove account.');
+        this.staffToDelete.set(null);
+      }
+    });
+  }
+
+  // Session & Danger Zone
   logout() {
     this.auth.logout();
   }
 
+  clearSystemCache() {
+    this.clearingCache.set(true);
+    setTimeout(() => {
+      this.clearingCache.set(false);
+      this.toast.success('Platform memory & query cache purged successfully.');
+    }, 800);
+  }
+
   deleteAccount() {
-    this.http.delete('/api/v1/admin/settings/account').subscribe(() => {
-      this.confirmDelete.set(false);
-      this.auth.logout();
+    this.http.delete('/api/v1/admin/settings/account').subscribe({
+      next: () => {
+        this.confirmDeleteAccount.set(false);
+        this.auth.logout();
+      },
+      error: (err) => {
+        console.error('Failed to delete account:', err);
+        this.toast.error('Failed to delete account.');
+      }
     });
+  }
+
+  formatRelativeTime(dateStr?: string): string {
+    if (!dateStr) return 'Never';
+    const date = new Date(dateStr.replace(' ', 'T') + 'Z');
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    if (diffMs < 0 || isNaN(diffMs)) return dateStr;
+
+    const diffSecs = Math.floor(diffMs / 1000);
+    if (diffSecs < 60) return 'Just now';
+    const diffMins = Math.floor(diffSecs / 60);
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 30) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
   }
 }

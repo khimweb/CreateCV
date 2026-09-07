@@ -38,10 +38,12 @@ async function requireApproved(req, res, next) {
   try {
     const user = await db.users.findById(req.user?.id);
     if (!user) return res.status(401).json({ error: 'UNAUTHENTICATED' });
-    if (user.role === 'admin' || user.is_approved) return next();
+    // Regular users and admins do NOT need approval.
+    // Only staff accounts require admin approval (is_approved === 1).
+    if (user.role === 'admin' || user.role === 'user' || user.is_approved) return next();
     return res.status(403).json({
       error: 'NOT_APPROVED',
-      message: 'Your account is awaiting admin approval before you can use CV templates.',
+      message: 'Staff account is awaiting admin approval before you can access free templates.',
     });
   } catch (error) {
     next(error);

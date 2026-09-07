@@ -1,18 +1,20 @@
 const nodemailer = require('nodemailer');
 
-const CONTACT_INBOX = 'sokkhim519@gmail.com';
-const smtpPort = Number(process.env.SMTP_PORT || 587);
-const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
+const CONTACT_INBOX = process.env.SMTP_USER || 'sokkhim519@gmail.com';
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: smtpPort,
-  secure: smtpSecure,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+function getTransporter() {
+  const smtpPort = Number(process.env.SMTP_PORT || 587);
+  const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: smtpPort,
+    secure: smtpSecure,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+}
 
 async function sendContactEmail({ name, email, subject, message }) {
   const safeName = escapeHtml(name);
@@ -20,7 +22,7 @@ async function sendContactEmail({ name, email, subject, message }) {
   const safeSubject = escapeHtml(subject || 'General question');
   const safeMessage = escapeHtml(message).replace(/\n/g, '<br>');
 
-  await transporter.sendMail({
+  await getTransporter().sendMail({
     from: `"CQ-Professional Contact" <${process.env.SMTP_USER}>`,
     to: CONTACT_INBOX,
     replyTo: email,
@@ -49,10 +51,157 @@ function buildContactEmailHtml({ safeName, safeEmail, safeSubject, safeMessage }
 </body></html>`;
 }
 
+async function sendPasswordResetOtpEmail({ to, fullName, otpCode, expiresMinutes = 10, ip = '' }) {
+  const safeName = escapeHtml(fullName || 'Valued User');
+  const safeOtp = escapeHtml(otpCode);
+  const safeIp = escapeHtml(ip || 'Unknown');
+
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    console.warn('[Email] Warning: SMTP credentials (SMTP_USER / SMTP_PASS) not set in .env. Email cannot be delivered to inbox.');
+    return { success: false, reason: 'NO_SMTP_CREDENTIALS' };
+  }
+
+  try {
+    const timestamp = new Date().toLocaleString('en-GB', {
+      timeZone: 'Asia/Phnom_Penh',
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+
+    await getTransporter().sendMail({
+
+      from: `"CQ-Professional Security" <${process.env.SMTP_USER}>`,
+      to,
+      subject: `[CQ-Professional] ${otpCode} is your verification code`,
+      text: `Hello ${fullName},\n\nYour 6-digit verification code to reset your CQ-Professional password is: ${otpCode}\n\nThis code will expire in ${expiresMinutes} minutes.\nRequested at: ${timestamp} (Cambodia)\nIP: ${safeIp}\n\nIf you did not request this, your account is safe and no action is required.\n\nBest regards,\nCQ-Professional Security Team`,
+      html: `
+        <!doctype html>
+        <html lang="en">
+        <head>
+          <meta charset="utf-8"/>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+          <title>Verification Code</title>
+        </head>
+        <body style="margin:0;padding:0;background-color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f1f5f9;padding:40px 12px;">
+            <tr>
+              <td align="center">
+                <!-- Main Container -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:540px;background-color:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 12px 35px -8px rgba(15,23,42,0.1),0 0 0 1px #e2e8f0;">
+                  
+                  <!-- CLEAN HEADER -->
+                  <tr>
+                    <td style="padding:32px 36px 28px;background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 65%,#2563eb 100%);color:#ffffff;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td>
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                              <tr>
+                                <td style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);text-align:center;vertical-align:middle;color:#ffffff;font-size:16px;font-weight:900;letter-spacing:-0.5px;">
+                                  CQ
+                                </td>
+                                <td style="padding-left:14px;">
+                                  <div style="font-size:18px;font-weight:900;letter-spacing:-0.3px;color:#ffffff;">CQ-Professional</div>
+                                  <div style="font-size:11px;color:#93c5fd;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Security & Authentication</div>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                          <td align="right">
+                            <span style="display:inline-block;padding:5px 12px;background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);border-radius:999px;color:#6ee7b7;font-size:11px;font-weight:700;letter-spacing:0.4px;">
+                              ● Official Alert
+                            </span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <!-- BODY CONTENT -->
+                  <tr>
+                    <td style="padding:36px 36px 28px;">
+                      <h1 style="margin:0 0 12px;font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-0.4px;">
+                        Password Reset Verification
+                      </h1>
+                      <p style="margin:0 0 24px;font-size:14px;line-height:1.65;color:#475569;">
+                        Hello <strong>${safeName}</strong>,<br/>
+                        We received a request to verify your identity and reset your account password. Enter the one-time verification code below on the screen to proceed:
+                      </p>
+
+                      <!-- HIGH-SECURITY OTP BADGE BOX -->
+                      <div style="background:linear-gradient(180deg,#f8fafc 0%,#f1f5f9 100%);border:2px dashed #cbd5e1;border-radius:18px;padding:26px 20px;text-align:center;margin:24px 0 28px;">
+                        <div style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#64748b;margin-bottom:8px;">
+                          One-Time Password (OTP)
+                        </div>
+                        <div style="font-family:'SF Pro Text',Consolas,Monaco,monospace;font-size:42px;font-weight:900;letter-spacing:10px;color:#1e3a8a;line-height:1.1;padding-left:10px;">
+                          ${safeOtp}
+                        </div>
+                        <div style="margin-top:12px;display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:#fee2e2;border-radius:999px;font-size:11px;font-weight:700;color:#b91c1c;">
+                          ⏱ Expires in ${expiresMinutes} minutes • Single-use only
+                        </div>
+                      </div>
+
+                      <!-- SECURITY DETAILS TABLE -->
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:24px;">
+                        <tr>
+                          <td style="padding:14px 18px;font-size:12px;color:#64748b;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                              <tr>
+                                <td style="padding:3px 0;"><strong>Destination:</strong> ${to}</td>
+                                <td align="right" style="padding:3px 0;"><strong>Channel:</strong> Email OTP</td>
+                              </tr>
+                              <tr>
+                                <td style="padding:3px 0;"><strong>Time:</strong> ${timestamp}</td>
+                                <td align="right" style="padding:3px 0;"><strong>Location:</strong> Cambodia (UTC+7)</td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- WARNING NOTE -->
+                      <div style="padding:14px 16px;background:#fef2f2;border-left:4px solid #ef4444;border-radius:0 10px 10px 0;font-size:12px;line-height:1.6;color:#991b1b;">
+                        <strong>Did not request this code?</strong> If you did not make this request, someone may have entered your email by mistake. Your account remains safe, and you can safely ignore this email.
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- CLEAN PROFESSIONAL FOOTER -->
+                  <tr>
+                    <td style="padding:24px 36px 28px;background-color:#f8fafc;border-top:1px solid #e2e8f0;text-align:center;">
+                      <div style="font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">
+                        CQ-Professional Resume & CV Builder
+                      </div>
+                      <div style="font-size:11px;line-height:1.6;color:#94a3b8;margin-bottom:12px;">
+                        Phnom Penh, Kingdom of Cambodia • Powered by Automated Identity Guard<br/>
+                        Need support? Contact us on Telegram: <a href="https://t.me/cqprofessionalpayment_bot" style="color:#2563eb;text-decoration:none;font-weight:600;">@cqprofessionalpayment_bot</a>
+                      </div>
+                      <div style="font-size:10px;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.5px;">
+                        © ${new Date().getFullYear()} CQ-Professional. All rights reserved.
+                      </div>
+                    </td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `,
+    });
+    console.log(`[Email] ✓ Reset OTP email successfully dispatched to ${to}`);
+    return { success: true };
+  } catch (err) {
+    console.error('[Email] Failed to send password reset email:', err.message);
+    return { success: false, error: err.message };
+  }
+}
+
 function escapeHtml(str = '') {
   return str.replace(/[&<>"']/g, (c) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
   }[c]));
 }
 
-module.exports = { sendContactEmail };
+module.exports = { sendContactEmail, sendPasswordResetOtpEmail };

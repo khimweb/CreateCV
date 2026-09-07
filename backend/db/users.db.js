@@ -8,6 +8,15 @@ async function findByEmail(email) {
   return rows[0] || null;
 }
 
+async function findByPhone(phone) {
+  const clean = String(phone || '').replace(/[^0-9]/g, '');
+  const { rows } = await query(
+    'SELECT * FROM users WHERE phone = ? OR phone LIKE ? LIMIT 1',
+    [phone, `%${clean.slice(-8)}`]
+  );
+  return rows[0] || null;
+}
+
 async function findById(id) {
   const { rows } = await query('SELECT * FROM users WHERE id = ?', [id]);
   return rows[0] || null;
@@ -32,7 +41,7 @@ async function touchLastLogin(id) {
   await query('UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
 }
 
-async function updateProfile(id, { fullName, avatarUrl, coverUrl, bio, themePreference }) {
+async function updateProfile(id, { fullName, avatarUrl, coverUrl, bio, themePreference, phone, jobTitle, location, timezone }) {
   await query(
     `UPDATE users SET
        full_name = COALESCE(?, full_name),
@@ -40,9 +49,13 @@ async function updateProfile(id, { fullName, avatarUrl, coverUrl, bio, themePref
        cover_url = COALESCE(?, cover_url),
        bio = COALESCE(?, bio),
        theme_preference = COALESCE(?, theme_preference),
+       phone = COALESCE(?, phone),
+       job_title = COALESCE(?, job_title),
+       location = COALESCE(?, location),
+       timezone = COALESCE(?, timezone),
        updated_at = CURRENT_TIMESTAMP
      WHERE id = ?`,
-    [fullName, avatarUrl, coverUrl, bio, themePreference, id]
+    [fullName, avatarUrl, coverUrl, bio, themePreference, phone, jobTitle, location, timezone, id]
   );
   return findById(id);
 }
@@ -71,12 +84,12 @@ async function list({ page = 1, pageSize = 20, search = '' } = {}) {
   return { users: rows, total: countRows[0].total };
 }
 
-async function getOnlineUsers(minutesThreshold = 5) {
+async function getOnlineUsers(minutesThreshold = 15) {
   const { rows } = await query(
-    `SELECT id, full_name, email, last_login_at,
+    `SELECT id, full_name, email, role, is_active, is_approved, last_login_at,
             CASE WHEN last_login_at > datetime('now', ?) THEN 1 ELSE 0 END AS is_online
      FROM users
-     ORDER BY last_login_at DESC`,
+     ORDER BY is_online DESC, last_login_at DESC`,
     [`-${minutesThreshold} minutes`]
   );
   return rows;
@@ -98,6 +111,14 @@ async function setApproved(id, isApproved) {
   return findById(id);
 }
 
+async function setRole(id, role) {
+  await query(
+    'UPDATE users SET role = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+    [role, id]
+  );
+  return findById(id);
+}
+
 async function remove(id) {
   await query('DELETE FROM users WHERE id = ?', [id]);
 }
@@ -109,6 +130,7 @@ async function count() {
 
 module.exports = {
   findByEmail,
+  findByPhone,
   findById,
   create,
   verifyPassword,
@@ -119,6 +141,7 @@ module.exports = {
   getOnlineUsers,
   setActive,
   setApproved,
+  setRole,
   remove,
   count,
 };

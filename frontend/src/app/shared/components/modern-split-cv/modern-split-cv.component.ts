@@ -80,7 +80,7 @@ export interface CvHobby {
           <div class="sb-section">
             <div class="sb-label">
               <span class="sb-arrow">&#9658;</span>
-              <span>CONTACT</span>
+              <span>{{ lbl('Personal Information', 'CONTACT') }}</span>
             </div>
             <div class="sb-body">
               @if (email) {
@@ -109,7 +109,7 @@ export interface CvHobby {
             <div class="sb-section">
               <div class="sb-label">
                 <span class="sb-arrow">&#9658;</span>
-                <span>LANGUAGE</span>
+                <span>{{ lbl('Languages', 'LANGUAGE') }}</span>
               </div>
               <div class="sb-body">
                 @for (lang of languages; track $index) {
@@ -133,7 +133,7 @@ export interface CvHobby {
             <div class="sb-section">
               <div class="sb-label">
                 <span class="sb-arrow">&#9658;</span>
-                <span>REFERENCE</span>
+                <span>{{ lbl('References', 'REFERENCE') }}</span>
               </div>
               <div class="sb-body">
                 @for (ref of references; track $index) {
@@ -164,7 +164,7 @@ export interface CvHobby {
             <div class="sb-section">
               <div class="sb-label">
                 <span class="sb-arrow">&#9658;</span>
-                <span>HOBBIES</span>
+                <span>{{ lbl('Hobbies', 'HOBBIES') }}</span>
               </div>
               <div class="sb-body">
                 <div class="hobbies-grid">
@@ -207,7 +207,7 @@ export interface CvHobby {
             <section class="cv-section">
               <div class="sec-heading">
                 <svg class="sec-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <h2>PROFILE</h2>
+                <h2>{{ lbl('Personal Information', 'PROFILE') }}</h2>
               </div>
               <div class="sec-rule"></div>
               <p class="profile-text">{{ summary }}</p>
@@ -219,7 +219,7 @@ export interface CvHobby {
             <section class="cv-section">
               <div class="sec-heading">
                 <svg class="sec-icon" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-                <h2>EDUCATION</h2>
+                <h2>{{ lbl('Education', 'EDUCATION') }}</h2>
               </div>
               <div class="sec-rule"></div>
               <div class="timeline">
@@ -243,7 +243,7 @@ export interface CvHobby {
             <section class="cv-section">
               <div class="sec-heading">
                 <svg class="sec-icon" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-                <h2>EXPERIENCE</h2>
+                <h2>{{ lbl('Work Experience', 'EXPERIENCE') }}</h2>
               </div>
               <div class="sec-rule"></div>
               <div class="timeline">
@@ -271,7 +271,7 @@ export interface CvHobby {
             <section class="cv-section">
               <div class="sec-heading">
                 <svg class="sec-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                <h2>SKILLS</h2>
+                <h2>{{ lbl('Skills', 'SKILLS') }}</h2>
               </div>
               <div class="sec-rule"></div>
               <div class="skills-grid">
@@ -693,6 +693,47 @@ export class ModernSplitCvComponent {
   @Input() lineHeight = 1.45;
   @Input() fontFamily = 'Arial, Helvetica, sans-serif';
   @Input() sectionLines = true;
+  @Input() sectionLabels: Record<string, string> = {};
+  @Input() sectionOrder: string[] = [];
+
+  lbl(key: string, fallback?: string): string {
+    if (!this.sectionLabels) return fallback ?? key;
+    if (this.sectionLabels[key]) return this.sectionLabels[key];
+    const k = key.toLowerCase().replace(/[^a-z]/g, '');
+    for (const [sKey, val] of Object.entries(this.sectionLabels)) {
+      const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
+      if (sk === k) return val;
+      if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
+          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+        return val;
+      }
+      if ((k.includes('work') || k.includes('experience')) &&
+          (sk.includes('work') || sk.includes('experience'))) {
+        return val;
+      }
+      if ((k.includes('project')) && (sk.includes('project'))) {
+        return val;
+      }
+      if ((k.includes('skill')) && (sk.includes('skill'))) {
+        return val;
+      }
+      if ((k.includes('certif')) && (sk.includes('certif'))) {
+        return val;
+      }
+      if ((k.includes('lang')) && (sk.includes('lang'))) {
+        return val;
+      }
+      if ((k.includes('ref')) && (sk.includes('ref'))) {
+        return val;
+      }
+      if ((k.includes('hobb') || k.includes('interest') || k.includes('strength')) &&
+          (sk.includes('hobb') || sk.includes('interest') || sk.includes('strength'))) {
+        return val;
+      }
+    }
+    return fallback ?? key;
+  }
+
 
   get firstName(): string {
     const parts = (this.name || 'JOHN SMITH').trim().split(/\s+/);

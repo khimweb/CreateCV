@@ -26,6 +26,10 @@ export const adminRoutes: Routes = [
         loadComponent: () => import('./templates/admin-templates.component').then(m => m.AdminTemplatesComponent),
       },
       {
+        path: 'pricing',
+        loadComponent: () => import('./pricing/admin-pricing.component').then(m => m.AdminPricingComponent),
+      },
+      {
         path: 'permission',
         loadComponent: () => import('./permission/admin-permission.component').then(m => m.AdminPermissionComponent),
       },
@@ -40,6 +44,15 @@ export const adminRoutes: Routes = [
       {
         path: 'settings',
         loadComponent: () => import('./settings/admin-settings.component').then(m => m.AdminSettingsComponent),
+      },
+      {
+        path: 'analytics',
+        loadComponent: () => import('./analytics/admin-analytics.component').then(m => m.AdminAnalyticsComponent),
+      },
+      {
+        path: 'analysis',
+        redirectTo: 'analytics',
+        pathMatch: 'full',
       },
       {
         path: 'reports',

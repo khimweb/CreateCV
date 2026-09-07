@@ -1,0 +1,884 @@
+<div class="space-y-6 animate-fadeIn pb-12">
+
+  <!-- TOP HEADER & CONTROLS -->
+  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2.5">
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+          Homepage Pricing Control
+        </h1>
+        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          Live Sync Enabled
+        </span>
+      </div>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        Update individual pricing tiers, Cambodian Riel (KHR) conversion rates, and package bundles displayed on the public landing page.
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-wrap items-center gap-2.5">
+      <!-- Live Preview on Homepage link -->
+      <a
+        routerLink="/"
+        fragment="pricing"
+        target="_blank"
+        class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-xs font-semibold shadow-xs transition-all duration-200">
+        <lucide-icon [img]="ExternalLink" class="w-4 h-4 text-slate-400" />
+        <span>View Live Homepage</span>
+      </a>
+
+      <!-- Reset Defaults -->
+      <button
+        type="button"
+        (click)="resetToDefaults()"
+        [disabled]="isSaving()"
+        class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-xs font-semibold shadow-xs transition-all duration-200 disabled:opacity-50">
+        <lucide-icon [img]="RotateCcw" class="w-4 h-4 text-slate-400" />
+        <span>Reset Defaults</span>
+      </button>
+
+      <!-- Save Changes -->
+      <button
+        type="button"
+        (click)="save()"
+        [disabled]="isSaving()"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all duration-200 disabled:opacity-50">
+        @if (isSaving()) {
+          <lucide-icon [img]="RefreshCw" class="w-4 h-4 animate-spin" />
+          <span>Publishing Changes...</span>
+        } @else {
+          <lucide-icon [img]="Save" class="w-4 h-4" />
+          <span>Save &amp; Publish Prices</span>
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- NAVIGATION TABS -->
+  <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800">
+    <button
+      type="button"
+      (click)="activeTab.set('editor')"
+      [class.text-indigo-600]="activeTab() === 'editor'"
+      [class.dark:text-indigo-400]="activeTab() === 'editor'"
+      [class.border-indigo-600]="activeTab() === 'editor'"
+      [class.dark:border-indigo-400]="activeTab() === 'editor'"
+      [class.text-slate-500]="activeTab() !== 'editor'"
+      [class.dark:text-slate-400]="activeTab() !== 'editor'"
+      [class.border-transparent]="activeTab() !== 'editor'"
+      class="inline-flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-colors">
+      <lucide-icon [img]="SlidersHorizontal" class="w-4 h-4" />
+      <span>Pricing Plans Editor</span>
+    </button>
+    <button
+      type="button"
+      (click)="activeTab.set('preview')"
+      [class.text-indigo-600]="activeTab() === 'preview'"
+      [class.dark:text-indigo-400]="activeTab() === 'preview'"
+      [class.border-indigo-600]="activeTab() === 'preview'"
+      [class.dark:border-indigo-400]="activeTab() === 'preview'"
+      [class.text-slate-500]="activeTab() !== 'preview'"
+      [class.dark:text-slate-400]="activeTab() !== 'preview'"
+      [class.border-transparent]="activeTab() !== 'preview'"
+      class="inline-flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-colors">
+      <lucide-icon [img]="Eye" class="w-4 h-4" />
+      <span>Live Real-Time Preview</span>
+    </button>
+  </div>
+
+  <!-- TAB 1: PRICING EDITOR -->
+  @if (activeTab() === 'editor') {
+    <div class="space-y-6 animate-fadeIn">
+
+      <!-- GLOBAL CURRENCY & TELEGRAM CARD -->
+      <div class="p-5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+              <lucide-icon [img]="DollarSign" class="w-4 h-4" />
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white">Global Currency &amp; Support Settings</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                Configure currency conversion multiplier and customer contact destinations.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="syncBundlePillsWithPlanPrices()"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800/60 bg-indigo-50/70 hover:bg-indigo-100/80 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-xs font-semibold transition-colors">
+            <lucide-icon [img]="Sparkles" class="w-3.5 h-3.5" />
+            <span>Auto-Calculate Bundle Values</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <!-- Exchange Rate KHR -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              USD to KHR Exchange Rate (៛ per $1 USD)
+            </label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">៛</span>
+              <input
+                type="number"
+                [(ngModel)]="pricingData().exchangeRateKhr"
+                class="w-full pl-8 pr-4 py-2.5 text-sm font-semibold rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                placeholder="4100" />
+            </div>
+            <p class="text-[11px] text-slate-400">
+              Used across the entire homepage to convert $1 USD = {{ formatKhr(1) }}, $4 USD = {{ formatKhr(4) }}, etc.
+            </p>
+          </div>
+
+          <!-- Telegram Channel Link -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Telegram Official Support Link
+            </label>
+            <div class="relative">
+              <lucide-icon [img]="Send" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                [(ngModel)]="pricingData().telegramLink"
+                class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                placeholder="https://t.me/cvresumecqprofessional" />
+            </div>
+            <p class="text-[11px] text-slate-400">
+              Destination for "Contact on Telegram" and "Get Bundle via Telegram" buttons.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- THREE CORE PLANS SECTION -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+            <lucide-icon [img]="Layers" class="w-4 h-4" />
+          </div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">Individual Pricing Cards (Home Page)</h2>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+          <!-- PLAN 1: COVER LETTER -->
+          <div class="p-5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-xs space-y-4">
+            
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700/60">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold">
+                  <lucide-icon [img]="FileText" class="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900 dark:text-white">Plan 1: Cover Letter</h3>
+                  <span class="text-[11px] text-sky-600 dark:text-sky-400 font-medium">Single Service</span>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-slate-400">Card 1</span>
+            </div>
+
+            <!-- Price USD -->
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Price (USD)</label>
+              <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">$</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    [(ngModel)]="pricingData().plans.coverLetter.priceUsd"
+                    class="w-full pl-7 pr-3 py-2 text-sm font-bold rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500" />
+                </div>
+                <div class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 text-xs font-mono font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                  ≈ {{ formatKhr(pricingData().plans.coverLetter.priceUsd) }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Plan Name & Badge -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="space-y-1">
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Plan Title</label>
+                <input
+                  type="text"
+                  [(ngModel)]="pricingData().plans.coverLetter.name"
+                  class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Tier Badge</label>
+                <input
+                  type="text"
+                  [(ngModel)]="pricingData().plans.coverLetter.badge"
+                  class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="space-y-1">
+              <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Description</label>
+              <textarea
+                rows="2"
+                [(ngModel)]="pricingData().plans.coverLetter.description"
+                class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none"></textarea>
+            </div>
+
+            <!-- Period & Button Text -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="space-y-1">
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Billing Period</label>
+                <input
+                  type="text"
+                  [(ngModel)]="pricingData().plans.coverLetter.period"
+                  class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Button Label</label>
+                <input
+                  type="text"
+                  [(ngModel)]="pricingData().plans.coverLetter.buttonText"
+                  class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+              </div>
+            </div>
+
+            <!-- Features List -->
+            <div class="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-700/60">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Feature Bullet Points</label>
+                <button
+                  type="button"
+                  (click)="addFeature('coverLetter')"
+                  class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
+                  <lucide-icon [img]="Plus" class="w-3 h-3" />
+                  Add
+                </button>
+              </div>
+
+              <div class="space-y-1.5">
+                @for (feat of pricingData().plans.coverLetter.features; track $index) {
+                  <div class="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      [(ngModel)]="pricingData().plans.coverLetter.features[$index]"
+                      class="flex-1 px-2.5 py-1 text-xs rounded-md bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+                    <button
+                      type="button"
+                      (click)="removeFeature('coverLetter', $index)"
+                      class="p-1 rounded text-slate-400 hover:text-rose-500">
+                      <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+
+          </div>
+
+          <!-- PLAN 2: PROFESSIONAL CV (MOST POPULAR) -->
+          <div class="p-5 rounded-2xl bg-white dark:bg-slate-800/90 border-2 border-indigo-500/80 shadow-md shadow-indigo-500/5 space-y-4 relative">
+            
+            <div class="absolute -top-3 right-6 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xs">
+              {{ pricingData().plans.professionalCv.ribbon || 'Most Popular' }}
+            </div>
+
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700/60">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                  <lucide-icon [img]="Sparkles" class="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900 dark:text-white">Plan 2: Professional CV</h3>
+                  <span class="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">Core Platform</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Price USD -->
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Price (USD)</label>
+              <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">$</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    [(ngModel)]="pricingData().plans.professionalCv.priceUsd"
+                    class="w-full pl-7 pr-3 py-2 text-sm font-bold rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500" />
+                </div>
+                <div class="px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-xs font-mono font-semibold text-indigo-700 dark:text-indigo-300 whitespace-nowrap">
+                  ≈ {{ formatKhr(pricingData().plans.professionalCv.priceUsd) }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Plan Name & Badge -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="space-y-1">
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Plan Title</label>
+                <input
+                  type="text"
+                  [(ngModel)]="pricingData().plans.professionalCv.name"
+                  class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Tier Badge</label>
+                <input
+                  type="text"
+                  [(ngModel)]="pricingData().plans.professionalCv.badge"
+                  class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="space-y-1">
+              <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Description</label>
+              <textarea
+                rows="2"
+                [(ngModel)]="pricingData().plans.professionalCv.description"
+                class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none"></textarea>
+            </div>
+
+            <!-- Period & Button Text -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="space-y-1">
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Billing Period</label>
+                <input
+                  type="text"
+                  [(ngModel)]="pricingData().plans.professionalCv.period"
+                  class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Button Label</label>
+                <input
+                  type="text"
+                  [(ngModel)]="pricingData().plans.professionalCv.buttonText"
+                  class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+              </div>
+            </div>
+
+            <!-- Features List -->
+            <div class="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-700/60">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Feature Bullet Points</label>
+                <button
+                  type="button"
+                  (click)="addFeature('professionalCv')"
+                  class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
+                  <lucide-icon [img]="Plus" class="w-3 h-3" />
+                  Add
+                </button>
+              </div>
+
+              <div class="space-y-1.5">
+                @for (feat of pricingData().plans.professionalCv.features; track $index) {
+                  <div class="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      [(ngModel)]="pricingData().plans.professionalCv.features[$index]"
+                      class="flex-1 px-2.5 py-1 text-xs rounded-md bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+                    <button
+                      type="button"
+                      (click)="removeFeature('professionalCv', $index)"
+                      class="p-1 rounded text-slate-400 hover:text-rose-500">
+                      <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+
+          </div>
+
+          <!-- PLAN 3: EDIT PIC FOR CV -->
+          <div class="p-5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-xs space-y-4">
+            
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700/60">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                  <lucide-icon [img]="Camera" class="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900 dark:text-white">Plan 3: Edit Pic for CV</h3>
+                  <span class="text-[11px] text-purple-600 dark:text-purple-400 font-medium">Studio Service</span>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-slate-400">Card 3</span>
+            </div>
+
+            <!-- Price USD -->
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Price (USD)</label>
+              <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">$</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    [(ngModel)]="pricingData().plans.editPic.priceUsd"
+                    class="w-full pl-7 pr-3 py-2 text-sm font-bold rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500" />
+                </div>
+                <div class="px-3 py-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-xs font-mono font-semibold text-purple-700 dark:text-purple-300 whitespace-nowrap">
+                  ≈ {{ formatKhr(pricingData().plans.editPic.priceUsd) }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Plan Name & Badge -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="space-y-1">
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Plan Title</label>
+                <input
+                  type="text"
+                  [(ngModel)]="pricingData().plans.editPic.name"
+                  class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Tier Badge</label>
+                <input
+                  type="text"
+                  [(ngModel)]="pricingData().plans.editPic.badge"
+                  class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="space-y-1">
+              <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Description</label>
+              <textarea
+                rows="2"
+                [(ngModel)]="pricingData().plans.editPic.description"
+                class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none"></textarea>
+            </div>
+
+            <!-- Period & Button Text -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="space-y-1">
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Billing Period</label>
+                <input
+                  type="text"
+                  [(ngModel)]="pricingData().plans.editPic.period"
+                  class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400">Button Label</label>
+                <input
+                  type="text"
+                  [(ngModel)]="pricingData().plans.editPic.buttonText"
+                  class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+              </div>
+            </div>
+
+            <!-- Features List -->
+            <div class="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-700/60">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Feature Bullet Points</label>
+                <button
+                  type="button"
+                  (click)="addFeature('editPic')"
+                  class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
+                  <lucide-icon [img]="Plus" class="w-3 h-3" />
+                  Add
+                </button>
+              </div>
+
+              <div class="space-y-1.5">
+                @for (feat of pricingData().plans.editPic.features; track $index) {
+                  <div class="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      [(ngModel)]="pricingData().plans.editPic.features[$index]"
+                      class="flex-1 px-2.5 py-1 text-xs rounded-md bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+                    <button
+                      type="button"
+                      (click)="removeFeature('editPic', $index)"
+                      class="p-1 rounded text-slate-400 hover:text-rose-500">
+                      <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MEGA COMBO BUNDLE CARD SECTION -->
+      <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-xs space-y-5">
+        
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700/60">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 font-bold">
+              <lucide-icon [img]="Tag" class="w-5 h-5" />
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-slate-900 dark:text-white">
+                All-In-One Mega Career Bundle (CV + Cover Letter + Photo Edit)
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                The high-converting featured combo package displayed at the bottom of the pricing section.
+              </p>
+            </div>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/40">
+            Featured Combo
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <!-- Original / Regular Price -->
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Original / Base Price (USD)</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">$</span>
+              <input
+                type="number"
+                min="0"
+                step="0.5"
+                [(ngModel)]="pricingData().bundle.originalPriceUsd"
+                class="w-full pl-8 pr-4 py-2.5 text-sm font-semibold rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none"
+                placeholder="10" />
+            </div>
+            <p class="text-[11px] text-slate-400">Displays as strikethrough "Was ${{ pricingData().bundle.originalPriceUsd.toFixed(2) }}"</p>
+          </div>
+
+          <!-- Sale Bundle Price -->
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Discounted Bundle Price (USD)</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">$</span>
+              <input
+                type="number"
+                min="0"
+                step="0.5"
+                [(ngModel)]="pricingData().bundle.priceUsd"
+                class="w-full pl-8 pr-4 py-2.5 text-sm font-bold rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none text-emerald-600 dark:text-emerald-400"
+                placeholder="8" />
+            </div>
+            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+              Converts to {{ formatKhr(pricingData().bundle.priceUsd) }} • Complete Set
+            </p>
+          </div>
+
+          <!-- Calculated Savings Badge Preview -->
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex flex-col justify-center">
+            <span class="text-[11px] uppercase font-semibold text-slate-400">Calculated Discount</span>
+            <div class="text-lg font-extrabold text-slate-900 dark:text-white mt-0.5">
+              Save \${{ calculatedBundleSavings().save }} ({{ calculatedBundleSavings().percent }}% OFF)
+            </div>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400">Automatic customer savings</span>
+          </div>
+
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <!-- Top Badge Text -->
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Top Banner / Badge Text</label>
+            <input
+              type="text"
+              [(ngModel)]="pricingData().bundle.badgeTop"
+              class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+          </div>
+
+          <!-- Telegram Button Text -->
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Telegram Order Button Text</label>
+            <input
+              type="text"
+              [(ngModel)]="pricingData().bundle.telegramButtonText"
+              class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+          </div>
+
+          <!-- Bundle Title -->
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Bundle Main Title</label>
+            <input
+              type="text"
+              [(ngModel)]="pricingData().bundle.title"
+              class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+          </div>
+
+          <!-- Bundle Kicker -->
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Bundle Kicker Sub-header</label>
+            <input
+              type="text"
+              [(ngModel)]="pricingData().bundle.kicker"
+              class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+          </div>
+
+        </div>
+
+        <!-- Bundle Description -->
+        <div class="space-y-1">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Bundle Detailed Description</label>
+          <textarea
+            rows="2"
+            [(ngModel)]="pricingData().bundle.description"
+            class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none"></textarea>
+        </div>
+
+        <!-- Included Items Pills -->
+        <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-700/60">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Included Value Items (Checklist Pills)</label>
+            <button
+              type="button"
+              (click)="addBundleItem()"
+              class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
+              <lucide-icon [img]="Plus" class="w-3.5 h-3.5" />
+              Add Item
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            @for (item of pricingData().bundle.items; track $index) {
+              <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 space-y-1.5 relative group">
+                <input
+                  type="text"
+                  [(ngModel)]="item.name"
+                  placeholder="Item Name"
+                  class="w-full px-2 py-1 text-xs font-bold rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none" />
+                <div class="flex items-center gap-1">
+                  <input
+                    type="text"
+                    [(ngModel)]="item.value"
+                    placeholder="e.g. $4 value"
+                    class="flex-1 px-2 py-1 text-[11px] rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 focus:outline-none" />
+                  <button
+                    type="button"
+                    (click)="removeBundleItem($index)"
+                    class="p-1 text-slate-400 hover:text-rose-500 rounded">
+                    <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  }
+
+  <!-- TAB 2: LIVE REAL-TIME PREVIEW -->
+  @if (activeTab() === 'preview') {
+    <div class="space-y-6 animate-fadeIn">
+      
+      <div class="p-4 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/60 dark:border-indigo-800/40 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <lucide-icon [img]="Eye" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+          <span class="text-xs font-semibold text-indigo-900 dark:text-indigo-200">
+            Interactive Live Preview: This shows exactly how customers see the cards on the public homepage.
+          </span>
+        </div>
+        <button
+          type="button"
+          (click)="save()"
+          [disabled]="isSaving()"
+          class="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-xs">
+          Publish Changes Now
+        </button>
+      </div>
+
+      <!-- Preview Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Preview Card 1: Cover Letter -->
+        <div class="pricing-preview-card p-6 rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-2xl bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                <lucide-icon [img]="FileText" class="w-6 h-6" />
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                {{ pricingData().plans.coverLetter.badge }}
+              </span>
+            </div>
+
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">{{ pricingData().plans.coverLetter.name }}</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ pricingData().plans.coverLetter.description }}</p>
+
+            <div class="mt-4 flex items-baseline gap-1">
+              <span class="text-xl font-bold text-slate-900 dark:text-white">$</span>
+              <span class="text-4xl font-extrabold text-slate-900 dark:text-white">{{ pricingData().plans.coverLetter.priceUsd }}</span>
+              <span class="text-xs text-slate-400">{{ pricingData().plans.coverLetter.period }}</span>
+            </div>
+            <p class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mt-1">
+              ≈ {{ formatKhr(pricingData().plans.coverLetter.priceUsd) }}
+            </p>
+
+            <ul class="mt-5 space-y-2 text-xs text-slate-600 dark:text-slate-300">
+              @for (feat of pricingData().plans.coverLetter.features; track $index) {
+                <li class="flex items-center gap-2">
+                  <lucide-icon [img]="Check" class="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>{{ feat }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
+            <button class="w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors flex items-center justify-center gap-1">
+              {{ pricingData().plans.coverLetter.buttonText }}
+              <lucide-icon [img]="ArrowRight" class="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview Card 2: Professional CV -->
+        <div class="pricing-preview-card p-6 rounded-3xl bg-white dark:bg-slate-800 border-2 border-indigo-600 shadow-lg shadow-indigo-500/10 flex flex-col justify-between relative">
+          <div class="absolute -top-3 right-6 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xs">
+            {{ pricingData().plans.professionalCv.ribbon }}
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                <lucide-icon [img]="Sparkles" class="w-6 h-6" />
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300">
+                {{ pricingData().plans.professionalCv.badge }}
+              </span>
+            </div>
+
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">{{ pricingData().plans.professionalCv.name }}</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ pricingData().plans.professionalCv.description }}</p>
+
+            <div class="mt-4 flex items-baseline gap-1">
+              <span class="text-xl font-bold text-slate-900 dark:text-white">$</span>
+              <span class="text-4xl font-extrabold text-slate-900 dark:text-white">{{ pricingData().plans.professionalCv.priceUsd }}</span>
+              <span class="text-xs text-slate-400">{{ pricingData().plans.professionalCv.period }}</span>
+            </div>
+            <p class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mt-1">
+              ≈ {{ formatKhr(pricingData().plans.professionalCv.priceUsd) }}
+            </p>
+
+            <ul class="mt-5 space-y-2 text-xs text-slate-600 dark:text-slate-300">
+              @for (feat of pricingData().plans.professionalCv.features; track $index) {
+                <li class="flex items-center gap-2">
+                  <lucide-icon [img]="Check" class="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>{{ feat }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
+            <button class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 transition-colors flex items-center justify-center gap-1">
+              {{ pricingData().plans.professionalCv.buttonText }}
+              <lucide-icon [img]="ArrowRight" class="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview Card 3: Edit Pic for CV -->
+        <div class="pricing-preview-card p-6 rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                <lucide-icon [img]="Camera" class="w-6 h-6" />
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                {{ pricingData().plans.editPic.badge }}
+              </span>
+            </div>
+
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">{{ pricingData().plans.editPic.name }}</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ pricingData().plans.editPic.description }}</p>
+
+            <div class="mt-4 flex items-baseline gap-1">
+              <span class="text-xl font-bold text-slate-900 dark:text-white">$</span>
+              <span class="text-4xl font-extrabold text-slate-900 dark:text-white">{{ pricingData().plans.editPic.priceUsd }}</span>
+              <span class="text-xs text-slate-400">{{ pricingData().plans.editPic.period }}</span>
+            </div>
+            <p class="text-xs text-purple-600 dark:text-purple-400 font-semibold mt-1">
+              ≈ {{ formatKhr(pricingData().plans.editPic.priceUsd) }}
+            </p>
+
+            <ul class="mt-5 space-y-2 text-xs text-slate-600 dark:text-slate-300">
+              @for (feat of pricingData().plans.editPic.features; track $index) {
+                <li class="flex items-center gap-2">
+                  <lucide-icon [img]="Check" class="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>{{ feat }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
+            <button class="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold shadow-md shadow-sky-500/20 transition-colors flex items-center justify-center gap-1.5">
+              <lucide-icon [img]="Send" class="w-3.5 h-3.5" />
+              {{ pricingData().plans.editPic.buttonText }}
+              <lucide-icon [img]="ArrowUpRight" class="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Preview Mega Bundle -->
+      <div class="rounded-3xl p-6 md:p-8 bg-gradient-to-br from-indigo-900 via-slate-900 to-slate-950 text-white relative overflow-hidden border border-indigo-500/30 shadow-xl">
+        <div class="absolute top-0 right-0 px-4 py-1.5 bg-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-bl-2xl">
+          {{ pricingData().bundle.badgeTop }}
+        </div>
+
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div class="space-y-3 max-w-2xl">
+            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">
+              {{ pricingData().bundle.kicker }}
+            </span>
+            <h3 class="text-2xl md:text-3xl font-black">{{ pricingData().bundle.title }}</h3>
+            <p class="text-xs md:text-sm text-slate-300 leading-relaxed">{{ pricingData().bundle.description }}</p>
+
+            <div class="flex flex-wrap gap-2 pt-2">
+              @for (item of pricingData().bundle.items; track $index) {
+                <div class="px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold flex items-center gap-1.5">
+                  <span class="text-emerald-400">✓</span>
+                  <span>{{ item.name }}</span>
+                  @if (item.value) {
+                    <span class="text-slate-400">({{ item.value }})</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Price Box -->
+          <div class="p-6 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/10 text-center min-w-[260px] shrink-0">
+            <span class="text-xs text-slate-300 line-through">Was \${{ pricingData().bundle.originalPriceUsd.toFixed(2) }}</span>
+            <div class="flex items-baseline justify-center gap-1 my-1">
+              <span class="text-2xl font-bold text-amber-400">$</span>
+              <span class="text-5xl font-black text-white">{{ pricingData().bundle.priceUsd }}</span>
+              <span class="text-xs text-slate-300">USD</span>
+            </div>
+            <p class="text-xs text-emerald-400 font-semibold">
+              {{ formatKhr(pricingData().bundle.priceUsd) }} • Complete Set
+            </p>
+
+            <button class="mt-4 w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold shadow-lg shadow-sky-500/30 flex items-center justify-center gap-1.5">
+              <lucide-icon [img]="Send" class="w-3.5 h-3.5" />
+              {{ pricingData().bundle.telegramButtonText }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  }
+
+</div>

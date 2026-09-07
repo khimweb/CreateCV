@@ -1,0 +1,897 @@
+<section class="space-y-6 animate-fadeIn pb-12">
+  <!-- Toast Notification -->
+  @if (successToast()) {
+    <div class="fixed bottom-5 right-5 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 text-xs font-semibold shadow-2xl backdrop-blur border border-slate-700/50 dark:border-slate-200/50 animate-fadeIn">
+      <lucide-icon [img]="CircleCheck" class="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
+      <span>{{ successToast() }}</span>
+    </div>
+  }
+
+  <!-- Header & Primary Controls -->
+  <header class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-500/20">
+          <lucide-icon [img]="Shield" class="w-3 h-3" />
+          Security Operations & Audit Trail
+        </span>
+        <span class="text-xs text-slate-400 dark:text-slate-500">Live Surveillance</span>
+      </div>
+      <h1 class="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
+        System Security & User Activity
+      </h1>
+      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400 max-w-2xl">
+        Real-time session presence, access control event auditing, and authentication security logs.
+      </p>
+    </div>
+
+    <!-- Top Action Toolbar -->
+    <div class="flex flex-wrap items-center gap-2.5">
+      <!-- Live Auto-refresh Pill -->
+      <button
+        type="button"
+        (click)="toggleAutoRefresh()"
+        class="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all border shadow-sm active:scale-95"
+        [ngClass]="autoRefresh()
+          ? 'bg-emerald-50/70 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/20 hover:bg-emerald-100/70'
+          : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50'"
+        title="Toggle automatic refresh every 15 seconds"
+      >
+        <span class="relative flex h-2 w-2">
+          @if (autoRefresh()) {
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          }
+          <span class="relative inline-flex rounded-full h-2 w-2" [ngClass]="autoRefresh() ? 'bg-emerald-500' : 'bg-slate-400'"></span>
+        </span>
+        <span>{{ autoRefresh() ? 'Live: 15s' : 'Live: Off' }}</span>
+      </button>
+
+      <!-- Manual Refresh Button -->
+      <button
+        type="button"
+        (click)="loadAll()"
+        [disabled]="loading()"
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition-all active:scale-95 disabled:opacity-50"
+      >
+        <lucide-icon [img]="RefreshCw" class="w-3.5 h-3.5" [class.animate-spin]="loading()" />
+        Refresh
+      </button>
+
+      <!-- Export CSV -->
+      <button
+        type="button"
+        (click)="exportLogs('csv')"
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition-all active:scale-95"
+        title="Export logs as CSV"
+      >
+        <lucide-icon [img]="Download" class="w-3.5 h-3.5 text-indigo-500" />
+        Export CSV
+      </button>
+
+      <!-- Clear Logs Danger Action -->
+      <button
+        type="button"
+        (click)="openClearConfirm()"
+        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-50/60 dark:bg-rose-500/10 border border-rose-200/60 dark:border-rose-500/20 hover:bg-rose-100/70 shadow-sm transition-all active:scale-95"
+        title="Purge all activity log history"
+      >
+        <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+        Clear Logs
+      </button>
+    </div>
+  </header>
+
+  <!-- 4 Interactive KPI Metric Cards -->
+  <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Total Events -->
+    <div
+      (click)="setActionFilter('')"
+      class="group cursor-pointer rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+      [class.ring-2]="actionFilter() === '' && !selectedUser()"
+      [class.ring-indigo-500]="actionFilter() === '' && !selectedUser()"
+    >
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Events</span>
+        <span class="p-2 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+          <lucide-icon [img]="Activity" class="w-4 h-4" />
+        </span>
+      </div>
+      <div class="mt-3 flex items-baseline gap-2">
+        <span class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">{{ stats().total }}</span>
+        <span class="text-xs text-slate-400">audit logs</span>
+      </div>
+      <div class="mt-2 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+        <lucide-icon [img]="Clock" class="w-3 h-3 text-slate-400" />
+        Full recorded history
+      </div>
+    </div>
+
+    <!-- Active Sessions / Online Users -->
+    <div
+      (click)="setUserStatusFilter('online')"
+      class="group cursor-pointer rounded-2xl border border-emerald-100 dark:border-emerald-500/20 bg-emerald-50/40 dark:bg-emerald-500/5 p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-emerald-300 transition-all duration-200"
+      [class.ring-2]="userStatusFilter() === 'online'"
+      [class.ring-emerald-500]="userStatusFilter() === 'online'"
+    >
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">Online Users</span>
+        <span class="p-2 rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300 group-hover:scale-110 transition-transform">
+          <lucide-icon [img]="Wifi" class="w-4 h-4" />
+        </span>
+      </div>
+      <div class="mt-3 flex items-baseline gap-2">
+        <span class="text-2xl sm:text-3xl font-black text-emerald-700 dark:text-emerald-300">{{ onlineCount() }}</span>
+        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Active
+        </span>
+      </div>
+      <div class="mt-2 text-[11px] text-emerald-600/80 dark:text-emerald-400/80">
+        In the last 15 minutes
+      </div>
+    </div>
+
+    <!-- Successful Logins -->
+    <div
+      (click)="setActionFilter('login')"
+      class="group cursor-pointer rounded-2xl border border-blue-100 dark:border-blue-500/20 bg-blue-50/40 dark:bg-blue-500/5 p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-blue-300 transition-all duration-200"
+      [class.ring-2]="actionFilter() === 'login'"
+      [class.ring-blue-500]="actionFilter() === 'login'"
+    >
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-blue-800 dark:text-blue-400 uppercase tracking-wider">Logins ({{ loginSuccessRate() }}%)</span>
+        <span class="p-2 rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300 group-hover:scale-110 transition-transform">
+          <lucide-icon [img]="LogIn" class="w-4 h-4" />
+        </span>
+      </div>
+      <div class="mt-3 flex items-baseline gap-2">
+        <span class="text-2xl sm:text-3xl font-black text-blue-700 dark:text-blue-300">{{ stats().logins }}</span>
+        <span class="text-xs text-blue-600/70 dark:text-blue-400/70">successful</span>
+      </div>
+      <div class="mt-2 text-[11px] text-blue-600/80 dark:text-blue-400/80">
+        Authorized user sessions
+      </div>
+    </div>
+
+    <!-- Threat / Failed Logins -->
+    <div
+      (click)="setActionFilter('login_failed')"
+      class="group cursor-pointer rounded-2xl border border-rose-100 dark:border-rose-500/20 bg-rose-50/40 dark:bg-rose-500/5 p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-rose-300 transition-all duration-200"
+      [class.ring-2]="actionFilter() === 'login_failed'"
+      [class.ring-rose-500]="actionFilter() === 'login_failed'"
+    >
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-rose-800 dark:text-rose-400 uppercase tracking-wider">Security Flags</span>
+        <span class="p-2 rounded-xl bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300 group-hover:scale-110 transition-transform">
+          <lucide-icon [img]="ShieldAlert" class="w-4 h-4" />
+        </span>
+      </div>
+      <div class="mt-3 flex items-baseline gap-2">
+        <span class="text-2xl sm:text-3xl font-black text-rose-700 dark:text-rose-300">{{ stats().failed }}</span>
+        <span class="text-xs text-rose-600/70 dark:text-rose-400/70">failed logins</span>
+      </div>
+      <div class="mt-2 text-[11px] text-rose-600/80 dark:text-rose-400/80">
+        {{ stats().failed === 0 ? 'No security violations detected' : 'Attention required on failed attempts' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- User Presence & Active Sessions Track -->
+  <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 shadow-sm">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <div class="flex items-center gap-2">
+        <span class="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+          <lucide-icon [img]="Wifi" class="w-4 h-4" />
+        </span>
+        <div>
+          <h2 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+            User Presence & Online Status
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
+              {{ onlineCount() }} Online Now
+            </span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Click any user card to filter their activity logs below</p>
+        </div>
+      </div>
+
+      <!-- Quick User Presence Tabs -->
+      <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl text-xs font-semibold">
+        <button
+          type="button"
+          (click)="setUserStatusFilter('all')"
+          class="px-3 py-1.5 rounded-lg transition-all"
+          [ngClass]="userStatusFilter() === 'all'
+            ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+        >
+          All ({{ onlineUsers().length }})
+        </button>
+        <button
+          type="button"
+          (click)="setUserStatusFilter('online')"
+          class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+          [ngClass]="userStatusFilter() === 'online'
+            ? 'bg-emerald-500 text-white shadow-sm'
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+        >
+          <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+          Online ({{ onlineCount() }})
+        </button>
+        <button
+          type="button"
+          (click)="setUserStatusFilter('admin')"
+          class="px-3 py-1.5 rounded-lg transition-all"
+          [ngClass]="userStatusFilter() === 'admin'
+            ? 'bg-purple-600 text-white shadow-sm'
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+        >
+          Admins
+        </button>
+      </div>
+    </div>
+
+    <!-- User Grid Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+      @for (u of filteredOnlineUsers(); track u.id) {
+        <div
+          (click)="filterByUser(u)"
+          class="group relative flex items-center gap-3.5 p-3 rounded-xl border transition-all duration-200 cursor-pointer text-left"
+          [ngClass]="selectedUser()?.id === u.id
+            ? 'bg-indigo-50/80 dark:bg-indigo-500/10 border-indigo-400 dark:border-indigo-500 shadow-md ring-2 ring-indigo-500/30'
+            : 'bg-slate-50/60 dark:bg-slate-800/40 border-slate-200/60 dark:border-slate-700/60 hover:bg-slate-100/70 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 hover:-translate-y-0.5 hover:shadow-sm'"
+        >
+          <!-- Avatar with Online Dot -->
+          <div class="relative shrink-0">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black uppercase text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/30">
+              {{ (u.full_name || u.email || 'U').slice(0, 2) }}
+            </div>
+            <span
+              class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center"
+              [ngClass]="u.is_online ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'"
+              [title]="u.is_online ? 'Online now' : 'Offline'"
+            >
+              @if (u.is_online) {
+                <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping opacity-75"></span>
+              }
+            </span>
+          </div>
+
+          <!-- Info -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5">
+              <p class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{{ u.full_name || 'User #' + u.id }}</p>
+              @if (u.role === 'admin') {
+                <span class="px-1.5 py-0.2 rounded text-[9px] font-extrabold uppercase tracking-wide bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300">
+                  Admin
+                </span>
+              }
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{{ u.email }}</p>
+            <div class="flex items-center justify-between mt-1 text-[10px]">
+              <span [ngClass]="u.is_online ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-400'">
+                {{ u.is_online ? 'Online now' : (u.last_login_at ? formatRelativeTime(u.last_login_at) : 'Never logged in') }}
+              </span>
+              @if (selectedUser()?.id === u.id) {
+                <span class="font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-0.5">
+                  <lucide-icon [img]="Check" class="w-3 h-3" /> Filtering
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+      @if (filteredOnlineUsers().length === 0) {
+        <div class="col-span-full py-8 text-center text-xs text-slate-400">
+          No users match the selected status filter.
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Activity & Audit Log Section -->
+  <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+    <!-- Toolbar Header -->
+    <div class="p-5 border-b border-slate-200/80 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="flex items-center gap-2.5">
+        <span class="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+          <lucide-icon [img]="ShieldCheck" class="w-4 h-4" />
+        </span>
+        <div>
+          <h2 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+            Activity & Authentication Log
+            <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+              {{ totalLogs() }} total
+            </span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Chronological security events, IP tracking, and client user-agents</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons & Switchers -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Active User Filter Indicator Chip -->
+        @if (selectedUser()) {
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 border border-indigo-300/50">
+            <lucide-icon [img]="User" class="w-3 h-3" />
+            <span>User: {{ selectedUser()?.full_name || selectedUser()?.email }}</span>
+            <button type="button" (click)="clearUserFilter()" class="hover:text-indigo-950 dark:hover:text-white ml-1">
+              <lucide-icon [img]="X" class="w-3.5 h-3.5" />
+            </button>
+          </div>
+        }
+
+        <!-- View Mode Switcher -->
+        <div class="inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+          <button
+            type="button"
+            (click)="viewMode.set('table')"
+            class="p-1.5 rounded-lg transition-all"
+            [ngClass]="viewMode() === 'table'
+              ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+            title="Table View"
+          >
+            <lucide-icon [img]="List" class="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            (click)="viewMode.set('cards')"
+            class="p-1.5 rounded-lg transition-all"
+            [ngClass]="viewMode() === 'cards'
+              ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+            title="Card Feed View"
+          >
+            <lucide-icon [img]="LayoutGrid" class="w-4 h-4" />
+          </button>
+        </div>
+
+        <!-- Per Page Dropdown -->
+        <div class="flex items-center gap-1.5 text-xs text-slate-500">
+          <span>Show:</span>
+          <select
+            [ngModel]="pageSize()"
+            (ngModelChange)="setPageSize($event)"
+            class="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option [value]="15">15</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter & Search Bar Strip -->
+    <div class="p-4 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-200/80 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <!-- Action Pills -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <button
+          type="button"
+          (click)="setActionFilter('')"
+          class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border"
+          [ngClass]="actionFilter() === ''
+            ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50'"
+        >
+          All Actions
+        </button>
+        <button
+          type="button"
+          (click)="setActionFilter('login')"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border"
+          [ngClass]="actionFilter() === 'login'
+            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50'"
+        >
+          <lucide-icon [img]="LogIn" class="w-3 h-3" />
+          Logins
+        </button>
+        <button
+          type="button"
+          (click)="setActionFilter('login_failed')"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border"
+          [ngClass]="actionFilter() === 'login_failed'
+            ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
+            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50'"
+        >
+          <lucide-icon [img]="ShieldAlert" class="w-3 h-3" />
+          Failed Attempts
+        </button>
+        <button
+          type="button"
+          (click)="setActionFilter('register')"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border"
+          [ngClass]="actionFilter() === 'register'
+            ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50'"
+        >
+          <lucide-icon [img]="UserPlus" class="w-3 h-3" />
+          Registrations
+        </button>
+        <button
+          type="button"
+          (click)="setActionFilter('logout')"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border"
+          [ngClass]="actionFilter() === 'logout'
+            ? 'bg-slate-700 text-white border-slate-700 shadow-sm'
+            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50'"
+        >
+          <lucide-icon [img]="LogOut" class="w-3 h-3" />
+          Logouts
+        </button>
+      </div>
+
+      <!-- Live Search Box -->
+      <div class="relative w-full md:w-72 search-wrapper-animated">
+        <lucide-icon [img]="Search" class="search-icon-animated absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 transition-colors pointer-events-none" />
+        <input
+          type="text"
+          [ngModel]="searchLog()"
+          (ngModelChange)="searchLog.set($event); onSearchChange()"
+          placeholder="Search user, email, IP, action..."
+          class="w-full pl-9 pr-8 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
+        />
+        @if (searchLog()) {
+          <button
+            type="button"
+            (click)="clearSearch()"
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+          >
+            <lucide-icon [img]="X" class="w-3.5 h-3.5" />
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- VIEW MODE 1: Table View -->
+    @if (viewMode() === 'table') {
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50/75 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border-b border-slate-200/80 dark:border-slate-800 font-bold uppercase tracking-wider text-[11px]">
+            <tr>
+              <th class="px-5 py-3.5">User Identity</th>
+              <th class="px-4 py-3.5">Action / Event</th>
+              <th class="px-4 py-3.5">Device & Environment</th>
+              <th class="px-4 py-3.5">IP Address</th>
+              <th class="px-4 py-3.5">Timestamp</th>
+              <th class="px-5 py-3.5 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            @for (log of logs(); track log.id) {
+              <tr class="hover:bg-indigo-50/30 dark:hover:bg-slate-800/50 transition-colors group">
+                <!-- User Identity -->
+                <td class="px-5 py-3.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-slate-600 dark:text-slate-300 text-xs shrink-0 border border-slate-200 dark:border-slate-700">
+                      {{ (log.full_name || log.email || 'U').slice(0, 1).toUpperCase() }}
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-1.5">
+                        <span class="font-bold text-slate-900 dark:text-white truncate">{{ log.full_name || 'Anonymous User' }}</span>
+                        @if (log.role === 'admin') {
+                          <span class="px-1.5 py-0.2 rounded text-[9px] font-extrabold uppercase bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300">
+                            Admin
+                          </span>
+                        }
+                      </div>
+                      <p class="text-[11px] text-slate-500 dark:text-slate-400 font-normal truncate mt-0.5">{{ log.email }}</p>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Action Badge -->
+                <td class="px-4 py-3.5 whitespace-nowrap">
+                  @if (log.action === 'login') {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20">
+                      <lucide-icon [img]="LogIn" class="w-3.5 h-3.5" />
+                      Login Successful
+                    </span>
+                  } @else if (log.action === 'login_failed') {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200/50 dark:border-rose-500/20">
+                      <lucide-icon [img]="ShieldAlert" class="w-3.5 h-3.5" />
+                      Login Failed
+                    </span>
+                  } @else if (log.action === 'register') {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-200/50 dark:border-blue-500/20">
+                      <lucide-icon [img]="UserPlus" class="w-3.5 h-3.5" />
+                      New Registration
+                    </span>
+                  } @else if (log.action === 'logout') {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                      <lucide-icon [img]="LogOut" class="w-3.5 h-3.5" />
+                      Signed Out
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                      {{ log.action }}
+                    </span>
+                  }
+                </td>
+
+                <!-- Device & Environment -->
+                <td class="px-4 py-3.5 whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <span class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                      @if (parseUserAgent(log.user_agent).device === 'mobile') {
+                        <lucide-icon [img]="Smartphone" class="w-3.5 h-3.5" />
+                      } @else if (parseUserAgent(log.user_agent).device === 'tablet') {
+                        <lucide-icon [img]="Monitor" class="w-3.5 h-3.5" />
+                      } @else {
+                        <lucide-icon [img]="Laptop" class="w-3.5 h-3.5" />
+                      }
+                    </span>
+                    <div>
+                      <p class="font-semibold text-slate-800 dark:text-slate-200">
+                        {{ parseUserAgent(log.user_agent).browser }}
+                      </p>
+                      <p class="text-[10px] text-slate-400">
+                        {{ parseUserAgent(log.user_agent).os }}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- IP Address with One-Click Copy -->
+                <td class="px-4 py-3.5 whitespace-nowrap">
+                  <div class="inline-flex items-center gap-1.5 font-mono text-[11px] px-2.5 py-1 rounded-lg bg-slate-100/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 group/ip">
+                    <span>{{ log.ip_address || '—' }}</span>
+                    @if (log.ip_address) {
+                      <button
+                        type="button"
+                        (click)="copyIp(log.ip_address, $event)"
+                        class="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-0.5 rounded"
+                        title="Copy IP address"
+                      >
+                        @if (copiedIp() === log.ip_address) {
+                          <lucide-icon [img]="Check" class="w-3 h-3 text-emerald-500" />
+                        } @else {
+                          <lucide-icon [img]="Copy" class="w-3 h-3" />
+                        }
+                      </button>
+                    }
+                  </div>
+                </td>
+
+                <!-- Timestamp -->
+                <td class="px-4 py-3.5 whitespace-nowrap">
+                  <p class="font-semibold text-slate-800 dark:text-slate-200">{{ formatRelativeTime(log.created_at) }}</p>
+                  <p class="text-[10px] text-slate-400 mt-0.5">{{ log.created_at }}</p>
+                </td>
+
+                <!-- Actions -->
+                <td class="px-5 py-3.5 text-right whitespace-nowrap">
+                  <div class="inline-flex items-center gap-1">
+                    <button
+                      type="button"
+                      (click)="inspectLog(log)"
+                      class="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all"
+                      title="Inspect event details"
+                    >
+                      <lucide-icon [img]="Eye" class="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      (click)="deleteLog(log.id, $event)"
+                      class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all"
+                      title="Delete log entry"
+                    >
+                      <lucide-icon [img]="Trash2" class="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+            @if (logs().length === 0) {
+              <tr>
+                <td colspan="6" class="px-6 py-16 text-center">
+                  <div class="max-w-xs mx-auto space-y-2">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto text-slate-400">
+                      <lucide-icon [img]="ShieldAlert" class="w-6 h-6" />
+                    </div>
+                    <p class="font-bold text-sm text-slate-700 dark:text-slate-200">No activity logs found</p>
+                    <p class="text-xs text-slate-400">Try changing your search term or action filter</p>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- VIEW MODE 2: Card / Timeline Feed View -->
+    @if (viewMode() === 'cards') {
+      <div class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (log of logs(); track log.id) {
+          <div
+            (click)="inspectLog(log)"
+            class="group cursor-pointer rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-800/50 p-4 shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-200"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-slate-700 dark:text-slate-200 text-xs shrink-0">
+                  {{ (log.full_name || log.email || 'U').slice(0, 1).toUpperCase() }}
+                </div>
+                <div class="min-w-0">
+                  <h4 class="font-bold text-xs text-slate-900 dark:text-white truncate">{{ log.full_name || 'Anonymous' }}</h4>
+                  <p class="text-[11px] text-slate-400 truncate">{{ log.email }}</p>
+                </div>
+              </div>
+
+              <!-- Action Indicator -->
+              <span class="p-1.5 rounded-lg shrink-0"
+                [ngClass]="{
+                  'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300': log.action === 'login',
+                  'bg-rose-50 text-rose-600 dark:bg-rose-500/20 dark:text-rose-300': log.action === 'login_failed',
+                  'bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-300': log.action === 'register',
+                  'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300': log.action === 'logout'
+                }"
+              >
+                @if (log.action === 'login') {
+                  <lucide-icon [img]="LogIn" class="w-4 h-4" />
+                } @else if (log.action === 'login_failed') {
+                  <lucide-icon [img]="ShieldAlert" class="w-4 h-4" />
+                } @else if (log.action === 'register') {
+                  <lucide-icon [img]="UserPlus" class="w-4 h-4" />
+                } @else {
+                  <lucide-icon [img]="LogOut" class="w-4 h-4" />
+                }
+              </span>
+            </div>
+
+            <div class="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+              <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                <lucide-icon [img]="Laptop" class="w-3.5 h-3.5 text-slate-400" />
+                <span>{{ parseUserAgent(log.user_agent).browser }} on {{ parseUserAgent(log.user_agent).os }}</span>
+              </div>
+              <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                {{ log.ip_address || '—' }}
+              </span>
+            </div>
+
+            <div class="mt-2.5 flex items-center justify-between text-[10px] text-slate-400">
+              <span class="flex items-center gap-1">
+                <lucide-icon [img]="Clock" class="w-3 h-3" />
+                {{ formatRelativeTime(log.created_at) }}
+              </span>
+              <button
+                type="button"
+                (click)="deleteLog(log.id, $event)"
+                class="opacity-0 group-hover:opacity-100 hover:text-rose-500 transition-opacity p-1"
+                title="Delete entry"
+              >
+                <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        }
+        @if (logs().length === 0) {
+          <div class="col-span-full py-16 text-center text-slate-400 text-xs">
+            No activity logs match your filter.
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Pagination Footer -->
+    <div class="p-4 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-slate-50/40 dark:bg-slate-800/20">
+      <div class="text-xs text-slate-500 dark:text-slate-400">
+        Showing
+        <span class="font-bold text-slate-700 dark:text-slate-200">
+          {{ totalLogs() === 0 ? 0 : (page() - 1) * pageSize() + 1 }}
+        </span>
+        to
+        <span class="font-bold text-slate-700 dark:text-slate-200">
+          {{ Math.min(page() * pageSize(), totalLogs()) }}
+        </span>
+        of
+        <span class="font-bold text-slate-700 dark:text-slate-200">{{ totalLogs() }}</span>
+        entries
+      </div>
+
+      <!-- Page Controls -->
+      <div class="flex items-center gap-1">
+        <button
+          type="button"
+          (click)="goToPage(page() - 1)"
+          [disabled]="page() <= 1"
+          class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        >
+          <lucide-icon [img]="ChevronLeft" class="w-4 h-4" />
+        </button>
+
+        <span class="px-3 py-1.5 rounded-xl text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200/60 dark:border-indigo-500/20">
+          Page {{ page() }} of {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          (click)="goToPage(page() + 1)"
+          [disabled]="page() >= totalPages()"
+          class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        >
+          <lucide-icon [img]="ChevronRight" class="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Inspection Modal -->
+  @if (inspectingLog()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fadeIn">
+      <div class="w-full max-w-xl rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+        <!-- Modal Header -->
+        <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+              <lucide-icon [img]="Shield" class="w-5 h-5" />
+            </span>
+            <div>
+              <h3 class="font-bold text-base text-slate-900 dark:text-white">Security Event Inspector</h3>
+              <p class="text-xs text-slate-400">Event ID #{{ inspectingLog()?.id }}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            (click)="closeInspect()"
+            class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+          >
+            <lucide-icon [img]="X" class="w-5 h-5" />
+          </button>
+        </div>
+
+        <!-- Modal Body Details Grid -->
+        <div class="p-6 space-y-4 text-xs">
+          <!-- Action & Severity Banner -->
+          <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
+            <div>
+              <span class="text-[11px] font-semibold text-slate-400 uppercase">Event Action</span>
+              <p class="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide mt-0.5">
+                {{ inspectingLog()?.action }}
+              </p>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg text-xs font-bold"
+              [ngClass]="{
+                'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300': inspectingLog()?.action === 'login',
+                'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300': inspectingLog()?.action === 'login_failed',
+                'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300': inspectingLog()?.action === 'register',
+                'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300': inspectingLog()?.action === 'logout'
+              }"
+            >
+              {{ inspectingLog()?.action === 'login_failed' ? 'Security Warning' : 'Normal Event' }}
+            </span>
+          </div>
+
+          <!-- Metadata 2-Column Grid -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-800">
+              <span class="text-slate-400 font-medium">User Full Name</span>
+              <p class="font-bold text-slate-900 dark:text-white mt-1">{{ inspectingLog()?.full_name || 'Unknown' }}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-800">
+              <span class="text-slate-400 font-medium">User Email</span>
+              <p class="font-bold text-slate-900 dark:text-white mt-1 truncate">{{ inspectingLog()?.email }}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-800">
+              <span class="text-slate-400 font-medium">IP Address</span>
+              <div class="flex items-center justify-between mt-1">
+                <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ inspectingLog()?.ip_address || 'None' }}</span>
+                @if (inspectingLog()?.ip_address) {
+                  <button
+                    type="button"
+                    (click)="copyIp(inspectingLog()!.ip_address)"
+                    class="p-1 text-slate-400 hover:text-indigo-600"
+                    title="Copy IP"
+                  >
+                    <lucide-icon [img]="Copy" class="w-3.5 h-3.5" />
+                  </button>
+                }
+              </div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-800">
+              <span class="text-slate-400 font-medium">Timestamp (UTC)</span>
+              <p class="font-bold text-slate-900 dark:text-white mt-1">{{ inspectingLog()?.created_at }}</p>
+            </div>
+          </div>
+
+          <!-- Environment Client Breakdown -->
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-800">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">Client Environment</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                {{ parseUserAgent(inspectingLog()?.user_agent || '').device }}
+              </span>
+            </div>
+            <div class="flex items-center gap-4">
+              <div>
+                <span class="text-slate-400 text-[11px]">Browser:</span>
+                <span class="font-bold text-slate-800 dark:text-slate-100 ml-1">{{ parseUserAgent(inspectingLog()?.user_agent || '').browser }}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 text-[11px]">Operating System:</span>
+                <span class="font-bold text-slate-800 dark:text-slate-100 ml-1">{{ parseUserAgent(inspectingLog()?.user_agent || '').os }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Full Raw User Agent Box -->
+          <div class="p-3.5 rounded-xl bg-slate-900 text-slate-200 border border-slate-800">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Raw HTTP User-Agent</span>
+              <button
+                type="button"
+                (click)="copyUserAgent(inspectingLog()?.user_agent || '')"
+                class="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-400 hover:text-indigo-300"
+              >
+                @if (copiedUa()) {
+                  <lucide-icon [img]="Check" class="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Copied</span>
+                } @else {
+                  <lucide-icon [img]="Copy" class="w-3.5 h-3.5" />
+                  <span>Copy</span>
+                }
+              </button>
+            </div>
+            <p class="font-mono text-[11px] text-slate-300 break-all leading-relaxed bg-slate-950/80 p-2.5 rounded-lg border border-slate-800">
+              {{ inspectingLog()?.user_agent || 'No user agent provided' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30">
+          <button
+            type="button"
+            (click)="deleteLog(inspectingLog()!.id)"
+            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all"
+          >
+            <lucide-icon [img]="Trash2" class="w-3.5 h-3.5" />
+            Delete Entry
+          </button>
+          <button
+            type="button"
+            (click)="closeInspect()"
+            class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Clear History Confirmation Modal -->
+  @if (showClearConfirm()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fadeIn">
+      <div class="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 text-center space-y-4">
+        <div class="w-14 h-14 rounded-2xl bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
+          <lucide-icon [img]="TriangleAlert" class="w-7 h-7" />
+        </div>
+        <div>
+          <h3 class="font-bold text-lg text-slate-900 dark:text-white">Clear All Security Logs?</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+            This will permanently erase all authentication and activity log history. This action cannot be reversed.
+          </p>
+        </div>
+        <div class="flex items-center justify-center gap-3 pt-2">
+          <button
+            type="button"
+            (click)="cancelClearConfirm()"
+            class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="confirmClearAll()"
+            class="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md shadow-rose-500/20 transition-all active:scale-95"
+          >
+            Yes, Clear Everything
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

@@ -25,7 +25,7 @@ interface CvHobby { name?: string; }
           <div class="photo-frame"><div class="photo" [style.background-image]="photoUrl ? 'url(' + photoUrl + ')' : null"><span *ngIf="!photoUrl">{{ initials }}</span></div></div>
 
           <section class="side-block" *ngIf="hasContact">
-            <h2>Contact</h2>
+            <h2>{{ lbl('Personal Information', 'Contact') }}</h2>
             <ul class="contact-list">
               <li *ngIf="phone"><i>☎</i><span>{{ phone }}</span></li>
               <li *ngIf="email"><i>✉</i><span>{{ email }}</span></li>
@@ -34,11 +34,11 @@ interface CvHobby { name?: string; }
             </ul>
           </section>
 
-          <section class="side-block" *ngIf="skills.length"><h2>Skills</h2><ul class="bullets"><li *ngFor="let skill of skills">{{ skill.name }}</li></ul></section>
-          <section class="side-block" *ngIf="languages.length"><h2>Languages</h2><ul class="bullets"><li *ngFor="let language of languages">{{ language.name }}<ng-container *ngIf="language.proficiency"> ({{ language.proficiency }})</ng-container></li></ul></section>
-          <section class="side-block" *ngIf="hobbyNames.length"><h2>Interests</h2><ul class="bullets"><li *ngFor="let hobby of hobbyNames">{{ hobby }}</li></ul></section>
+          <section class="side-block" *ngIf="skills.length"><h2>{{ lbl('Skills', 'Skills') }}</h2><ul class="bullets"><li *ngFor="let skill of skills">{{ skill.name }}</li></ul></section>
+          <section class="side-block" *ngIf="languages.length"><h2>{{ lbl('Languages', 'Languages') }}</h2><ul class="bullets"><li *ngFor="let language of languages">{{ language.name }}<ng-container *ngIf="language.proficiency"> ({{ language.proficiency }})</ng-container></li></ul></section>
+          <section class="side-block" *ngIf="hobbyNames.length"><h2>{{ lbl('Hobbies', 'Interests') }}</h2><ul class="bullets"><li *ngFor="let hobby of hobbyNames">{{ hobby }}</li></ul></section>
           <section class="side-block" *ngIf="references.length">
-            <h2>Reference</h2>
+            <h2>{{ lbl('References', 'Reference') }}</h2>
             <div class="ref" *ngFor="let reference of references">
               <h3>{{ reference.name }}</h3>
               <div class="ref-role">{{ reference.company }}<ng-container *ngIf="reference.company && reference.position"> / </ng-container>{{ reference.position }}</div>
@@ -50,12 +50,12 @@ interface CvHobby { name?: string; }
 
         <main class="content">
           <section class="main-section" *ngIf="summary">
-            <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 20c0-3.6 2.9-6.2 6.5-6.2s6.5 2.6 6.5 6.2"/></svg></span><h2>Profile</h2></div>
+            <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 20c0-3.6 2.9-6.2 6.5-6.2s6.5 2.6 6.5 6.2"/></svg></span><h2>{{ lbl('Personal Information', 'Profile') }}</h2></div>
             <div class="timeline"><div class="tl-item"><i class="tl-node" aria-hidden="true"></i><p class="para">{{ summary }}</p></div></div>
           </section>
 
           <section class="main-section" *ngIf="experience.length">
-            <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><rect x="3" y="7.5" width="18" height="12" rx="1.6"/><path d="M9 7.5V5.6c0-.7.5-1.1 1.2-1.1h3.6c.7 0 1.2.4 1.2 1.1v1.9"/><path d="M3 12.5h18"/></svg></span><h2>Work Experience</h2></div>
+            <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><rect x="3" y="7.5" width="18" height="12" rx="1.6"/><path d="M9 7.5V5.6c0-.7.5-1.1 1.2-1.1h3.6c.7 0 1.2.4 1.2 1.1v1.9"/><path d="M3 12.5h18"/></svg></span><h2>{{ lbl('Work Experience', 'Work Experience') }}</h2></div>
             <div class="timeline">
               <div class="tl-item" *ngFor="let item of experience">
                 <i class="tl-node" aria-hidden="true"></i>
@@ -67,7 +67,7 @@ interface CvHobby { name?: string; }
           </section>
 
           <section class="main-section" *ngIf="education.length">
-            <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><path d="M12 4.5 2.8 9 12 13.5 21.2 9 12 4.5Z"/><path d="M6.2 11v4.6c0 1.6 2.6 2.9 5.8 2.9s5.8-1.3 5.8-2.9V11"/></svg></span><h2>Education</h2></div>
+            <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><path d="M12 4.5 2.8 9 12 13.5 21.2 9 12 4.5Z"/><path d="M6.2 11v4.6c0 1.6 2.6 2.9 5.8 2.9s5.8-1.3 5.8-2.9V11"/></svg></span><h2>{{ lbl('Education', 'Education') }}</h2></div>
             <div class="timeline">
               <div class="tl-item" *ngFor="let item of education">
                 <i class="tl-node" aria-hidden="true"></i>
@@ -80,7 +80,7 @@ interface CvHobby { name?: string; }
           </section>
 
           <section class="main-section" *ngIf="certifications.length">
-            <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="9.5" r="5"/><path d="M8.8 14 7.5 20l4.5-2.4L16.5 20l-1.3-6"/></svg></span><h2>Certifications</h2></div>
+            <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="9.5" r="5"/><path d="M8.8 14 7.5 20l4.5-2.4L16.5 20l-1.3-6"/></svg></span><h2>{{ lbl('Certifications', 'Certifications') }}</h2></div>
             <div class="timeline">
               <div class="tl-item" *ngFor="let cert of certifications">
                 <i class="tl-node" aria-hidden="true"></i>
@@ -91,7 +91,7 @@ interface CvHobby { name?: string; }
           </section>
 
           <section class="main-section" *ngIf="projects.length">
-            <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><path d="M4 6.5h6l1.6 2H20v9.5H4Z"/></svg></span><h2>Projects</h2></div>
+            <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><path d="M4 6.5h6l1.6 2H20v9.5H4Z"/></svg></span><h2>{{ lbl('Projects', 'Projects') }}</h2></div>
             <div class="timeline">
               <div class="tl-item" *ngFor="let project of projects">
                 <i class="tl-node" aria-hidden="true"></i>
@@ -168,6 +168,47 @@ export class GraphiteBannerTimelineCvComponent {
   @Input() name = ''; @Input() jobTitle = ''; @Input() email = ''; @Input() phone = ''; @Input() location = ''; @Input() linkedin = ''; @Input() summary = ''; @Input() photoUrl: string | null = null;
   @Input() education: CvEducation[] = []; @Input() experience: CvExperience[] = []; @Input() skills: CvSkill[] = []; @Input() languages: CvLanguage[] = []; @Input() certifications: CvCertification[] = []; @Input() projects: CvProject[] = []; @Input() references: CvReference[] = []; @Input() hobbies: CvHobby[] = [];
   @Input() fontSize = 10; @Input() fontWeight = 400; @Input() lineHeight = 1.55; @Input() fontFamily = "'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
+  @Input() sectionLabels: Record<string, string> = {};
+  @Input() sectionOrder: string[] = [];
+
+  lbl(key: string, fallback?: string): string {
+    if (!this.sectionLabels) return fallback ?? key;
+    if (this.sectionLabels[key]) return this.sectionLabels[key];
+    const k = key.toLowerCase().replace(/[^a-z]/g, '');
+    for (const [sKey, val] of Object.entries(this.sectionLabels)) {
+      const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
+      if (sk === k) return val;
+      if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
+          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+        return val;
+      }
+      if ((k.includes('work') || k.includes('experience')) &&
+          (sk.includes('work') || sk.includes('experience'))) {
+        return val;
+      }
+      if ((k.includes('project')) && (sk.includes('project'))) {
+        return val;
+      }
+      if ((k.includes('skill')) && (sk.includes('skill'))) {
+        return val;
+      }
+      if ((k.includes('certif')) && (sk.includes('certif'))) {
+        return val;
+      }
+      if ((k.includes('lang')) && (sk.includes('lang'))) {
+        return val;
+      }
+      if ((k.includes('ref')) && (sk.includes('ref'))) {
+        return val;
+      }
+      if ((k.includes('hobb') || k.includes('interest') || k.includes('strength')) &&
+          (sk.includes('hobb') || sk.includes('interest') || sk.includes('strength'))) {
+        return val;
+      }
+    }
+    return fallback ?? key;
+  }
+
   get initials() { return (this.name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'CV'; }
   get hasContact() { return !!(this.email || this.phone || this.location || this.linkedin); }
   get hobbyNames() { return this.hobbies.map(hobby => typeof hobby === 'string' ? hobby : hobby?.name).filter(Boolean) as string[]; }

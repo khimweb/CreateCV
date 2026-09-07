@@ -39,7 +39,7 @@ export interface CvHobby { name?: string; }
 
               <!-- CONTACT -->
               <div class="sec">
-                <h3 class="sec-title">C O N T A C T</h3>
+                <h3 class="sec-title">{{ lbl('Personal Information', 'CONTACT') }}</h3>
                 <div class="contact-list">
                   @if (phone) {
                     <div class="c-row">
@@ -71,7 +71,7 @@ export interface CvHobby { name?: string; }
               <!-- EDUCATION -->
               @if (education.length) {
                 <div class="sec">
-                  <h3 class="sec-title">E D U C A T I O N</h3>
+                  <h3 class="sec-title">{{ lbl('Education', 'EDUCATION') }}</h3>
                   @for (ed of education; track $index) {
                     <div class="edu-block">
                       <div class="edu-degree">{{ degreeLine(ed) }}</div>
@@ -86,7 +86,7 @@ export interface CvHobby { name?: string; }
               <!-- SKILLS -->
               @if (skills.length) {
                 <div class="sec">
-                  <h3 class="sec-title">S K I L L S</h3>
+                  <h3 class="sec-title">{{ lbl('Skills', 'SKILLS') }}</h3>
                   <div class="skills-list">
                     @for (s of skills; track $index) {
                       @if (s.name) { <div class="skill-item">{{ s.name }}</div> }
@@ -98,7 +98,7 @@ export interface CvHobby { name?: string; }
               <!-- LANGUAGE -->
               @if (languages.length) {
                 <div class="sec">
-                  <h3 class="sec-title">L A N G U A G E</h3>
+                  <h3 class="sec-title">{{ lbl('Languages', 'LANGUAGE') }}</h3>
                   <div class="lang-list">
                     @for (l of languages; track $index) {
                       @if (l.name) { <div class="lang-item">{{ l.name }}</div> }
@@ -110,7 +110,7 @@ export interface CvHobby { name?: string; }
               <!-- HOBBIES -->
               @if (hobbies.length) {
                 <div class="sec">
-                  <h3 class="sec-title">H O B B I E S</h3>
+                  <h3 class="sec-title">{{ lbl('Hobbies', 'HOBBIES') }}</h3>
                   <div class="hobby-list">
                     @for (hobby of hobbies; track $index) {
                       @if (hobby.name) { <span class="hobby-chip">{{ hobby.name }}</span> }
@@ -132,7 +132,7 @@ export interface CvHobby { name?: string; }
               <!-- ABOUT ME -->
               @if (summary) {
                 <div class="sec">
-                  <h2 class="sec-title-r">A B O U T &nbsp; M E</h2>
+                  <h2 class="sec-title-r">{{ lbl('Personal Information', 'ABOUT ME') }}</h2>
                   <p class="about-text">{{ summary }}</p>
                 </div>
               }
@@ -140,7 +140,7 @@ export interface CvHobby { name?: string; }
               <!-- EXPERIENCE -->
               @if (experience.length) {
                 <div class="sec">
-                  <h2 class="sec-title-r">E X P E R I E N C E</h2>
+                  <h2 class="sec-title-r">{{ lbl('Work Experience', 'EXPERIENCE') }}</h2>
                   <div class="exp-list">
                     @for (job of experience; track $index) {
                       <div class="exp-row">
@@ -164,7 +164,7 @@ export interface CvHobby { name?: string; }
               <!-- CERTIFICATIONS -->
               @if (certifications.length) {
                 <div class="sec">
-                  <h2 class="sec-title-r">C E R T I F I C A T I O N S</h2>
+                  <h2 class="sec-title-r">{{ lbl('Certifications', 'CERTIFICATIONS') }}</h2>
                   <div class="cert-list">
                     @for (certification of certifications; track $index) {
                       @if (certification.name) {
@@ -183,7 +183,7 @@ export interface CvHobby { name?: string; }
               <!-- REFERENCE -->
               @if (references.length) {
                 <div class="sec">
-                  <h2 class="sec-title-r">R E F E R E N C E</h2>
+                  <h2 class="sec-title-r">{{ lbl('References', 'REFERENCE') }}</h2>
                   <div class="ref-grid">
                     @for (ref of references; track $index) {
                       @if (ref.name) {
@@ -518,6 +518,47 @@ export class ElegantFrameCvComponent {
   @Input() fontWeight = 400;
   @Input() lineHeight = 1.5;
   @Input() fontFamily = "'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
+  @Input() sectionLabels: Record<string, string> = {};
+  @Input() sectionOrder: string[] = [];
+
+  lbl(key: string, fallback?: string): string {
+    if (!this.sectionLabels) return fallback ?? key;
+    if (this.sectionLabels[key]) return this.sectionLabels[key];
+    const k = key.toLowerCase().replace(/[^a-z]/g, '');
+    for (const [sKey, val] of Object.entries(this.sectionLabels)) {
+      const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
+      if (sk === k) return val;
+      if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
+          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+        return val;
+      }
+      if ((k.includes('work') || k.includes('experience')) &&
+          (sk.includes('work') || sk.includes('experience'))) {
+        return val;
+      }
+      if ((k.includes('project')) && (sk.includes('project'))) {
+        return val;
+      }
+      if ((k.includes('skill')) && (sk.includes('skill'))) {
+        return val;
+      }
+      if ((k.includes('certif')) && (sk.includes('certif'))) {
+        return val;
+      }
+      if ((k.includes('lang')) && (sk.includes('lang'))) {
+        return val;
+      }
+      if ((k.includes('ref')) && (sk.includes('ref'))) {
+        return val;
+      }
+      if ((k.includes('hobb') || k.includes('interest') || k.includes('strength')) &&
+          (sk.includes('hobb') || sk.includes('interest') || sk.includes('strength'))) {
+        return val;
+      }
+    }
+    return fallback ?? key;
+  }
+
 
   get firstName(): string {
     const p = (this.name || 'ISABEL SCHUMACHER').trim().split(/\s+/);

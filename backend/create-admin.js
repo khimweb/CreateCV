@@ -20,9 +20,9 @@ async function createAdmin() {
     password: 'Admin@2024!',
   });
 
-  // Set role to admin
+  // Set role to admin and approve
   const { query } = require('./db/pool');
-  await query('UPDATE users SET role = ? WHERE id = ?', ['admin', user.id]);
+  await query('UPDATE users SET role = ?, is_approved = 1 WHERE id = ?', ['admin', user.id]);
 
   console.log('✓ Admin user created!');
   console.log('  Email:    admin@cv-builder.store');

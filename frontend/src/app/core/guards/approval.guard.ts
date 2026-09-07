@@ -12,11 +12,16 @@ export const approvalGuard: CanActivateFn = () => {
 
   return auth.refreshCurrentUser().pipe(
     map(({ user }) => {
-      if (user.role === 'admin' || user.isApproved) return true;
-      toast.error('Your account is awaiting admin approval before you can use CV templates.');
+      // Regular users and admins do NOT need approval. Only staff require approval.
+      if (user.role === 'admin' || user.role === 'user' || user.isApproved) return true;
+      toast.error('Your staff account is awaiting admin approval before you can use CV templates.');
       router.navigate(['/templates']);
       return false;
     }),
-    catchError(() => of(false)),
+    catchError(() => {
+      const u = auth.currentUser();
+      if (!u || u.role === 'admin' || u.role === 'user' || u.isApproved) return of(true);
+      return of(false);
+    }),
   );
 };

@@ -15,6 +15,9 @@ import { GoogleSignInComponent } from '../../shared/components/auth/google-sign-
     <section class="auth-page">
       <!-- Desktop -->
       <div class="desktop-only">
+        <div class="glow glow-one" aria-hidden="true"></div>
+        <div class="glow glow-two" aria-hidden="true"></div>
+        <div class="glow glow-three" aria-hidden="true"></div>
         <div class="auth-layout">
           <aside class="auth-showcase">
             <div class="s-shape s-shape--1"></div><div class="s-shape s-shape--2"></div>
@@ -28,7 +31,7 @@ import { GoogleSignInComponent } from '../../shared/components/auth/google-sign-
             <form [formGroup]="form" (ngSubmit)="submit()">
               <label>Email address<input formControlName="email" type="email" placeholder="you@example.com" /></label>
               <label>Password<div class="pw-wrap"><input formControlName="password" [type]="showPw()?'text':'password'" placeholder="••••••••" /><button type="button" class="eye" (click)="showPw.set(!showPw())">@if(showPw()){<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><line x1="1" y1="1" x2="23" y2="23"/></svg>}@else{<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>}</button></div></label>
-              <div class="opts"><label class="chk"><input type="checkbox" /><span>Remember me</span></label><a href="#">Forgot password?</a></div>
+              <div class="opts"><label class="chk"><input type="checkbox" /><span>Remember me</span></label><a routerLink="/forgot-password">Forgot password?</a></div>
               @if(error()){<p class="err">{{error()}}</p>}
               <button type="submit" class="btn-primary" [disabled]="form.invalid||loading()">Sign in <span>→</span></button>
               <app-loader [show]="loading()" [inline]="true" text="Signing in..." />
@@ -68,7 +71,7 @@ import { GoogleSignInComponent } from '../../shared/components/auth/google-sign-
               <form [formGroup]="form" (ngSubmit)="submit()">
                 <label>Email<input formControlName="email" type="email" placeholder="kristin.watson@example.com" /></label>
                 <label>Password<div class="pw-wrap"><input formControlName="password" [type]="showPw()?'text':'password'" placeholder="••••••••" /><button type="button" class="eye" (click)="showPw.set(!showPw())">@if(showPw()){<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><line x1="1" y1="1" x2="23" y2="23"/></svg>}@else{<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>}</button></div></label>
-                <div class="opts"><label class="chk"><input type="checkbox" /><span>Remember me</span></label><a href="#">Forgot password?</a></div>
+                <div class="opts"><label class="chk"><input type="checkbox" /><span>Remember me</span></label><a routerLink="/forgot-password">Forgot password?</a></div>
                 @if(error()){<p class="err">{{error()}}</p>}
                 <button type="submit" class="m-submit" [disabled]="form.invalid||loading()">Sign in</button>
                 <app-loader [show]="loading()" [inline]="true" text="Signing in..." />
@@ -89,8 +92,16 @@ import { GoogleSignInComponent } from '../../shared/components/auth/google-sign-
     @media(max-width:760px){.desktop-only{display:none!important}.mobile-only{display:block}}
 
     /* DESKTOP */
-    .desktop-only{min-height:100vh;display:grid;place-items:center;padding:32px;background:linear-gradient(120deg,#eaf0ff,#cbd7f5 55%,#edf2ff)}
-    .auth-layout{width:min(1120px,100%);min-height:650px;display:grid;grid-template-columns:1.08fr .92fr;border-radius:28px;overflow:hidden;box-shadow:0 30px 80px rgba(50,70,130,.25)}
+    .desktop-only{min-height:100vh;display:grid;place-items:center;padding:32px;background:linear-gradient(150deg,#f8faff 0%,#eef3ff 45%,#f4f8ff 100%);position:relative;overflow:hidden}
+    :host-context(.dark) .desktop-only{background:linear-gradient(145deg,#0d1527 0%,#111b32 50%,#111a2c 100%)}
+    .glow{position:absolute;border-radius:50%;pointer-events:none;filter:blur(80px);z-index:0}
+    .glow-one{width:550px;height:550px;right:-150px;top:50px;background:rgba(99,102,241,0.18)}
+    .glow-two{width:480px;height:480px;left:-180px;top:600px;background:rgba(14,165,233,0.16)}
+    .glow-three{width:600px;height:600px;right:-200px;top:1000px;background:rgba(168,85,247,0.14)}
+    :host-context(.dark) .glow-one{background:#4d3f9866}
+    :host-context(.dark) .glow-two{background:#1d5b8d55}
+    :host-context(.dark) .glow-three{background:#5d388f44}
+    .auth-layout{position:relative;z-index:1;width:min(1120px,100%);min-height:650px;display:grid;grid-template-columns:1.08fr .92fr;border-radius:28px;overflow:hidden;box-shadow:0 30px 80px rgba(50,70,130,.25)}
     .auth-showcase{position:relative;overflow:hidden;padding:56px;background:linear-gradient(145deg,#5378d7,#2d4c9f 80%);color:#fff}
     .auth-showcase:before{content:"";position:absolute;width:620px;height:620px;border-radius:43% 57% 58% 42%;background:linear-gradient(135deg,#9db4fb,#6f8ee6 60%,transparent 61%);right:-200px;top:-230px;opacity:.85}
     .s-shape,.s-ball{position:absolute;border-radius:50%;z-index:1}.s-shape--1{width:270px;height:270px;right:-25px;top:-72px;border:44px solid rgba(255,255,255,.62);border-left-color:transparent;transform:rotate(-32deg)}.s-shape--2{width:300px;height:220px;left:-80px;top:120px;border-radius:48%;background:rgba(36,66,157,.36);transform:rotate(28deg)}.s-ball--1{width:96px;height:96px;top:36px;left:-35px;background:radial-gradient(circle at 30% 25%,#5277db,#102257 72%);box-shadow:15px 20px 30px #15317177}.s-ball--2{width:82px;height:82px;right:95px;top:162px;background:radial-gradient(circle at 32% 22%,#e1edff,#6e99e8 62%);box-shadow:8px 12px 22px #26418b88}.s-ball--3{width:118px;height:118px;left:82px;bottom:55px;background:radial-gradient(circle at 30% 25%,#537be0,#152b69 70%);box-shadow:15px 18px 25px #172a6288}
@@ -117,7 +128,8 @@ import { GoogleSignInComponent } from '../../shared/components/auth/google-sign-
     .m-btn-pill{background:#fff;color:#3b5cc4;border-radius:14px;margin:8px;box-shadow:0 4px 15px rgba(0,0,0,.15)}.m-btn-pill:hover{transform:scale(1.02)}
 
     /* MOBILE FORM */
-    .m-form-page{min-height:100vh;display:flex;flex-direction:column;background:#eef3ff}
+    .m-form-page{min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(150deg,#f8faff 0%,#eef3ff 45%,#f4f8ff 100%)}
+    :host-context(.dark) .m-form-page{background:linear-gradient(145deg,#0d1527 0%,#111b32 50%,#111a2c 100%)}
     .m-header{position:relative;height:160px;background:linear-gradient(135deg,#6b8ceb,#4a6fd8 50%,#3b5cc4);border-radius:0 0 28px 28px;overflow:hidden}
     .m-header .m-ball--1{width:120px;height:120px;top:-30px;right:-20px;background:radial-gradient(circle at 30% 25%,#7b9ef0,#4a6fd8 70%);opacity:.5}
     .m-header .m-ball--2{width:70px;height:70px;top:20px;left:-15px;background:radial-gradient(circle at 30% 25%,#e1edff,#6e99e8 62%);opacity:.5}
