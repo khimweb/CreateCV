@@ -82,6 +82,13 @@ router.patch('/customers/:id', async (req, res) => {
     return res.json({ user });
   }
   if (role && ['user', 'admin'].includes(role)) {
+    if (role !== 'admin' && String(req.params.id) === String(req.user.id)) {
+      return res.status(400).json({ error: 'CANNOT_DEMOTE_SELF', message: 'You cannot remove your own administrator role.' });
+    }
+    if (role === 'admin') {
+      await db.users.setApproved(req.params.id, 1);
+      await db.users.setActive(req.params.id, 1);
+    }
     const user = await db.users.setRole(req.params.id, role);
     return res.json({ user });
   }
@@ -702,8 +709,11 @@ router.post('/settings/users', async (req, res) => {
     password,
   });
   if (role) {
-    await db.users.setRole(user.id, role === 'staff' ? 'staff' : 'admin');
-    await db.users.setApproved(user.id, 1);
+    const targetRole = ['admin', 'staff', 'user'].includes(role) ? role : 'user';
+    await db.users.setRole(user.id, targetRole);
+    if (targetRole === 'admin' || targetRole === 'staff') {
+      await db.users.setApproved(user.id, 1);
+    }
   }
   const updatedUser = await db.users.findById(user.id);
   res.status(201).json({ user: updatedUser });

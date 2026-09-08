@@ -4,6 +4,7 @@ import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { MobileBottomNavComponent } from './shared/components/mobile-bottom-nav/mobile-bottom-nav.component';
 import { SiteFooterComponent } from './shared/components/site-footer/site-footer.component';
 import { ToastComponent } from './shared/components/toast/toast.component';
+import { AuthService } from './core/services/auth.service';
 import { filter } from 'rxjs/operators';
 import gsap from 'gsap';
 
@@ -31,8 +32,12 @@ export class AppComponent {
   private el = inject(ElementRef);
   private currentTl: gsap.core.Timeline | null = null;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private auth: AuthService) {
     this.restoreTheme();
+
+    if (this.auth.isLoggedIn()) {
+      this.auth.refreshCurrentUser().subscribe({ error: () => {} });
+    }
 
     // Ensure page-content is always 100% visible and un-dimmed across all route transitions
     this.router.events.pipe(

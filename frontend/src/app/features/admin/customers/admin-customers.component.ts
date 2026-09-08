@@ -18,6 +18,7 @@ import {
   RefreshCw,
   X,
   ChevronRight,
+  ChevronDown,
   Mail,
   Calendar,
   Clock,
@@ -30,6 +31,7 @@ import {
   EyeOff
 } from 'lucide-angular';
 import { ToastService } from '../../../shared/components/toast/toast.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 interface AdminUser {
   id: string;
@@ -307,13 +309,36 @@ interface AdminUser {
 
                     <!-- Role Column -->
                     <td class="px-6 py-4">
-                      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider"
-                            [ngClass]="u.role === 'admin' ? 'bg-purple-50 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 border border-purple-200/60 dark:border-purple-500/30' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'">
-                        @if (u.role === 'admin') {
-                          <lucide-icon [img]="Shield" class="w-3 h-3 text-purple-600 dark:text-purple-400" />
-                        }
-                        {{ u.role }}
-                      </span>
+                      <div class="relative inline-flex items-center">
+                        <select [value]="u.role"
+                                (change)="onRoleChange(u, $event)"
+                                [disabled]="isCurrentUser(u)"
+                                [title]="isCurrentUser(u) ? 'You cannot change your own admin role' : 'Change user role & platform privileges'"
+                                class="appearance-none pl-7 pr-7 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer border transition-all duration-200 focus:outline-none focus:ring-2 disabled:opacity-75 disabled:cursor-not-allowed shadow-sm"
+                                [ngClass]="u.role === 'admin' 
+                                  ? 'bg-purple-50 hover:bg-purple-100 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 text-purple-700 dark:text-purple-300 border-purple-200/80 dark:border-purple-500/40 focus:ring-purple-400' 
+                                  : 'bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600 focus:ring-slate-400'">
+                          <option value="user" class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium normal-case">
+                            User (Standard)
+                          </option>
+                          <option value="admin" class="bg-white dark:bg-slate-800 text-purple-600 dark:text-purple-300 font-bold normal-case">
+                            👑 Admin (100% Free All Templates)
+                          </option>
+                        </select>
+                        <lucide-icon [img]="u.role === 'admin' ? ShieldCheck : Shield" 
+                                     class="w-3.5 h-3.5 absolute left-2 pointer-events-none"
+                                     [class.text-purple-600]="u.role === 'admin'"
+                                     [class.dark:text-purple-400]="u.role === 'admin'"
+                                     [class.text-slate-400]="u.role !== 'admin'" />
+                        <lucide-icon [img]="ChevronDown" 
+                                     class="w-3.5 h-3.5 absolute right-2 pointer-events-none text-slate-400" />
+                      </div>
+                      @if (u.role === 'admin') {
+                        <div class="flex items-center gap-1 mt-1 text-[10px] font-semibold text-purple-600 dark:text-purple-400">
+                          <lucide-icon [img]="Sparkles" class="w-3 h-3 text-amber-500 shrink-0" />
+                          <span>Free all templates & no charge</span>
+                        </div>
+                      }
                     </td>
 
                     <!-- Portfolio Column -->
@@ -471,6 +496,31 @@ interface AdminUser {
                   </button>
                 </div>
               </div>
+
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">Account Role & Privileges</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <button type="button" (click)="newUser.role = 'user'"
+                          class="p-3 rounded-2xl border text-left transition-all duration-200 cursor-pointer"
+                          [ngClass]="newUser.role === 'user' ? 'border-indigo-500 bg-indigo-50/60 dark:bg-indigo-500/10 ring-2 ring-indigo-500/30' : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-600'">
+                    <div class="flex items-center gap-2 font-bold text-xs text-slate-800 dark:text-white mb-1">
+                      <lucide-icon [img]="Users" class="w-4 h-4 text-slate-500" />
+                      <span>Standard User</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Standard account requiring payment per CV export</p>
+                  </button>
+
+                  <button type="button" (click)="newUser.role = 'admin'"
+                          class="p-3 rounded-2xl border text-left transition-all duration-200 cursor-pointer"
+                          [ngClass]="newUser.role === 'admin' ? 'border-purple-500 bg-purple-50/70 dark:bg-purple-500/15 ring-2 ring-purple-500/30' : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-600'">
+                    <div class="flex items-center gap-2 font-bold text-xs text-purple-700 dark:text-purple-300 mb-1">
+                      <lucide-icon [img]="ShieldCheck" class="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <span>👑 Admin Free</span>
+                    </div>
+                    <p class="text-[11px] text-purple-700 dark:text-purple-300 font-semibold leading-tight">100% Free all templates, no charge, full admin access</p>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <!-- Modal Action Buttons -->
@@ -520,6 +570,7 @@ export class AdminCustomersComponent implements OnInit {
   readonly RefreshCw = RefreshCw;
   readonly X = X;
   readonly ChevronRight = ChevronRight;
+  readonly ChevronDown = ChevronDown;
   readonly Mail = Mail;
   readonly Calendar = Calendar;
   readonly Clock = Clock;
@@ -542,9 +593,9 @@ export class AdminCustomersComponent implements OnInit {
   alertUser = signal<AdminUser | null>(null);
   showAddUser = signal(false);
   showPassword = signal(false);
-  newUser = { fullName: '', email: '', password: '' };
+  newUser = { fullName: '', email: '', password: '', role: 'user' };
 
-  constructor(private http: HttpClient, private toast: ToastService, private router: Router) {}
+  constructor(private http: HttpClient, private toast: ToastService, private router: Router, public auth: AuthService) {}
 
   ngOnInit() {
     this.load();
@@ -666,6 +717,42 @@ export class AdminCustomersComponent implements OnInit {
     });
   }
 
+  isCurrentUser(user: AdminUser): boolean {
+    const me = this.auth.currentUser();
+    return !!me && String(me.id) === String(user.id);
+  }
+
+  onRoleChange(user: AdminUser, event: Event) {
+    const selectEl = event.target as HTMLSelectElement;
+    const newRole = selectEl.value;
+    if (newRole === user.role) return;
+
+    if (this.isCurrentUser(user)) {
+      this.toast.error('You cannot change your own admin role.');
+      selectEl.value = user.role;
+      return;
+    }
+
+    const prevRole = user.role;
+    user.role = newRole;
+
+    this.http.patch<{ user: AdminUser }>(`/api/v1/admin/customers/${user.id}`, { role: newRole }).subscribe({
+      next: () => {
+        if (newRole === 'admin') {
+          this.toast.success(`"${user.full_name}" is now an Admin with 100% free access to all templates!`);
+        } else {
+          this.toast.success(`"${user.full_name}" role updated to standard User.`);
+        }
+        this.load();
+      },
+      error: (err) => {
+        user.role = prevRole;
+        selectEl.value = prevRole;
+        this.toast.error(err.error?.message || 'Failed to update user role');
+      }
+    });
+  }
+
   viewDrafts(u: AdminUser) {
     this.router.navigate(['/admin/drafts'], { queryParams: { user: u.id } });
   }
@@ -685,7 +772,7 @@ export class AdminCustomersComponent implements OnInit {
       next: () => {
         this.isSubmitting.set(false);
         this.showAddUser.set(false);
-        this.newUser = { fullName: '', email: '', password: '' };
+        this.newUser = { fullName: '', email: '', password: '', role: 'user' };
         this.toast.success('New user account created successfully!');
         this.load();
       },
