@@ -1,5 +1,5 @@
 import { Component, ElementRef, inject } from '@angular/core';
-import { NavigationStart, Event as RouterEvent, Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, NavigationCancel, NavigationError, Event as RouterEvent, Router, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { MobileBottomNavComponent } from './shared/components/mobile-bottom-nav/mobile-bottom-nav.component';
 import { SiteFooterComponent } from './shared/components/site-footer/site-footer.component';
@@ -34,19 +34,16 @@ export class AppComponent {
   constructor(private router: Router) {
     this.restoreTheme();
 
-    // Smooth exit on navigation start
+    // Ensure page-content is always 100% visible and un-dimmed across all route transitions
     this.router.events.pipe(
-      filter((e: RouterEvent): e is NavigationStart => e instanceof NavigationStart)
+      filter((e: RouterEvent): e is NavigationEnd | NavigationCancel | NavigationError =>
+        e instanceof NavigationEnd || e instanceof NavigationCancel || e instanceof NavigationError
+      )
     ).subscribe(() => {
       const main = this.el.nativeElement.querySelector('main.page-content');
       if (main) {
         gsap.killTweensOf(main);
-        gsap.to(main, {
-          opacity: 0.2,
-          y: -8,
-          duration: 0.14,
-          ease: 'power2.in'
-        });
+        gsap.set(main, { opacity: 1, y: 0, clearProps: 'opacity,transform' });
       }
     });
   }
@@ -63,7 +60,12 @@ export class AppComponent {
       }
 
       gsap.killTweensOf(main);
-      gsap.set(main, { opacity: 1, y: 0 });
+      gsap.set(main, { opacity: 1, y: 0, clearProps: 'opacity,transform' });
+
+      // Skip complex marketing stagger animations on admin and auth views
+      if (this.isHiddenNavRoute()) {
+        return;
+      }
 
       const tl = gsap.timeline({
         defaults: { ease: 'power3.out' }
