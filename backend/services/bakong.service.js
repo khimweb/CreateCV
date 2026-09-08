@@ -7,7 +7,7 @@ const BAKONG_CITY = 'Phnom Penh';
 const BAKONG_TOKEN =
   process.env.BAKONG_TOKEN ||
   process.env.BAKONG_API_TOKEN ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiYzY4NGNhNTUwNTJmNDRjYiJ9LCJpYXQiOjE3ODg3ODYyODQsImV4cCI6MTc5NjU2MjI4NH0.6ruvncsMn4-S5yK57xP9zRrFgIWLJrKzvaXFeQPMdsc';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiYzY4NGNhNTUwNTJmNDRjYiJ9LCJpYXQiOjE3ODg3ODYyODQsImV4cCI6MTc5NjU2MjI4NH0.6ruvncsMn4-S5yK57xP9zRrFglWLJrKzvaXFeQPmDsc';
 
 // ─── In-memory result cache (prevents hammering NBC API) ──────────────────────
 // Structure: { md5: { result, fetchedAt, inFlight } }

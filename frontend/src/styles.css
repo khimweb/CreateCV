@@ -29,23 +29,14 @@ body {
 }
 
 /* =========================================================
-   KHMER MOUL LIGHT (អក្សរមូលស្រាល) & KANTUMRUY PRO TYPOGRAPHY
+   KHMER TYPOGRAPHY: KANTUMRUY PRO (MODERN, CLEAN, PROFESSIONAL)
+   Ensures 100% identical rendering across local and hosting.
    ========================================================= */
 
-@font-face {
-  font-family: 'Khmer Moul Light';
-  src: local('Khmer OS Muol Light'), 
-       local('Khmer OS Moul Light'), 
-       local('KhmerOSmuollight'), 
-       local('Khmer OS Muol'), 
-       local('Khmer OS Moul'),
-       local('Moulpali'),
-       local('Moul');
-}
-
 :root {
-  --font-khmer-moul: 'Khmer Moul Light', 'Khmer OS Muol Light', 'Khmer OS Moul Light', 'KhmerOSmuollight', 'Moulpali', 'Moul', cursive, serif;
+  --font-khmer-heading: 'Kantumruy Pro', 'Inter', system-ui, -apple-system, sans-serif;
   --font-khmer-body: 'Kantumruy Pro', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-khmer-moul: 'Kantumruy Pro', 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 /* Base Khmer Typography: Kantumruy Pro for crisp, clean body text */
@@ -75,7 +66,7 @@ body {
   letter-spacing: 0 !important;
 }
 
-/* Authentic KHMER MOUL LIGHT for Titles, Headings, Brand & Badges */
+/* Modern Kantumruy Pro for Titles, Headings, Brand & Badges */
 .lang-khmer h1,
 .lang-khmer h2,
 .lang-khmer h3,
@@ -105,48 +96,45 @@ body {
 .lang-khmer app-khqr-payment-modal h2,
 .lang-khmer app-khqr-payment-modal h3,
 .lang-khmer app-settings h1,
-.lang-khmer app-settings h2,
-.lang-khmer .font-moul,
-.lang-khmer .khmer-moul,
-.lang-khmer .font-khmer-moul {
-  font-family: var(--font-khmer-moul) !important;
-  font-weight: 400 !important;
-  letter-spacing: 0.015em !important;
-  line-height: 1.55 !important;
+.lang-khmer app-settings h2 {
+  font-family: var(--font-khmer-heading) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.35 !important;
 }
 
-/* Headings scale & vertical rhythm adjustment for Moul Light */
+/* Headings scale & vertical rhythm */
 .lang-khmer .hero-title {
-  font-size: clamp(2rem, 3.8vw, 3.2rem) !important;
-  line-height: 1.5 !important;
+  font-size: clamp(2.4rem, 4.2vw, 3.6rem) !important;
+  line-height: 1.25 !important;
 }
 
 .lang-khmer .section-title {
-  font-size: clamp(1.55rem, 2.8vw, 2.3rem) !important;
-  line-height: 1.5 !important;
+  font-size: clamp(1.65rem, 3vw, 2.4rem) !important;
+  line-height: 1.35 !important;
 }
 
 .lang-khmer .gallery-title,
 .lang-khmer .library-title {
-  font-size: clamp(1.75rem, 3.2vw, 2.6rem) !important;
-  line-height: 1.5 !important;
+  font-size: clamp(1.8rem, 3.4vw, 2.6rem) !important;
+  line-height: 1.35 !important;
 }
 
 .lang-khmer .contact-hero h1 {
   font-size: clamp(1.9rem, 3.6vw, 2.9rem) !important;
-  line-height: 1.45 !important;
+  line-height: 1.35 !important;
 }
 
 .lang-khmer .eyebrow {
   letter-spacing: 0.05em !important;
-  font-size: 0.8rem !important;
-  line-height: 1.6 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.5 !important;
 }
 
 .lang-khmer .badge-pill .badge-text {
-  font-family: var(--font-khmer-moul) !important;
-  font-weight: 400 !important;
-  letter-spacing: 0.02em !important;
+  font-family: var(--font-khmer-heading) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
   font-size: 0.82rem !important;
 }
 
@@ -154,9 +142,9 @@ body {
 .lang-khmer .cta-btn-white,
 .lang-khmer .btn-start,
 .lang-khmer form button[type="submit"] {
-  font-family: var(--font-khmer-moul) !important;
-  font-weight: 400 !important;
-  letter-spacing: 0.02em !important;
+  font-family: var(--font-khmer-heading) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
 }
 
 /* Generous line-height for Khmer body text to prevent subscript clipping */

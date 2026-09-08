@@ -207,25 +207,25 @@ import { TranslationService, Language } from '../../../core/services/translation
     .site-header {
       position: fixed;
       z-index: 50;
-      top: 14px;
+      top: 16px;
       left: 50%;
       transform: translateX(-50%);
-      width: min(calc(100% - 28px), 1340px);
+      width: min(calc(100% - 32px), 1420px);
       font-family: 'Manrope', 'Inter', system-ui, -apple-system, sans-serif;
     }
 
     .nav-bar {
-      height: 64px;
+      height: 72px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 10px 0 12px;
-      border: 1px solid rgba(226, 232, 240, 0.85);
+      padding: 0 14px 0 16px;
+      border: 1px solid rgba(226, 232, 240, 0.88);
       border-radius: 9999px;
-      background: rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 12px 34px -8px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+      box-shadow: 0 14px 38px -8px rgba(15, 23, 42, 0.09), 0 4px 14px -2px rgba(15, 23, 42, 0.04);
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -233,10 +233,10 @@ import { TranslationService, Language } from '../../../core/services/translation
     .brand-link {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       text-decoration: none;
       color: #0f172a;
-      padding: 6px 12px 6px 6px;
+      padding: 6px 14px 6px 6px;
       border-radius: 9999px;
       transition: opacity 0.2s ease;
     }
@@ -245,49 +245,49 @@ import { TranslationService, Language } from '../../../core/services/translation
     }
 
     .brand-badge {
-      width: 38px;
-      height: 38px;
-      border-radius: 14px;
+      width: 44px;
+      height: 44px;
+      border-radius: 15px;
       background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #7c3aed 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       color: #ffffff;
       font-weight: 900;
-      font-size: 0.9rem;
+      font-size: 1.05rem;
       letter-spacing: -0.02em;
-      box-shadow: 0 6px 16px -2px rgba(99, 102, 241, 0.4);
+      box-shadow: 0 6px 18px -2px rgba(99, 102, 241, 0.45);
       ring: 2px solid rgba(165, 180, 252, 0.3);
     }
 
     .brand-text {
       display: flex;
       flex-direction: column;
-      gap: 1px;
+      gap: 2px;
     }
     .brand-title-row {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
     }
     .brand-title-row strong {
-      font-size: 0.94rem;
+      font-size: 1.08rem;
       font-weight: 800;
       letter-spacing: -0.02em;
       color: #0f172a;
     }
     .pro-tag {
-      font-size: 0.58rem;
+      font-size: 0.65rem;
       font-weight: 900;
-      padding: 1px 5px;
-      border-radius: 5px;
+      padding: 2px 6px;
+      border-radius: 6px;
       background: #eef2ff;
       color: #4f46e5;
       border: 1px solid rgba(199, 210, 254, 0.7);
       letter-spacing: 0.04em;
     }
     .brand-text small {
-      font-size: 0.64rem;
+      font-size: 0.74rem;
       font-weight: 600;
       color: #64748b;
     }
@@ -296,21 +296,21 @@ import { TranslationService, Language } from '../../../core/services/translation
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 4px;
-      background: rgba(241, 245, 249, 0.6);
-      padding: 4px 6px;
+      gap: 6px;
+      background: rgba(241, 245, 249, 0.7);
+      padding: 5px 8px;
       border-radius: 9999px;
-      border: 1px solid rgba(226, 232, 240, 0.7);
+      border: 1px solid rgba(226, 232, 240, 0.8);
     }
 
     .nav-links > a,
     .more-trigger {
       display: flex;
       align-items: center;
-      gap: 5px;
-      padding: 7px 14px;
+      gap: 6px;
+      padding: 9px 18px;
       border-radius: 9999px;
-      font-size: 0.8rem;
+      font-size: 0.94rem;
       font-weight: 700;
       color: #475569;
       text-decoration: none;
@@ -324,7 +324,7 @@ import { TranslationService, Language } from '../../../core/services/translation
     .nav-links > a:hover,
     .more-trigger:hover {
       color: #4f46e5;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       transform: translateY(-1px);
     }
 
@@ -333,12 +333,12 @@ import { TranslationService, Language } from '../../../core/services/translation
       background: #ffffff;
       color: #4f46e5;
       font-weight: 800;
-      box-shadow: 0 3px 10px rgba(79, 70, 229, 0.12), 0 1px 2px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.14), 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
     .chevron-icon {
-      width: 13px;
-      height: 13px;
+      width: 15px;
+      height: 15px;
       transition: transform 0.25s ease;
     }
     .more-trigger.active .chevron-icon {
@@ -349,7 +349,7 @@ import { TranslationService, Language } from '../../../core/services/translation
     .nav-right {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     /* MODERN SEGMENTED LANGUAGE SWITCHER */
@@ -359,21 +359,21 @@ import { TranslationService, Language } from '../../../core/services/translation
       background: rgba(241, 245, 249, 0.85);
       border: 1px solid rgba(226, 232, 240, 0.9);
       border-radius: 9999px;
-      padding: 3px;
-      gap: 2px;
+      padding: 4px;
+      gap: 3px;
       box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
     }
 
     .lang-pill {
       display: flex;
       align-items: center;
-      gap: 5px;
-      padding: 4px 9px;
+      gap: 6px;
+      padding: 6px 12px;
       border-radius: 9999px;
       border: none;
       background: transparent;
       color: #64748b;
-      font-size: 0.72rem;
+      font-size: 0.82rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
@@ -381,7 +381,7 @@ import { TranslationService, Language } from '../../../core/services/translation
     }
 
     .lang-pill .flag {
-      font-size: 0.85rem;
+      font-size: 0.98rem;
       line-height: 1;
       display: inline-block;
       transform: translateY(-0.5px);
@@ -421,20 +421,20 @@ import { TranslationService, Language } from '../../../core/services/translation
       background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(226, 232, 240, 0.9);
-      border-radius: 18px;
-      padding: 6px;
+      border-radius: 20px;
+      padding: 8px;
       box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
       z-index: 60;
     }
 
     .nav-popover {
       left: 0;
-      width: 175px;
+      width: 195px;
     }
 
     .profile-popover {
       right: 0;
-      width: 235px;
+      width: 260px;
     }
 
     .nav-popover a,
@@ -442,15 +442,15 @@ import { TranslationService, Language } from '../../../core/services/translation
     .profile-popover button {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 11px;
       width: 100%;
       box-sizing: border-box;
-      padding: 9px 12px;
-      border-radius: 12px;
+      padding: 10px 14px;
+      border-radius: 14px;
       color: #475569;
       background: transparent;
       text-decoration: none;
-      font-size: 0.78rem;
+      font-size: 0.86rem;
       font-weight: 700;
       border: none;
       cursor: pointer;
@@ -468,8 +468,8 @@ import { TranslationService, Language } from '../../../core/services/translation
 
     .nav-popover lucide-icon,
     .profile-popover lucide-icon {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       color: #64748b;
       transition: color 0.18s ease;
     }
@@ -487,23 +487,23 @@ import { TranslationService, Language } from '../../../core/services/translation
     .profile-summary {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 10px 12px;
+      gap: 12px;
+      padding: 10px 12px 14px;
       border-bottom: 1px solid #f1f5f9;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .summary-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
       background: linear-gradient(135deg, #6366f1, #a855f7);
       display: flex;
       align-items: center;
       justify-content: center;
       color: #fff;
       font-weight: 800;
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       shrink: 0;
       overflow: hidden;
     }
@@ -519,7 +519,7 @@ import { TranslationService, Language } from '../../../core/services/translation
     }
     .summary-info b {
       display: block;
-      font-size: 0.78rem;
+      font-size: 0.86rem;
       color: #0f172a;
       white-space: nowrap;
       overflow: hidden;
@@ -527,7 +527,7 @@ import { TranslationService, Language } from '../../../core/services/translation
     }
     .summary-info small {
       display: block;
-      font-size: 0.65rem;
+      font-size: 0.72rem;
       color: #64748b;
       white-space: nowrap;
       overflow: hidden;
@@ -537,7 +537,7 @@ import { TranslationService, Language } from '../../../core/services/translation
     .divider {
       height: 1px;
       background: #f1f5f9;
-      margin: 4px 0;
+      margin: 6px 0;
     }
 
     .profile-popover .logout {
@@ -555,19 +555,19 @@ import { TranslationService, Language } from '../../../core/services/translation
     .profile-trigger {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       background: #ffffff;
       border: 1px solid rgba(226, 232, 240, 0.9);
       border-radius: 9999px;
-      padding: 4px 10px 4px 4px;
+      padding: 5px 14px 5px 5px;
       cursor: pointer;
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
     }
     .profile-trigger:hover,
     .profile-trigger.open {
       border-color: #c7d2fe;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.12);
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.12);
       transform: translateY(-1px);
     }
 
@@ -576,15 +576,15 @@ import { TranslationService, Language } from '../../../core/services/translation
     }
     .profile-photo,
     .profile-initial {
-      width: 32px;
-      height: 32px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       object-fit: cover;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 800;
-      font-size: 0.78rem;
+      font-size: 0.92rem;
       background: linear-gradient(135deg, #e0e7ff, #ede9fe);
       color: #4f46e5;
     }
@@ -592,8 +592,8 @@ import { TranslationService, Language } from '../../../core/services/translation
       position: absolute;
       bottom: -1px;
       right: -1px;
-      width: 9px;
-      height: 9px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: #10b981;
       border: 2px solid #ffffff;
@@ -603,25 +603,25 @@ import { TranslationService, Language } from '../../../core/services/translation
       display: flex;
       flex-direction: column;
       text-align: left;
-      line-height: 1.15;
-      max-width: 100px;
+      line-height: 1.2;
+      max-width: 140px;
     }
     .profile-copy b {
-      font-size: 0.74rem;
+      font-size: 0.84rem;
       color: #0f172a;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .profile-copy small {
-      font-size: 0.6rem;
+      font-size: 0.7rem;
       color: #64748b;
       font-weight: 600;
     }
 
     .profile-chevron {
-      width: 13px;
-      height: 13px;
+      width: 15px;
+      height: 15px;
       color: #94a3b8;
       transition: transform 0.25s ease;
     }
@@ -633,12 +633,12 @@ import { TranslationService, Language } from '../../../core/services/translation
     .guest-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
     .login-link {
-      padding: 7px 13px;
-      font-size: 0.78rem;
+      padding: 8px 16px;
+      font-size: 0.88rem;
       font-weight: 700;
       color: #475569;
       text-decoration: none;
@@ -652,11 +652,11 @@ import { TranslationService, Language } from '../../../core/services/translation
     .signup-link {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
+      gap: 8px;
+      padding: 9px 20px;
       background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
       color: #ffffff;
-      font-size: 0.78rem;
+      font-size: 0.88rem;
       font-weight: 800;
       text-decoration: none;
       border-radius: 9999px;

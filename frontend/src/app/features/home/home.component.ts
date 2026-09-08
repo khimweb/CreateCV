@@ -861,7 +861,7 @@ import { A4FitDirective } from '../../shared/directives/a4-fit.directive';
     .home-page {
       min-height: 100vh;
       overflow: hidden;
-      padding-top: 92px;
+      padding-top: 106px;
       background: linear-gradient(150deg, #f8faff 0%, #eef3ff 45%, #f4f8ff 100%);
       color: #1a233b;
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
