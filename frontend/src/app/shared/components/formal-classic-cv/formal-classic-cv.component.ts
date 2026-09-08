@@ -172,7 +172,7 @@ export interface CvProject { name?: string; description?: string; link?: string;
     /* ═══ PRINT ═══ */
     @media print {
       :host { display: block; }
-      .cv { width: 100% !important; min-height: 0 !important; box-shadow: none !important; padding: 30px 40px; }
+      .cv { width: 210mm !important; min-height: 297mm !important; box-sizing: border-box !important; margin: 0 auto !important; box-shadow: none !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
       section, li { break-inside: avoid; page-break-inside: avoid; }
       @page { size: A4 portrait; margin: 0; }
     }

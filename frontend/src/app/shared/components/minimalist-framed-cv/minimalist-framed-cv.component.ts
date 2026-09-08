@@ -487,17 +487,17 @@ interface CvLanguage {
     @media print {
       :host {
         display: block;
-        height: auto !important;
-        overflow: visible !important;
       }
       .mf-page {
-        width: 100% !important;
+        width: 210mm !important;
         min-height: 297mm !important;
+        box-sizing: border-box !important;
+        margin: 0 auto !important;
         box-shadow: none !important;
-        padding: 12mm 14mm !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
+      section, .tl-item { break-inside: avoid; page-break-inside: avoid; }
       @page {
         size: A4 portrait;
         margin: 0;

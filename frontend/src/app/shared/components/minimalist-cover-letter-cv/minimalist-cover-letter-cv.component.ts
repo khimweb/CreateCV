@@ -290,7 +290,8 @@ import { CommonModule } from '@angular/common';
         display: block;
       }
       .mcl-container {
-        width: 100% !important;
+        width: 210mm !important;
+        max-width: 210mm !important;
         min-height: 297mm !important;
         box-shadow: none !important;
         -webkit-print-color-adjust: exact !important;

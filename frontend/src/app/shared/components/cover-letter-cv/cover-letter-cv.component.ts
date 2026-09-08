@@ -106,9 +106,13 @@ import { CommonModule } from '@angular/common';
     @media print {
       :host { display: block; }
       .cl {
-        width: 100% !important;
+        width: 210mm !important;
         min-height: 297mm !important;
+        box-sizing: border-box !important;
+        margin: 0 auto !important;
         box-shadow: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
       @page { size: A4 portrait; margin: 0; }
     }

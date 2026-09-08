@@ -262,7 +262,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
     /* ═══ PRINT ═══ */
     @media print {
       :host { display: block; }
-      .cv { width: 100% !important; min-height: 0 !important; box-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
+      .cv { width: 210mm !important; min-height: 297mm !important; box-sizing: border-box !important; margin: 0 auto !important; box-shadow: none !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
       .r-sec, .tl-item { break-inside: avoid; page-break-inside: avoid; }
       @page { size: A4 portrait; margin: 0; }
     }

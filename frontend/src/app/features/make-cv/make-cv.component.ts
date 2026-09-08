@@ -1639,7 +1639,7 @@ const ACCENT_PALETTE = [
         <div class="flex-1 w-full overflow-auto py-6 px-2 sm:px-4 flex flex-col items-center cv-stage-scroll">
           <div
             class="print-root a4-sheet relative origin-top flex justify-center shadow-2xl transition-[zoom] duration-150"
-            [style.zoom]="modalScale()"
+            [style.zoom]="isPrinting() ? null : modalScale()"
             [class.cover-letter-print]="isCoverLetter()"
           >
             <ng-container *ngTemplateOutlet="cvPreview"></ng-container>
@@ -2519,7 +2519,10 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
     return Math.min(1.0, Math.max(0.35, Number(bestFit.toFixed(3))));
   });
 
+  isPrinting = signal<boolean>(false);
+
   modalScale = computed(() => {
+    if (this.isPrinting()) return 1.0;
     const custom = this.modalZoom();
     if (custom !== null) return custom;
     return this.modalFitScale();
@@ -4142,10 +4145,14 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (format === 'pdf') {
       this.fullPreview.set(true);
+      this.isPrinting.set(true);
       setTimeout(() => {
         window.print();
+        setTimeout(() => {
+          this.isPrinting.set(false);
+        }, 1200);
         this.toast.success('PDF downloaded!');
-      }, 400);
+      }, 350);
     } else if (format === 'pptx') {
       await this.generatePptx();
     } else {
@@ -4153,9 +4160,44 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  @HostListener('window:beforeprint')
+  onBeforePrint() {
+    this.fullPreview.set(true);
+    this.isPrinting.set(true);
+  }
+
+  @HostListener('window:afterprint')
+  onAfterPrint() {
+    this.isPrinting.set(false);
+  }
+
   /** Exports the rendered A4 document as an editable PowerPoint deck. */
   private async generatePptx() {
-    const preview = document.querySelector('.cv-live-root')?.firstElementChild as HTMLElement | null;
+    const cvRootSelector = '.cv-paper, .cv, .nb-container, .cl, .framed-cl-container, .mcl-container, .mf-page, .scl-container';
+    let preview: HTMLElement | null = null;
+    if (this.fullPreview()) {
+      preview = document.querySelector(`.print-overlay ${cvRootSelector.split(', ').join(', .print-overlay ')}`) as HTMLElement | null;
+      if (!preview) {
+        const root = document.querySelector('.print-overlay .cv-live-root');
+        let el = root?.firstElementChild as HTMLElement | null;
+        if (el && el.tagName.toLowerCase() === 'app-watermark') el = el.nextElementSibling as HTMLElement | null;
+        preview = el;
+      }
+    }
+    if (!preview) {
+      preview = document.querySelector(cvRootSelector) as HTMLElement | null;
+    }
+    if (!preview) {
+      const liveRoots = document.querySelectorAll('.cv-live-root');
+      for (const root of Array.from(liveRoots)) {
+        let el = root.firstElementChild as HTMLElement | null;
+        if (el && el.tagName.toLowerCase() === 'app-watermark') el = el.nextElementSibling as HTMLElement | null;
+        if (el && (el as HTMLElement).offsetParent !== null) {
+          preview = el;
+          break;
+        }
+      }
+    }
     if (!preview) {
       this.toast.error('Could not capture CV preview');
       return;
@@ -4166,7 +4208,8 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
       this.toast.success('Building PowerPoint…');
       await this.pptx.export(preview, `${name.replace(/[\\/:*?"<>|]+/g, '_')}.pptx`);
       this.toast.success('PowerPoint downloaded!');
-    } catch {
+    } catch (err) {
+      console.error('PPTX export error:', err);
       this.toast.error('Could not create the PowerPoint file');
     }
   }

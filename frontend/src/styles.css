@@ -379,23 +379,25 @@ html.dark app-settings .security-card { background: #172747; border-color: #3147
   .site-header,
   .no-print,
   button,
-  .fixed,
   .toast-container,
+  app-khqr-payment-modal,
+  /* In make-cv, hide the editor form & controls completely so only .print-overlay prints */
+  app-make-cv > main,
+  app-make-cv .no-print,
   app-my-cv-detail section > div:not(.cv-stage-container),
-  app-template-preview section > div:not(.cv-stage-scroll),
-  app-make-cv > main > *:not(.print-overlay),
-  app-make-cv .no-print {
+  app-template-preview section > div:not(.cv-stage-scroll) {
     display: none !important;
   }
 
-  /* 2. Flatten all container wrappers so .print-root starts at the top edge of page 1 */
+  /* 2. Flatten all container wrappers so .print-root starts at the very top edge of page 1 */
   app-root,
   .app-shell-container,
   main.page-content,
   app-my-cv-detail,
+  app-my-cv-detail > section,
   app-template-preview,
+  app-template-preview > section,
   app-make-cv,
-  section,
   .cv-stage-container,
   .cv-stage-scaler,
   .cv-stage-scroll,
@@ -420,13 +422,11 @@ html.dark app-settings .security-card { background: #172747; border-color: #3147
     -webkit-backdrop-filter: none !important;
   }
 
-  /* 3. The CV document (.print-root) - full A4 dimensions, no shifts, no cutoffs */
+  /* 3. The outer container wrappers (.print-root) - exact A4 width, no shifts */
   .print-root,
   .print-target,
   .a4-wrap,
-  .a4-sheet,
-  .cv-paper,
-  .cv {
+  .a4-sheet {
     display: block !important;
     position: relative !important;
     left: 0 !important;
@@ -445,21 +445,54 @@ html.dark app-settings .security-card { background: #172747; border-color: #3147
     transform: none !important;
     zoom: 1 !important;
     overflow: visible !important;
-    background: #ffffff !important;
     page-break-after: auto !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
   }
 
-  .cv-body {
-    min-height: 0 !important;
-    height: auto !important;
+  /* 4. The actual CV document (.cv-paper, .cv, .nb-container, .cl, .framed-cl-container, .mcl-container, .mf-page, .scl-container)
+        CRITICAL: We do NOT force display or padding: 0 here!
+        We preserve each template's native display (grid/flex/block), padding, and background! */
+  .cv-paper,
+  .cv,
+  .nb-container,
+  .cl,
+  .framed-cl-container,
+  .mcl-container,
+  .mf-page,
+  .scl-container {
+    position: relative !important;
+    box-sizing: border-box !important;
+    width: 210mm !important;
+    max-width: 210mm !important;
+    min-width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    transform: none !important;
+    zoom: 1 !important;
     overflow: visible !important;
+    page-break-after: auto !important;
+    break-inside: auto !important;
   }
 
-  /* Prevent awkward breaks inside jobs or headers */
+  /* Prevent awkward page breaks inside cards, jobs, or section headers */
   .cv-header,
+  .head,
+  .photo-card,
+  .photo-frame,
+  .contact-bar,
+  .side-block,
+  .block,
+  .sec,
+  .cv-section,
+  .r-sec,
+  .main-section,
+  .sidebar-section,
+  .timeline-item,
+  .exp,
+  .edu,
   .job,
+  .ref,
+  h1,
   h2,
   h3 {
     break-inside: avoid !important;

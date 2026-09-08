@@ -22,10 +22,22 @@ interface CvHobby { name?: string; }
       </header>
 
       <div class="contact-bar" *ngIf="hasContact">
-        <div class="contact-item" *ngIf="phone"><i>☎</i><span>{{ phone }}</span></div>
-        <div class="contact-item" *ngIf="email"><i>✉</i><span>{{ email }}</span></div>
-        <div class="contact-item" *ngIf="linkedin"><i>⌁</i><span>{{ linkedin }}</span></div>
-        <div class="contact-item" *ngIf="location"><i>⌖</i><span>{{ location }}</span></div>
+        <div class="contact-item" *ngIf="phone">
+          <svg class="contact-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6.57-6.57A19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.58a16 16 0 0 0 6 6l.94-.94a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span>{{ phone }}</span>
+        </div>
+        <div class="contact-item" *ngIf="email">
+          <svg class="contact-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span>{{ email }}</span>
+        </div>
+        <div class="contact-item" *ngIf="linkedin">
+          <svg class="contact-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          <span>{{ linkedin }}</span>
+        </div>
+        <div class="contact-item" *ngIf="location">
+          <svg class="contact-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span>{{ location }}</span>
+        </div>
       </div>
 
       <div class="body">
@@ -61,10 +73,11 @@ interface CvHobby { name?: string; }
     .contact-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2mm 5mm; margin-bottom: 7mm; padding: 3.2mm 6.5mm; background: var(--accent); border-radius: 99px; color: #fff; font-size: calc(var(--fs) * .98); }
     .contact-item { display: flex; min-width: 0; align-items: center; gap: 1.8mm; }
     .contact-item i { flex: 0 0 auto; font-style: normal; opacity: .9; }
+    .contact-item .contact-svg { width: 3.5mm; height: 3.5mm; flex: 0 0 auto; stroke: currentColor; }
     .contact-item span { overflow-wrap: anywhere; }
 
     .body { display: grid; grid-template-columns: 66mm minmax(0, 1fr); gap: 9mm; align-items: start; }
-    .sidebar { box-sizing: border-box; padding: 8mm 5.5mm; background: var(--accent); border-radius: 5mm 13mm 5mm 5mm; color: #fff; }
+    .sidebar { box-sizing: border-box; padding: 8mm 5.5mm; background: var(--accent); border-radius: 5mm 13mm 5mm 5mm; color: #fff; min-height: 220mm; }
     .block { margin-bottom: 7mm; break-inside: avoid; page-break-inside: avoid; }
     .block:last-child { margin-bottom: 0; }
     h2 { margin: 0 0 3.6mm; padding-bottom: 2mm; font-size: calc(var(--fs) * 1.55); font-weight: 700; letter-spacing: .1em; }
@@ -94,8 +107,10 @@ interface CvHobby { name?: string; }
 
     @media screen and (max-width: 700px) { :host { display: block; overflow-x: auto; } .cv-paper { transform-origin: top left; } }
     @media print {
-      :host { display: block; height: auto !important; overflow: visible !important; }
-      .cv-paper { width: 100% !important; min-height: 0 !important; overflow: visible !important; box-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
+      :host { display: block; }
+      .cv-paper { width: 210mm !important; max-width: 210mm !important; min-width: 210mm !important; min-height: 297mm !important; box-sizing: border-box !important; margin: 0 auto !important; box-shadow: none !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      .body { display: grid !important; grid-template-columns: 66mm minmax(0, 1fr) !important; gap: 9mm !important; }
+      .sidebar { min-height: 220mm !important; }
       .block, .exp { break-inside: avoid; page-break-inside: avoid; }
       @page { size: A4 portrait; margin: 0; }
     }

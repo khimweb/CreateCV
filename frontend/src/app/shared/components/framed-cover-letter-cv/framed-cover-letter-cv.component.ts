@@ -236,8 +236,10 @@ import { CommonModule } from '@angular/common';
         display: block;
       }
       .framed-cl-container {
-        width: 100% !important;
+        width: 210mm !important;
         min-height: 297mm !important;
+        box-sizing: border-box !important;
+        margin: 0 auto !important;
         box-shadow: none !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;

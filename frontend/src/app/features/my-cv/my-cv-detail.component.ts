@@ -760,7 +760,15 @@ export class MyCvDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    const previewEl = document.querySelector('.print-root')?.firstElementChild as HTMLElement | null;
+    const cvRootSelector = '.cv-paper, .cv, .nb-container, .cl, .framed-cl-container, .mcl-container, .mf-page, .scl-container';
+    let previewEl = (document.querySelector(`.print-root ${cvRootSelector.split(', ').join(', .print-root ')}`) ||
+                     document.querySelector(cvRootSelector)) as HTMLElement | null;
+    if (!previewEl) {
+      const root = document.querySelector('.print-root');
+      let el = root?.firstElementChild as HTMLElement | null;
+      if (el && el.tagName.toLowerCase() === 'app-watermark') el = el.nextElementSibling as HTMLElement | null;
+      previewEl = el;
+    }
     const fileName = (c.title || 'My_CV').replace(/[\\/:*?"<>|]+/g, '_');
 
     if (format === 'pptx') {

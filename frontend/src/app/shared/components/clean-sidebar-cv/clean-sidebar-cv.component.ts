@@ -415,13 +415,29 @@ export interface CvReference { name?: string; position?: string; company?: strin
 
     /* ── PRINT ── */
     @media print {
-      :host { display: block; height: auto !important; overflow: visible !important; }
+      :host { display: block; }
       .cv-paper {
-        width: 100% !important; min-height: 0 !important;
-        box-shadow: none !important; overflow: visible !important;
-        -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact;
+        width: 210mm !important;
+        max-width: 210mm !important;
+        min-width: 210mm !important;
+        min-height: 297mm !important;
+        box-sizing: border-box !important;
+        margin: 0 auto !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
       }
-      .cv-body { min-height: 0 !important; }
+      .cv-body {
+        display: grid !important;
+        grid-template-columns: 200px 1fr !important;
+        min-height: calc(297mm - 160px) !important;
+      }
+      .sidebar,
+      .main {
+        min-width: 0 !important;
+      }
       .cv-section, .exp-item { break-inside: avoid; page-break-inside: avoid; }
       @page { size: A4 portrait; margin: 0; }
     }

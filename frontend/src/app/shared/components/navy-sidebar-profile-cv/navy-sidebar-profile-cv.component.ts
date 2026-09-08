@@ -283,6 +283,7 @@ interface CvReference {
     /* Left Sidebar */
     .sidebar {
       box-sizing: border-box;
+      min-width: 0;
       min-height: 297mm;
       padding: 34px 22px 28px 24px;
       background: var(--accent);
@@ -666,14 +667,22 @@ interface CvReference {
         overflow: visible !important;
       }
       .cv-paper {
-        width: 100% !important;
-        min-height: 0 !important;
+        display: grid !important;
+        grid-template-columns: 35.5% 64.5% !important;
+        width: 210mm !important;
+        max-width: 210mm !important;
+        min-width: 210mm !important;
+        min-height: 297mm !important;
         box-shadow: none !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
       .sidebar {
-        min-height: 0 !important;
+        min-width: 0 !important;
+        min-height: 297mm !important;
+      }
+      .main-content {
+        min-width: 0 !important;
       }
       @page {
         size: A4 portrait;

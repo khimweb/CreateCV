@@ -53,7 +53,7 @@ export class PptxExportService {
     const holder = document.createElement('div');
     holder.setAttribute('aria-hidden', 'true');
     holder.style.cssText =
-      'position:fixed;left:-20000px;top:0;width:210mm;background:#fff;opacity:0;pointer-events:none;z-index:-1';
+      'position:fixed;left:-10000px;top:0;width:210mm;min-height:297mm;background:#fff;pointer-events:none;z-index:-9999;visibility:visible;';
 
     const clone = source.cloneNode(true) as HTMLElement;
     clone.style.transform = 'none';
@@ -67,6 +67,11 @@ export class PptxExportService {
   // ── DOM traversal ────────────────────────────────────────────────────────
 
   private async walk(el: Element, slide: PptxGenJS.Slide, origin: DOMRect, pageOffset: number): Promise<void> {
+    const tag = el.tagName.toLowerCase();
+    if (tag === 'app-watermark' || el.classList.contains('watermark') || el.classList.contains('no-print')) {
+      return;
+    }
+
     const cs = getComputedStyle(el as HTMLElement);
     if (cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) === 0) return;
 
@@ -81,7 +86,7 @@ export class PptxExportService {
     }
 
     // <svg> is rasterised as a whole; never walk into its primitives.
-    if (el.tagName.toLowerCase() === 'svg') return;
+    if (tag === 'svg') return;
 
     if (onPage) this.paintText(slide, el as HTMLElement, cs, origin, pageOffset);
 
@@ -108,10 +113,17 @@ export class PptxExportService {
     const alpha = this.alphaOf(cs.backgroundColor);
     const shape = this.shapeFor(cs, el);
 
+    const bTopW = parseFloat(cs.borderTopWidth) || 0;
+    const bBotW = parseFloat(cs.borderBottomWidth) || 0;
+    const bLeftW = parseFloat(cs.borderLeftWidth) || 0;
+    const bRightW = parseFloat(cs.borderRightWidth) || 0;
+    const sameBorder = bTopW > 0 && bTopW === bBotW && bTopW === bLeftW && bTopW === bRightW;
+    const borderColor = sameBorder ? this.toHex(cs.borderTopColor) : null;
+
     slide.addShape(shape.type, {
       ...box,
       fill: { color: fill, transparency: Math.round((1 - alpha) * 100) },
-      line: { type: 'none' },
+      line: sameBorder && borderColor ? { color: borderColor, width: (bTopW / PX_PER_IN) * 72 } : { type: 'none' },
       ...(shape.radius !== undefined ? { rectRadius: shape.radius } : {}),
     });
   }
@@ -123,7 +135,7 @@ export class PptxExportService {
     if (isPill) return { type: 'ellipse' as PptxGenJS.SHAPE_NAME };
 
     const px = Math.max(...radii.map((r) => parseFloat(r) || 0));
-    if (px > 0.5) {
+    if (px > 1) {
       const shortest = Math.min(el.getBoundingClientRect().width, el.getBoundingClientRect().height);
       const ratio = shortest > 0 ? Math.min(0.5, px / shortest) : 0;
       return { type: 'roundRect' as PptxGenJS.SHAPE_NAME, radius: ratio };
@@ -133,11 +145,21 @@ export class PptxExportService {
 
   /** Border sides become thin filled rectangles so hairlines stay exact. */
   private paintBorders(slide: PptxGenJS.Slide, cs: CSSStyleDeclaration, box: Box) {
+    const bTopW = parseFloat(cs.borderTopWidth) || 0;
+    const bBotW = parseFloat(cs.borderBottomWidth) || 0;
+    const bLeftW = parseFloat(cs.borderLeftWidth) || 0;
+    const bRightW = parseFloat(cs.borderRightWidth) || 0;
+
+    // If all borders are uniform and were already drawn with the background shape, skip individual strips
+    if (bTopW > 0 && bTopW === bBotW && bTopW === bLeftW && bTopW === bRightW && this.toHex(cs.backgroundColor)) {
+      return;
+    }
+
     const sides = [
-      { w: parseFloat(cs.borderTopWidth), c: cs.borderTopColor, s: cs.borderTopStyle, x: box.x, y: box.y, bw: box.w, bh: 0 },
-      { w: parseFloat(cs.borderBottomWidth), c: cs.borderBottomColor, s: cs.borderBottomStyle, x: box.x, y: 0, bw: box.w, bh: 0 },
-      { w: parseFloat(cs.borderLeftWidth), c: cs.borderLeftColor, s: cs.borderLeftStyle, x: box.x, y: box.y, bw: 0, bh: box.h },
-      { w: parseFloat(cs.borderRightWidth), c: cs.borderRightColor, s: cs.borderRightStyle, x: 0, y: box.y, bw: 0, bh: box.h },
+      { w: bTopW, c: cs.borderTopColor, s: cs.borderTopStyle, x: box.x, y: box.y, bw: box.w, bh: 0 },
+      { w: bBotW, c: cs.borderBottomColor, s: cs.borderBottomStyle, x: box.x, y: box.y + box.h, bw: box.w, bh: 0 },
+      { w: bLeftW, c: cs.borderLeftColor, s: cs.borderLeftStyle, x: box.x, y: box.y, bw: 0, bh: box.h },
+      { w: bRightW, c: cs.borderRightColor, s: cs.borderRightStyle, x: box.x + box.w, y: box.y, bw: 0, bh: box.h },
     ];
 
     sides.forEach((side, index) => {
@@ -200,36 +222,47 @@ export class PptxExportService {
     range.detach();
     if (!rect.width || !rect.height) return;
 
-    const size = parseFloat(cs.fontSize) || 13;
-    const lineHeight = parseFloat(cs.lineHeight);
+    const size = parseFloat(cs.fontSize) || 12;
     const text = this.applyTransform(own, cs.textTransform);
-    const color = this.toHex(cs.color) || '000000';
+    const color = this.toHex(cs.color) || '2A2A2A';
     const listed = cs.display === 'list-item' && cs.listStyleType !== 'none';
 
-    // Pad the frame slightly: PowerPoint measures glyphs differently and would
-    // otherwise wrap a line that fits in the browser.
-    const pad = size * 0.35;
+    // Single-line elements (names, headers, dates, badges) should never wrap in PowerPoint
+    const isSingleLine = rect.height <= size * 1.65;
+    const padX = isSingleLine ? Math.max(size * 0.8, 8) : size * 0.4;
+    const padY = isSingleLine ? 0 : size * 0.2;
+
     const box: Box = {
-      x: (rect.left - origin.left - pad / 2) / PX_PER_IN,
-      y: (rect.top - origin.top - pageOffset - pad / 2) / PX_PER_IN,
-      w: (rect.width + pad) / PX_PER_IN,
-      h: (rect.height + pad) / PX_PER_IN,
+      x: (rect.left - origin.left - padX / 2) / PX_PER_IN,
+      y: (rect.top - origin.top - pageOffset - padY / 2) / PX_PER_IN,
+      w: (rect.width + padX) / PX_PER_IN,
+      h: (rect.height + padY) / PX_PER_IN,
     };
+
+    const rawLh = parseFloat(cs.lineHeight);
+    const lineSpacingMultiple = (!isSingleLine && rawLh && size && !isNaN(rawLh) && rawLh > 0)
+      ? Math.max(0.9, Math.min(1.8, rawLh / size))
+      : undefined;
+
+    const hasKhmer = /[\u1780-\u17FF]/.test(text);
+    const fontFace = hasKhmer
+      ? 'Khmer OS Battambang, Arial'
+      : this.fontOf(cs.fontFamily);
 
     slide.addText(text, {
       ...box,
-      fontFace: this.fontOf(cs.fontFamily),
-      fontSize: size * 0.75,
+      fontFace,
+      fontSize: size * 0.75, // convert px to pt
       bold: (parseInt(cs.fontWeight, 10) || 400) >= 600,
       italic: cs.fontStyle === 'italic',
       color,
       align: (['center', 'right', 'justify'].includes(cs.textAlign) ? cs.textAlign : 'left') as PptxGenJS.HAlign,
       valign: 'top',
-      margin: 0,
-      charSpacing: (parseFloat(cs.letterSpacing) || 0) * 0.75,
-      lineSpacingMultiple: lineHeight && size ? Math.max(0.6, lineHeight / size) : undefined,
+      margin: [0, 0, 0, 0],
+      charSpacing: !isNaN(parseFloat(cs.letterSpacing)) ? parseFloat(cs.letterSpacing) * 0.75 : 0,
+      lineSpacingMultiple,
       bullet: listed ? { characterCode: '2022' } : false,
-      wrap: true,
+      wrap: !isSingleLine,
       fit: 'none',
       isTextBox: true,
     });
@@ -248,21 +281,30 @@ export class PptxExportService {
     return (family.split(',')[0] || 'Arial').replace(/["']/g, '').trim();
   }
 
-  private alphaOf(color: string) {
-    const m = /rgba?\(([^)]+)\)/.exec(color);
-    if (!m) return 1;
-    const parts = m[1].split(',').map((p) => parseFloat(p));
-    return parts.length > 3 ? parts[3] : 1;
+  private alphaOf(color: string): number {
+    if (!color || color === 'transparent') return 0;
+    const parts = color.match(/[\d.]+/g)?.map(Number);
+    if (!parts || parts.length < 4) return 1;
+    return isNaN(parts[3]) ? 1 : parts[3];
   }
 
   /** Returns an RRGGBB hex string, or null when fully transparent. */
   private toHex(color: string): string | null {
-    if (!color || color === 'transparent') return null;
-    const m = /rgba?\(([^)]+)\)/.exec(color);
-    if (!m) return null;
-    const [r, g, b, a = 1] = m[1].split(',').map((p) => parseFloat(p));
-    if (a === 0) return null;
-    return [r, g, b].map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('').toUpperCase();
+    if (!color || color === 'transparent' || color === 'none') return null;
+    if (color.startsWith('#')) {
+      const hex = color.slice(1).trim();
+      return hex.length === 3
+        ? hex.split('').map((c) => c + c).join('').toUpperCase()
+        : hex.slice(0, 6).toUpperCase();
+    }
+    const parts = color.match(/[\d.]+/g)?.map(Number);
+    if (!parts || parts.length < 3) return null;
+    const [r, g, b, a = 1] = parts;
+    if (a === 0 || isNaN(r) || isNaN(g) || isNaN(b)) return null;
+    return [r, g, b]
+      .map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0'))
+      .join('')
+      .toUpperCase();
   }
 
   /** Inlines computed paint so a stylesheet-styled SVG survives serialisation. */

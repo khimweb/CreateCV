@@ -656,18 +656,27 @@ export interface CvReference {
           overflow: visible !important;
         }
         .cv-paper {
-          width: 100% !important;
-          min-height: 0 !important;
+          width: 210mm !important;
+          max-width: 210mm !important;
+          min-width: 210mm !important;
+          min-height: 297mm !important;
           box-shadow: none !important;
           overflow: visible !important;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-          color-adjust: exact;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
         }
-        .cv-layout,
+        .cv-layout {
+          display: grid !important;
+          grid-template-columns: 230px 1fr !important;
+          min-height: 297mm !important;
+        }
         .sidebar,
         .content {
-          min-height: 0 !important;
+          min-width: 0 !important;
+        }
+        .sidebar {
+          min-height: 297mm !important;
         }
         .cv-section,
         .exp-item {

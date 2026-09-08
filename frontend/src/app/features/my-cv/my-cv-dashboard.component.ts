@@ -1718,7 +1718,14 @@ export class MyCvDashboardComponent implements OnInit {
     }
 
     const cardEl = document.getElementById(`cv-card-${cv.id}`);
-    const previewEl = cardEl?.querySelector('.cv-thumb')?.firstElementChild as HTMLElement | null;
+    const cvRootSelector = '.cv-paper, .cv, .nb-container, .cl, .framed-cl-container, .mcl-container, .mf-page, .scl-container';
+    let previewEl = cardEl?.querySelector(cvRootSelector) as HTMLElement | null;
+    if (!previewEl) {
+      previewEl = cardEl?.querySelector('.cv-thumb')?.firstElementChild as HTMLElement | null;
+      if (previewEl && previewEl.tagName.toLowerCase() === 'app-watermark') {
+        previewEl = previewEl.nextElementSibling as HTMLElement | null;
+      }
+    }
 
     if (format === 'pptx') {
       if (previewEl) {

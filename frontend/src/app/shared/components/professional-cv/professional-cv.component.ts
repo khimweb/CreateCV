@@ -416,21 +416,23 @@ export interface CvTypography {
           overflow: visible !important;
         }
         .cv-paper {
-          width: 100% !important;
-          min-height: 0 !important;
-          height: auto !important;
+          width: 210mm !important;
+          max-width: 210mm !important;
+          min-width: 210mm !important;
+          min-height: 297mm !important;
           box-shadow: none !important;
           overflow: visible !important;
-        }
-        .cv-body {
-          min-height: 0 !important;
-          height: auto !important;
-          overflow: visible !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
         .job,
         h2 {
           break-inside: avoid;
           page-break-inside: avoid;
+        }
+        @page {
+          size: A4 portrait;
+          margin: 0;
         }
       }
     `,

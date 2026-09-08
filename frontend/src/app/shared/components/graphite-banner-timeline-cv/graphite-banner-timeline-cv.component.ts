@@ -27,10 +27,22 @@ interface CvHobby { name?: string; }
           <section class="side-block" *ngIf="hasContact">
             <h2>{{ lbl('Personal Information', 'Contact') }}</h2>
             <ul class="contact-list">
-              <li *ngIf="phone"><i>☎</i><span>{{ phone }}</span></li>
-              <li *ngIf="email"><i>✉</i><span>{{ email }}</span></li>
-              <li *ngIf="location"><i>⌖</i><span>{{ location }}</span></li>
-              <li *ngIf="linkedin"><i>⌁</i><span>{{ linkedin }}</span></li>
+              <li *ngIf="phone">
+                <svg class="contact-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6.57-6.57A19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.58a16 16 0 0 0 6 6l.94-.94a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span>{{ phone }}</span>
+              </li>
+              <li *ngIf="email">
+                <svg class="contact-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span>{{ email }}</span>
+              </li>
+              <li *ngIf="location">
+                <svg class="contact-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>{{ location }}</span>
+              </li>
+              <li *ngIf="linkedin">
+                <svg class="contact-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                <span>{{ linkedin }}</span>
+              </li>
             </ul>
           </section>
 
@@ -124,6 +136,7 @@ interface CvHobby { name?: string; }
     .contact-list { margin: 0; padding: 0; list-style: none; }
     .contact-list li { display: flex; align-items: center; gap: 2.6mm; margin-bottom: 2.6mm; color: #2C3E50; font-size: calc(var(--fs) * 1.02); font-weight: 500; }
     .contact-list i { flex: 0 0 auto; width: 4.2mm; font-style: normal; text-align: center; }
+    .contact-list .contact-svg { width: 3.5mm; height: 3.5mm; flex: 0 0 auto; stroke: #2C3E50; }
     .contact-list span { min-width: 0; overflow-wrap: anywhere; }
     .bullets { margin: 0; padding-left: 4mm; color: #2C3E50; font-size: calc(var(--fs) * 1.02); }
     .bullets li { margin-bottom: 1.6mm; line-height: 1.4; }
@@ -155,9 +168,11 @@ interface CvHobby { name?: string; }
 
     @media screen and (max-width: 700px) { :host { display: block; overflow-x: auto; } .cv-paper { transform-origin: top left; } }
     @media print {
-      :host { display: block; height: auto !important; overflow: visible !important; }
-      .cv-paper { width: 100% !important; min-height: 0 !important; overflow: visible !important; box-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
-      .sidebar { min-height: 0 !important; }
+      :host { display: block; }
+      .cv-paper { width: 210mm !important; max-width: 210mm !important; min-width: 210mm !important; min-height: 297mm !important; box-sizing: border-box !important; margin: 0 auto !important; box-shadow: none !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      .body { display: grid !important; grid-template-columns: 73.5mm minmax(0, 1fr) !important; }
+      .sidebar, main { min-width: 0 !important; }
+      .sidebar { min-height: 265.5mm !important; }
       .side-block, .main-section, .tl-item { break-inside: avoid; page-break-inside: avoid; }
       @page { size: A4 portrait; margin: 0; }
     }

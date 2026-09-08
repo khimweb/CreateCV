@@ -290,10 +290,12 @@ import { CommonModule } from '@angular/common';
       flex: 1;
       align-items: stretch;
       width: 100%;
+      min-width: 0;
     }
 
     /* Left Sidebar */
     .nb-sidebar {
+      min-width: 0;
       background-color: var(--accent);
       color: #ffffff;
       padding: 16px 14px 14px 16px;
@@ -502,6 +504,7 @@ import { CommonModule } from '@angular/common';
 
     /* Right Column (Navy banner + Curved White Card) */
     .nb-right-col {
+      min-width: 0;
       display: flex;
       flex-direction: column;
       padding-right: 14px;
@@ -739,11 +742,23 @@ import { CommonModule } from '@angular/common';
         display: block;
       }
       .nb-container {
-        width: 100% !important;
+        width: 210mm !important;
+        max-width: 210mm !important;
+        min-width: 210mm !important;
         min-height: 297mm !important;
         box-shadow: none !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+      }
+      .nb-sheet {
+        display: grid !important;
+        grid-template-columns: 34% 66% !important;
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+      .nb-sidebar,
+      .nb-right-col {
+        min-width: 0 !important;
       }
       @page {
         size: A4 portrait;
