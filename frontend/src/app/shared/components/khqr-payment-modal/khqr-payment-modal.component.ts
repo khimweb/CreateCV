@@ -62,7 +62,7 @@ interface KhqrOrderResponse {
         </div>
 
         <!-- BODY: PAYMENT ACTIVE -->
-        @if (!isPaid() && !isExpired()) {
+        @if (!isPaid()) {
           <div class="p-6 text-center">
             
             <!-- TIMER & DUAL CURRENCY BADGE -->
@@ -73,9 +73,15 @@ interface KhqrOrderResponse {
                   <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                 </span>
                 <div>
-                  <div class="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-400">{{ i18n.t('khqrExpiresIn') }}</div>
-                  <div class="text-sm font-black font-mono" [class.text-red-600]="remainingSeconds() < 60" [class.text-slate-800]="remainingSeconds() >= 60" [class.dark:text-white]="remainingSeconds() >= 60">
-                    {{ formattedTime() }}
+                  <div class="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-400">
+                    {{ renewCount() > 0 ? '🔄 Auto-renewed ×' + renewCount() : i18n.t('khqrExpiresIn') }}
+                  </div>
+                  <div class="text-sm font-black font-mono"
+                       [class.text-red-600]="remainingSeconds() < 60 && !renewing()"
+                       [class.text-amber-500]="renewing()"
+                       [class.text-slate-800]="remainingSeconds() >= 60 && !renewing()"
+                       [class.dark:text-white]="remainingSeconds() >= 60 && !renewing()">
+                    {{ renewing() ? 'Renewing...' : formattedTime() }}
                   </div>
                 </div>
               </div>
@@ -101,11 +107,13 @@ interface KhqrOrderResponse {
               </div>
 
               <!-- QR CODE WITH PURE WHITE QUIET ZONE -->
-              <div class="w-full p-4 bg-white flex items-center justify-center min-h-[240px]">
-                @if (loading()) {
+              <div class="w-full p-4 bg-white flex items-center justify-center min-h-[240px] relative">
+                @if (loading() || renewing()) {
                   <div class="flex flex-col items-center gap-3 py-10">
                     <div class="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-                    <span class="text-xs font-semibold text-slate-500">Generating KHQR...</span>
+                    <span class="text-xs font-semibold text-slate-500">
+                      {{ renewing() ? '🔄 Auto-renewing KHQR...' : 'Generating KHQR...' }}
+                    </span>
                   </div>
                 } @else if (qrSvg()) {
                   <div class="w-56 h-56 flex items-center justify-center relative overflow-hidden qr-box" [innerHTML]="qrSvg()">
@@ -193,29 +201,7 @@ interface KhqrOrderResponse {
           </div>
         }
 
-        <!-- BODY: EXPIRED STATE -->
-        @if (isExpired() && !isPaid()) {
-          <div class="p-8 text-center animate-fade-in">
-            <div class="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-3xl mx-auto mb-4">
-              ⏱️
-            </div>
-            <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">{{ i18n.t('khqrExpiredTitle') }}</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 max-w-xs mx-auto">
-              {{ i18n.t('khqrExpiredDesc') }}
-            </p>
-            <div class="flex gap-3">
-              <button type="button" (click)="generateKhqr()"
-                      class="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer">
-                <span>🔄</span>
-                <span>{{ i18n.t('khqrRefreshQr') }}</span>
-              </button>
-              <button type="button" (click)="cancelPayment()"
-                      class="py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-xs transition cursor-pointer">
-                {{ i18n.t('khqrCancel') }}
-              </button>
-            </div>
-          </div>
-        }
+
 
         <!-- BODY: SUCCESS STATE (USER PAID) -->
         @if (isPaid()) {
@@ -379,6 +365,8 @@ export class KhqrPaymentModalComponent implements OnInit, OnDestroy {
   verifying = signal<boolean>(false);
   isPaid = signal<boolean>(false);
   isExpired = signal<boolean>(false);
+  renewing = signal<boolean>(false);
+  renewCount = signal<number>(0);
   selectedCurrency = signal<'USD' | 'KHR'>('USD');
   qrSvg = signal<SafeHtml | null>(null);
   remainingSeconds = signal<number>(300);
@@ -419,6 +407,7 @@ export class KhqrPaymentModalComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: (res) => {
         this.loading.set(false);
+        this.renewing.set(false);
         if (res.free || res.paid) {
           this.isPaid.set(true);
           this.paymentSuccess.emit({ orderId: res.orderId });
@@ -436,6 +425,7 @@ export class KhqrPaymentModalComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.loading.set(false);
+        this.renewing.set(false);
         console.warn('Fallback to instant client KHQR generation:', err);
         const now = Date.now();
         const exp = now + 24 * 60 * 60 * 1000;
@@ -462,12 +452,19 @@ export class KhqrPaymentModalComponent implements OnInit, OnDestroy {
   }
 
   startTimer() {
+    if (this.timerInterval) clearInterval(this.timerInterval);
     this.timerInterval = setInterval(() => {
       const cur = this.remainingSeconds();
       if (cur <= 1) {
+        // Auto-renew instead of showing expired screen
         this.remainingSeconds.set(0);
-        this.isExpired.set(true);
-        this.stopTimers();
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+        if (!this.isPaid()) {
+          this.renewing.set(true);
+          this.renewCount.set(this.renewCount() + 1);
+          this.generateKhqr(); // auto-renew!
+        }
       } else {
         this.remainingSeconds.set(cur - 1);
       }
@@ -484,7 +481,7 @@ export class KhqrPaymentModalComponent implements OnInit, OnDestroy {
   private visibilityHandler = () => {
     if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
       const order = this.orderData();
-      if (order && !this.isPaid() && !this.isExpired()) {
+      if (order && !this.isPaid() && !this.renewing()) {
         this.checkOrderStatus(order.orderId);
       }
     }
@@ -504,14 +501,11 @@ export class KhqrPaymentModalComponent implements OnInit, OnDestroy {
   }
 
   private checkOrderStatus(orderId: number) {
-    if (this.isPaid() || this.isExpired()) return;
+    if (this.isPaid() || this.renewing()) return;
     this.http.get<{ status: string; paid: boolean }>(`/api/v1/orders/${orderId}/status`).subscribe({
       next: (res) => {
         if (res.paid) {
           this.handlePaidSuccess(orderId);
-        } else if (res.status === 'expired' && this.remainingSeconds() <= 5) {
-          this.isExpired.set(true);
-          this.stopTimers();
         }
       },
       error: () => {}
