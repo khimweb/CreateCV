@@ -9,6 +9,22 @@ const BAKONG_TOKEN =
   process.env.BAKONG_API_TOKEN ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiYzY4NGNhNTUwNTJmNDRjYiJ9LCJpYXQiOjE3ODg3ODYyODQsImV4cCI6MTc5NjU2MjI4NH0.6ruvncsMn4-S5yK57xP9zRrFgIWLJrKzvaXFeQPMdsc';
 
+// ─── In-memory result cache (prevents hammering NBC API) ──────────────────────
+// Structure: { md5: { result, fetchedAt, inFlight } }
+const _cache = new Map();
+
+// Cache TTL: 3s for pending (recheck frequently), 60s for paid (final state)
+const PENDING_TTL_MS = 3000;
+const PAID_TTL_MS    = 60 * 1000;
+
+// Remove entries older than 10 min to prevent memory leak
+setInterval(() => {
+  const cutoff = Date.now() - 10 * 60 * 1000;
+  for (const [key, entry] of _cache.entries()) {
+    if (entry.fetchedAt < cutoff) _cache.delete(key);
+  }
+}, 5 * 60 * 1000);
+
 /**
  * CRC16 CCITT (0x1021, init 0xFFFF) for EMVCo / KHQR Tag 63
  */
@@ -87,21 +103,12 @@ function calculateMD5(qrString) {
 }
 
 /**
- * Verify payment with Bakong Open API via MD5
+ * Raw NBC Bakong API call — no caching
  */
-async function checkBakongPayment(md5) {
-  if (!BAKONG_TOKEN) {
-    console.warn('[Bakong] Warning: No BAKONG_TOKEN configured in environment.');
-    return { paid: false, message: 'NO_BAKONG_TOKEN' };
-  }
-  const cleanMd5 = String(md5 || '').trim().toLowerCase();
-  if (!cleanMd5) {
-    return { paid: false, message: 'INVALID_MD5' };
-  }
-
+function _fetchBakongStatus(md5) {
   return new Promise((resolve) => {
     try {
-      const payload = JSON.stringify({ md5: cleanMd5 });
+      const payload = JSON.stringify({ md5 });
       const options = {
         hostname: 'api-bakong.nbc.gov.kh',
         port: 443,
@@ -112,7 +119,7 @@ async function checkBakongPayment(md5) {
           'Authorization': `Bearer ${BAKONG_TOKEN}`,
           'Content-Length': Buffer.byteLength(payload),
         },
-        timeout: 8000,
+        timeout: 5000, // reduced from 8s to 5s for faster response
       };
 
       const req = https.request(options, (res) => {
@@ -121,18 +128,20 @@ async function checkBakongPayment(md5) {
         res.on('end', () => {
           try {
             if (res.statusCode === 401) {
-              console.error('[Bakong] 401 Unauthorized: BAKONG_TOKEN is invalid or expired.');
+              console.error('[Bakong] 401 Unauthorized — BAKONG_TOKEN expired or invalid.');
               return resolve({ paid: false, code: 401, message: 'UNAUTHORIZED_TOKEN' });
             }
 
             const data = JSON.parse(body);
-            // NBC Bakong Open API specification: responseCode === 0 denotes success
+            console.log(`[Bakong] API response for md5=${md5.slice(0,8)}...: code=${data.responseCode} msg=${data.responseMessage}`);
+
+            // NBC spec: responseCode === 0 = found & confirmed
             const isSuccess =
               (data.responseCode === 0 || data.responseCode === '0' || data.code === 0) &&
               Boolean(data.data);
 
             if (isSuccess) {
-              console.log(`[Bakong] ✓ Confirmed transaction for MD5: ${cleanMd5} (Hash: ${data.data?.hash || 'N/A'})`);
+              console.log(`[Bakong] ✅ PAID — md5=${md5.slice(0,8)}... hash=${data.data?.hash || 'N/A'}`);
               resolve({
                 paid: true,
                 raw: data.data,
@@ -148,20 +157,20 @@ async function checkBakongPayment(md5) {
               });
             }
           } catch (parseErr) {
-            console.warn('[Bakong] JSON parse error from Bakong API:', body.slice(0, 150));
+            console.warn('[Bakong] JSON parse error:', body.slice(0, 200));
             resolve({ paid: false, message: 'INVALID_RESPONSE' });
           }
         });
       });
 
       req.on('error', (err) => {
-        console.warn('[Bakong] Check request error:', err.message);
+        console.warn('[Bakong] Request error:', err.message);
         resolve({ paid: false, error: err.message });
       });
 
       req.on('timeout', () => {
         req.destroy();
-        console.warn('[Bakong] Check request timed out after 8s');
+        console.warn('[Bakong] Timed out after 5s');
         resolve({ paid: false, error: 'TIMEOUT' });
       });
 
@@ -172,6 +181,58 @@ async function checkBakongPayment(md5) {
       resolve({ paid: false, error: e.message });
     }
   });
+}
+
+/**
+ * Cached Bakong payment check.
+ * - If result is already PAID → return cached immediately (never recheck).
+ * - If result is PENDING → recheck NBC API at most once per 3 seconds.
+ * - Only one in-flight request per MD5 at a time (deduplication).
+ */
+async function checkBakongPayment(md5) {
+  if (!BAKONG_TOKEN) {
+    console.warn('[Bakong] No BAKONG_TOKEN configured.');
+    return { paid: false, message: 'NO_BAKONG_TOKEN' };
+  }
+  const cleanMd5 = String(md5 || '').trim().toLowerCase();
+  if (!cleanMd5 || cleanMd5 === 'fallback_md5_ref') {
+    return { paid: false, message: 'INVALID_MD5' };
+  }
+
+  const entry = _cache.get(cleanMd5);
+  const now = Date.now();
+
+  // Already confirmed paid — return instantly
+  if (entry && entry.result && entry.result.paid) {
+    return entry.result;
+  }
+
+  // Pending but still fresh — return cached pending without calling NBC
+  if (entry && !entry.result?.paid && (now - entry.fetchedAt) < PENDING_TTL_MS) {
+    return entry.result;
+  }
+
+  // Another request is already in-flight for this MD5 — wait for it
+  if (entry && entry.inFlight) {
+    await new Promise(r => setTimeout(r, 200));
+    return _cache.get(cleanMd5)?.result || { paid: false, message: 'IN_FLIGHT' };
+  }
+
+  // Mark in-flight
+  _cache.set(cleanMd5, { ...(entry || {}), inFlight: true, fetchedAt: entry?.fetchedAt || now });
+
+  try {
+    const result = await _fetchBakongStatus(cleanMd5);
+    _cache.set(cleanMd5, {
+      result,
+      fetchedAt: Date.now(),
+      inFlight: false,
+    });
+    return result;
+  } catch (e) {
+    _cache.set(cleanMd5, { result: { paid: false, error: e.message }, fetchedAt: Date.now(), inFlight: false });
+    return { paid: false, error: e.message };
+  }
 }
 
 function hasBakongToken() {

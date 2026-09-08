@@ -6,8 +6,68 @@ const { query } = require('../db/pool');
 const bakongService = require('../services/bakong.service');
 const telegramService = require('../services/telegram.service');
 
+// GET /api/v1/orders/test-bakong — test Bakong token + Telegram (no auth for quick server-side test)
+// Remove or restrict this endpoint after confirming everything works
+router.get('/test-bakong', async (req, res) => {
+  const results = {};
+
+  // 1. Generate a test QR and MD5
+  const testQr = bakongService.generateKHQRString({
+    accountId: bakongService.BAKONG_ACCOUNT_ID,
+    merchantName: bakongService.BAKONG_MERCHANT_NAME,
+    amount: 0.01,
+    currency: 'USD',
+    billNumber: 'TEST-' + Date.now(),
+  });
+  const testMd5 = bakongService.calculateMD5(testQr);
+  results.qrLength = testQr.length;
+  results.md5 = testMd5;
+  results.accountId = bakongService.BAKONG_ACCOUNT_ID;
+  results.merchantName = bakongService.BAKONG_MERCHANT_NAME;
+  results.hasToken = bakongService.hasBakongToken();
+
+  // 2. Test calling Bakong API — expect PENDING (no payment was made)
+  try {
+    const bakongResult = await bakongService.checkBakongPayment(testMd5);
+    results.bakongApi = {
+      ok: true,
+      paid: bakongResult.paid,
+      code: bakongResult.code,
+      message: bakongResult.message,
+    };
+    console.log('[TestBakong] Bakong API result:', bakongResult);
+  } catch (e) {
+    results.bakongApi = { ok: false, error: e.message };
+  }
+
+  // 3. Test sending Telegram notification
+  try {
+    const tgResult = await telegramService.sendPaymentNotification({
+      status: 'SUCCESS',
+      fullName: 'TEST USER',
+      email: 'test@cqprofessional.com',
+      templateName: 'Test Template',
+      amountUsd: 0.01,
+      amountKhr: 41,
+      orderId: 9999,
+      paymentRef: testMd5,
+    });
+    results.telegram = { ok: tgResult?.ok, description: tgResult?.description };
+    console.log('[TestBakong] Telegram result:', tgResult);
+  } catch (e) {
+    results.telegram = { ok: false, error: e.message };
+  }
+
+  res.json({
+    success: true,
+    timestamp: new Date().toISOString(),
+    results,
+  });
+});
+
 // POST /api/v1/orders/khqr — generate 5-minute dynamic Bakong KHQR
 router.post('/khqr', requireAuth, async (req, res) => {
+
   try {
     const { templateId, userCvId, currency = 'USD' } = req.body;
     const user = await db.users.findById(req.user.id);
@@ -92,11 +152,12 @@ router.get('/:id/status', requireAuth, async (req, res) => {
     const order = await db.orders.findById(req.params.id);
     if (!order) return res.status(404).json({ error: 'NOT_FOUND' });
 
+    // ── Already paid in DB — fastest path ──────────────────────────────────
     if (order.status === 'paid') {
       return res.json({ status: 'paid', paid: true });
     }
 
-    // Check if the associated CV was already marked as paid
+    // ── Check if associated CV is already marked paid ──────────────────────
     if (order.user_cv_id) {
       try {
         const cv = await db.userCvs.findById(order.user_cv_id, order.user_id, true);
@@ -107,26 +168,31 @@ router.get('/:id/status', requireAuth, async (req, res) => {
           });
           return res.json({ status: 'paid', paid: true });
         }
-      } catch {}
+      } catch (_) {}
     }
 
-    // Check transaction with Bakong API if we have an MD5 ref
+    // ── Check with Bakong API (cached — at most one NBC call per 3s) ───────
     if (order.payment_ref) {
       try {
         const bakongCheck = await bakongService.checkBakongPayment(order.payment_ref);
+
         if (bakongCheck && bakongCheck.paid) {
+          // Mark order paid in DB
           await db.orders.markPaid(order.id, {
             paymentProvider: 'bakong_khqr',
             paymentRef: order.payment_ref,
           });
 
+          // Mark CV paid
           if (order.user_cv_id) {
             await db.userCvs.setPaid(order.user_cv_id, true);
           }
 
+          // Load user + template for Telegram notification
           const user = await db.users.findById(order.user_id);
           const template = await db.templates.findById(order.template_id);
 
+          // Send Telegram notification immediately (non-blocking)
           telegramService.sendPaymentNotification({
             status: 'SUCCESS',
             fullName: user?.full_name,
@@ -136,16 +202,24 @@ router.get('/:id/status', requireAuth, async (req, res) => {
             amountKhr: Math.round((order.amount_cents / 100) * 4100),
             orderId: order.id,
             paymentRef: order.payment_ref,
+          }).then(result => {
+            console.log(`[Telegram] Payment notification sent for order #${order.id}:`, result?.ok ? 'OK' : 'FAILED');
+          }).catch(err => {
+            console.warn(`[Telegram] Notification error for order #${order.id}:`, err.message);
           });
 
+          console.log(`[Orders] ✅ Order #${order.id} confirmed PAID via Bakong. Telegram notified.`);
           return res.json({ status: 'paid', paid: true });
         }
+
+        // Log the pending reason so we can debug
+        console.log(`[Orders] Order #${order.id} status: PENDING (${bakongCheck?.message || 'waiting'})`);
       } catch (e) {
         console.warn('[Orders] Bakong check error:', e.message);
       }
     }
 
-    // Check if order has expired (5 minutes = 300,000 ms)
+    // ── Check if order has expired (5 minutes) ─────────────────────────────
     const rawDate = order.purchased_at || order.created_at;
     if (rawDate) {
       const dateStr = typeof rawDate === 'string' && !rawDate.endsWith('Z') && !rawDate.includes('+')
@@ -163,6 +237,7 @@ router.get('/:id/status', requireAuth, async (req, res) => {
     res.status(500).json({ error: 'STATUS_CHECK_ERROR', message: error.message });
   }
 });
+
 
 // POST /api/v1/orders/verify-all — verify all pending orders (admin only)
 router.post('/verify-all', requireAuth, async (req, res) => {
