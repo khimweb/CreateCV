@@ -2,12 +2,12 @@ const crypto = require('crypto');
 const https = require('https');
 
 const BAKONG_ACCOUNT_ID = process.env.BAKONG_ACCOUNT_ID || 'phorn_sokkhim@bkrt';
-const BAKONG_MERCHANT_NAME = process.env.BAKONG_MERCHANT_NAME || 'Phorn Sokkhim';
+const BAKONG_MERCHANT_NAME = process.env.BAKONG_MERCHANT_NAME || 'SOKKHIM PHORN';
 const BAKONG_CITY = 'Phnom Penh';
 const BAKONG_TOKEN =
   process.env.BAKONG_TOKEN ||
   process.env.BAKONG_API_TOKEN ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiYzY4NGNhNTUwNTJmNDRjYiJ9LCJpYXQiOjE3ODg2MDgzNzcsImV4cCI6MTc5NjM4NDM3N30.005xyAtLjtWAl-C77c79t9J59nQ2i2-XZ7_LPGzwhsY';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiYzY4NGNhNTUwNTJmNDRjYiJ9LCJpYXQiOjE3ODg3ODYyODQsImV4cCI6MTc5NjU2MjI4NH0.6ruvncsMn4-S5yK57xP9zRrFgIWLJrKzvaXFeQPMdsc';
 
 /**
  * CRC16 CCITT (0x1021, init 0xFFFF) for EMVCo / KHQR Tag 63
