@@ -344,95 +344,111 @@ html.dark app-settings .security-card { background: #172747; border-color: #3147
   Fix: height:auto, no overflow clip, only .print-root is shown.
 */
 @media print {
-  /* Every CV renderer is a full-bleed 210mm × 297mm document that supplies its
-     own inner padding, so the page itself must not add margins. Adding one here
-     shrank and left-shifted the printed output compared with the screen preview. */
   @page {
     size: A4 portrait;
-    margin: 0;
+    margin: 0mm;
+  }
+
+  /* Force background colors and graphics on all elements in Safari, WebKit, Chrome */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    box-sizing: border-box !important;
   }
 
   html,
   body {
-    width: auto !important;
+    width: 210mm !important;
     height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
+    min-height: 297mm !important;
     margin: 0 !important;
     padding: 0 !important;
+    background: #ffffff !important;
     overflow: visible !important;
-    background: #fff !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
   }
 
-  /* Hide everything by default */
-  body * {
-    visibility: hidden !important;
-  }
-
-  /* Show CV tree only */
-  .print-root,
-  .print-root * {
-    visibility: visible !important;
-  }
-
-  /* Overlay must not clip pages */
-  .print-overlay {
-    position: static !important;
-    inset: auto !important;
-    overflow: visible !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    max-height: none !important;
-    visibility: visible !important;
-  }
-
-  .print-overlay > *:not(.print-root) {
+  /* 1. Remove all non-CV UI completely from layout so they occupy 0 height */
+  app-navbar,
+  app-mobile-bottom-nav,
+  app-site-footer,
+  app-toast,
+  app-watermark,
+  .site-header,
+  .no-print,
+  button,
+  .fixed,
+  .toast-container,
+  app-my-cv-detail section > div:not(.cv-stage-container),
+  app-template-preview section > div:not(.cv-stage-scroll),
+  app-make-cv > main > *:not(.print-overlay),
+  app-make-cv .no-print {
     display: none !important;
   }
 
+  /* 2. Flatten all container wrappers so .print-root starts at the top edge of page 1 */
+  app-root,
+  .app-shell-container,
+  main.page-content,
+  app-my-cv-detail,
+  app-template-preview,
+  app-make-cv,
+  section,
+  .cv-stage-container,
+  .cv-stage-scaler,
+  .cv-stage-scroll,
+  .print-overlay {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    width: 210mm !important;
+    max-width: 210mm !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    transform: none !important;
+    overflow: visible !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* 3. The CV document (.print-root) - full A4 dimensions, no shifts, no cutoffs */
   .print-root,
-  .print-target {
-    position: absolute !important;
+  .print-target,
+  .a4-wrap,
+  .a4-sheet,
+  .cv-paper,
+  .cv {
+    display: block !important;
+    position: relative !important;
     left: 0 !important;
     top: 0 !important;
     right: auto !important;
     bottom: auto !important;
-    width: 210mm !important; /* full A4 width — matches the on-screen document */
-    max-width: 210mm !important;
-    min-height: 0 !important;
-    height: auto !important;
-    max-height: none !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     padding: 0 !important;
-    zoom: 1 !important;
+    width: 210mm !important;
+    max-width: 210mm !important;
+    min-width: 210mm !important;
+    min-height: 297mm !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
     transform: none !important;
-    box-shadow: none !important;
+    zoom: 1 !important;
     overflow: visible !important;
-  }
-
-  /* The editor and footer remain in the document tree while printing; remove their
-     layout boxes so a full-preview download produces only the CV pages. */
-  app-root > div > app-navbar,
-  app-root > div > app-mobile-bottom-nav,
-  app-root > div > app-site-footer,
-  app-make-cv > main {
-    display: none !important;
-  }
-
-  /* Full-bleed A4 is now the default for every layout, including Cover Letter. */
-
-  .cv-paper,
-  .cv {
-    width: 100% !important;
-    min-height: 0 !important;
-    height: auto !important;
-    max-height: none !important;
-    box-shadow: none !important;
-    overflow: visible !important;
+    background: #ffffff !important;
+    page-break-after: auto !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .cv-body {
@@ -441,12 +457,13 @@ html.dark app-settings .security-card { background: #172747; border-color: #3147
     overflow: visible !important;
   }
 
-  /* Prefer keeping entries whole across page breaks when possible */
+  /* Prevent awkward breaks inside jobs or headers */
   .cv-header,
   .job,
-  h2 {
-    break-inside: avoid;
-    page-break-inside: avoid;
+  h2,
+  h3 {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 }
 

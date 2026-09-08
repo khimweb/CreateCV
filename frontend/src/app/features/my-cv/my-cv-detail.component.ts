@@ -745,7 +745,18 @@ export class MyCvDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!c) return;
 
     if (format === 'pdf') {
-      setTimeout(() => window.print(), 200);
+      const prevAutoFit = this.isAutoFit();
+      const prevZoom = this.zoomLevel();
+      this.isAutoFit.set(false);
+      this.zoomLevel.set(1);
+
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+          this.isAutoFit.set(prevAutoFit);
+          this.zoomLevel.set(prevZoom);
+        }, 1000);
+      }, 150);
       return;
     }
 

@@ -263,7 +263,7 @@ interface CvTemplate {
             <!-- Scrollable Viewport with Centered Scaler -->
             <div class="h-[62vh] sm:h-[72vh] xl:h-[calc(100vh-9.5rem)] min-h-[460px] overflow-auto p-2 sm:p-5 lg:p-8 flex flex-col items-center cv-stage-scroll">
               <div 
-                class="a4-wrap relative origin-top mx-auto shrink-0"
+                class="print-root a4-wrap relative origin-top mx-auto shrink-0"
                 [style.--a4-scale]="effectiveScale()"
                 [style.zoom]="effectiveScale()"
               >
