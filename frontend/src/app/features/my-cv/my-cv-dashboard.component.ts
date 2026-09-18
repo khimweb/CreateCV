@@ -288,6 +288,12 @@ interface SavedCv {
                     [languages]="asArray(contentOf(cv).languages)"
                     [references]="asArray(contentOf(cv).references)"
                     [hobbies]="asArray(contentOf(cv).hobbies)"
+                    [fontSize]="contentOf(cv).typography?.fontSize || 10"
+                    [fontWeight]="contentOf(cv).typography?.fontWeight || 400"
+                    [lineHeight]="contentOf(cv).typography?.lineHeight || 1.45"
+                    [fontFamily]="contentOf(cv).typography?.fontFamily || undefined"
+                    [sectionLabels]="contentOf(cv).sectionLabels || {}"
+                    [sectionOrder]="contentOf(cv).sectionOrder || []"
                   />
                 } @else if (layoutOf(cv) === 'clean-sidebar') {
                   <app-clean-sidebar-cv
@@ -304,6 +310,12 @@ interface SavedCv {
                     [skills]="asArray(contentOf(cv).skills)"
                     [languages]="asArray(contentOf(cv).languages)"
                     [references]="asArray(contentOf(cv).references)"
+                    [fontSize]="contentOf(cv).typography?.fontSize || 10"
+                    [fontWeight]="contentOf(cv).typography?.fontWeight || 400"
+                    [lineHeight]="contentOf(cv).typography?.lineHeight || 1.5"
+                    [fontFamily]="contentOf(cv).typography?.fontFamily || undefined"
+                    [sectionLabels]="contentOf(cv).sectionLabels || {}"
+                    [sectionOrder]="contentOf(cv).sectionOrder || []"
                   />
                 } @else if (layoutOf(cv) === 'elegant-frame') {
                   <app-elegant-frame-cv
@@ -323,6 +335,12 @@ interface SavedCv {
                     [certifications]="asArray(contentOf(cv).certifications)"
                     [hobbies]="asArray(contentOf(cv).hobbies)"
                     [references]="asArray(contentOf(cv).references)"
+                    [fontSize]="contentOf(cv).typography?.fontSize || 10"
+                    [fontWeight]="contentOf(cv).typography?.fontWeight || 400"
+                    [lineHeight]="contentOf(cv).typography?.lineHeight || 1.5"
+                    [fontFamily]="contentOf(cv).typography?.fontFamily || undefined"
+                    [sectionLabels]="contentOf(cv).sectionLabels || {}"
+                    [sectionOrder]="contentOf(cv).sectionOrder || []"
                   />
                 } @else if (layoutOf(cv) === 'graphite-banner-timeline') {
                   <app-graphite-banner-timeline-cv
@@ -343,6 +361,12 @@ interface SavedCv {
                     [projects]="asArray(contentOf(cv).projects)" 
                     [references]="asArray(contentOf(cv).references)" 
                     [hobbies]="asArray(contentOf(cv).hobbies)"
+                    [fontSize]="contentOf(cv).typography?.fontSize || 10"
+                    [fontWeight]="contentOf(cv).typography?.fontWeight || 400"
+                    [lineHeight]="contentOf(cv).typography?.lineHeight || 1.55"
+                    [fontFamily]="contentOf(cv).typography?.fontFamily || undefined"
+                    [sectionLabels]="contentOf(cv).sectionLabels || {}"
+                    [sectionOrder]="contentOf(cv).sectionOrder || []"
                   />
                 } @else if (layoutOf(cv) === 'navy-sidebar-profile') {
                   <app-navy-sidebar-profile-cv
@@ -437,6 +461,12 @@ interface SavedCv {
                     [projects]="asArray(contentOf(cv).projects)" 
                     [references]="asArray(contentOf(cv).references)" 
                     [hobbies]="asArray(contentOf(cv).hobbies)"
+                    [fontSize]="contentOf(cv).typography?.fontSize || 10"
+                    [fontWeight]="contentOf(cv).typography?.fontWeight || 400"
+                    [lineHeight]="contentOf(cv).typography?.lineHeight || 1.5"
+                    [fontFamily]="contentOf(cv).typography?.fontFamily || undefined"
+                    [sectionLabels]="contentOf(cv).sectionLabels || {}"
+                    [sectionOrder]="contentOf(cv).sectionOrder || []"
                   />
                 } @else if (layoutOf(cv) === 'warm-taupe-timeline') {
                   <app-warm-taupe-timeline-cv
@@ -461,6 +491,8 @@ interface SavedCv {
                     [fontWeight]="contentOf(cv).typography?.fontWeight || 400" 
                     [lineHeight]="contentOf(cv).typography?.lineHeight || 1.42" 
                     [fontFamily]="contentOf(cv).typography?.fontFamily || undefined"
+                    [sectionLabels]="contentOf(cv).sectionLabels || {}"
+                    [sectionOrder]="contentOf(cv).sectionOrder || []"
                   />
                 } @else if (layoutOf(cv) === 'classic-dark') {
                   <app-classic-dark-cv
@@ -480,9 +512,17 @@ interface SavedCv {
                     [references]="asArray(contentOf(cv).references)"
                     [hobbies]="asArray(contentOf(cv).hobbies)"
                     [certifications]="asArray(contentOf(cv).certifications)"
+                    [fontSize]="contentOf(cv).typography?.fontSize || 10"
+                    [fontWeight]="contentOf(cv).typography?.fontWeight || 400"
+                    [lineHeight]="contentOf(cv).typography?.lineHeight || 1.5"
+                    [fontFamily]="contentOf(cv).typography?.fontFamily || undefined"
+                    [sectionLabels]="contentOf(cv).sectionLabels || {}"
+                    [sectionOrder]="contentOf(cv).sectionOrder || []"
                   />
                 } @else if (layoutOf(cv) === 'formal-classic') {
                   <app-formal-classic-cv
+                    [accent]="contentOf(cv).accent || cv.selected_color || '#1e3a8a'"
+                    [photoUrl]="contentOf(cv).photoUrl || null"
                     [name]="contentOf(cv).fullName || cv.title"
                     [jobTitle]="contentOf(cv).jobTitle || ''"
                     [email]="contentOf(cv).email || ''"
@@ -496,6 +536,12 @@ interface SavedCv {
                     [languages]="asArray(contentOf(cv).languages)"
                     [references]="asArray(contentOf(cv).references)"
                     [projects]="asArray(contentOf(cv).projects)"
+                    [fontSize]="contentOf(cv).typography?.fontSize || 10"
+                    [fontWeight]="contentOf(cv).typography?.fontWeight || 400"
+                    [lineHeight]="contentOf(cv).typography?.lineHeight || 1.4"
+                    [fontFamily]="contentOf(cv).typography?.fontFamily || undefined"
+                    [sectionLabels]="contentOf(cv).sectionLabels || {}"
+                    [sectionOrder]="contentOf(cv).sectionOrder || []"
                   />
                 } @else if (layoutOf(cv) === 'minimalist-framed') {
                   <app-minimalist-framed-cv
@@ -602,6 +648,12 @@ interface SavedCv {
                     [languages]="asArray(contentOf(cv).languages)"
                     [certifications]="asArray(contentOf(cv).certifications)"
                     [projects]="asArray(contentOf(cv).projects)"
+                    [fontSize]="contentOf(cv).typography?.fontSize || 10"
+                    [fontWeight]="contentOf(cv).typography?.fontWeight || 400"
+                    [lineHeight]="contentOf(cv).typography?.lineHeight || 1.4"
+                    [fontFamily]="contentOf(cv).typography?.fontFamily || undefined"
+                    [sectionLabels]="contentOf(cv).sectionLabels || {}"
+                    [sectionOrder]="contentOf(cv).sectionOrder || []"
                   />
                 }
               </div>

@@ -226,6 +226,7 @@ interface CvDetail {
                   [photoUrl]="c.content?.photoUrl || null"
                   [name]="c.content?.fullName || c.title" [jobTitle]="c.content?.jobTitle || ''" [email]="c.content?.email || ''" [phone]="c.content?.phone || ''" [location]="c.content?.location || ''" [linkedin]="c.content?.linkedin || ''" [summary]="c.content?.summary || ''"
                   [education]="arr(c.content?.education)" [experience]="arr(c.content?.experience)" [skills]="arr(c.content?.skills)" [languages]="arr(c.content?.languages)" [certifications]="arr(c.content?.certifications)" [projects]="arr(c.content?.projects)" [references]="arr(c.content?.references)" [hobbies]="arr(c.content?.hobbies)"
+                  [fontSize]="c.content?.typography?.fontSize || 10" [fontWeight]="c.content?.typography?.fontWeight || 400" [lineHeight]="c.content?.typography?.lineHeight || 1.55" [fontFamily]="c.content?.typography?.fontFamily || undefined"
                   [sectionLabels]="c.content?.sectionLabels || {}"
                   [sectionOrder]="c.content?.sectionOrder || []"/>
               } @else if (layoutOf(c) === 'navy-sidebar-profile') {
@@ -270,6 +271,7 @@ interface CvDetail {
                   [photoUrl]="c.content?.photoUrl || null"
                   [name]="c.content?.fullName || c.title" [jobTitle]="c.content?.jobTitle || ''" [email]="c.content?.email || ''" [phone]="c.content?.phone || ''" [location]="c.content?.location || ''" [linkedin]="c.content?.linkedin || ''" [summary]="c.content?.summary || ''"
                   [education]="arr(c.content?.education)" [experience]="arr(c.content?.experience)" [skills]="arr(c.content?.skills)" [languages]="arr(c.content?.languages)" [certifications]="arr(c.content?.certifications)" [projects]="arr(c.content?.projects)" [references]="arr(c.content?.references)" [hobbies]="arr(c.content?.hobbies)"
+                  [fontSize]="c.content?.typography?.fontSize || 10" [fontWeight]="c.content?.typography?.fontWeight || 400" [lineHeight]="c.content?.typography?.lineHeight || 1.5" [fontFamily]="c.content?.typography?.fontFamily || undefined"
                   [sectionLabels]="c.content?.sectionLabels || {}"
                   [sectionOrder]="c.content?.sectionOrder || []"/>
               } @else if (layoutOf(c) === 'warm-taupe-timeline') {
@@ -371,6 +373,12 @@ interface CvDetail {
                   [languages]="arr(c.content?.languages)"
                   [references]="arr(c.content?.references)"
                   [hobbies]="arr(c.content?.hobbies)"
+                  [fontSize]="c.content?.typography?.fontSize || 10"
+                  [fontWeight]="c.content?.typography?.fontWeight || 400"
+                  [lineHeight]="c.content?.typography?.lineHeight || 1.45"
+                  [fontFamily]="c.content?.typography?.fontFamily || undefined"
+                  [sectionLabels]="c.content?.sectionLabels || {}"
+                  [sectionOrder]="c.content?.sectionOrder || []"
                 />
               } @else if (layoutOf(c) === 'clean-sidebar') {
                 <app-clean-sidebar-cv
@@ -387,6 +395,12 @@ interface CvDetail {
                   [skills]="arr(c.content?.skills)"
                   [languages]="arr(c.content?.languages)"
                   [references]="arr(c.content?.references)"
+                  [fontSize]="c.content?.typography?.fontSize || 10"
+                  [fontWeight]="c.content?.typography?.fontWeight || 400"
+                  [lineHeight]="c.content?.typography?.lineHeight || 1.5"
+                  [fontFamily]="c.content?.typography?.fontFamily || undefined"
+                  [sectionLabels]="c.content?.sectionLabels || {}"
+                  [sectionOrder]="c.content?.sectionOrder || []"
                 />
               } @else if (layoutOf(c) === 'elegant-frame') {
                 <app-elegant-frame-cv
@@ -404,6 +418,14 @@ interface CvDetail {
                   [skills]="arr(c.content?.skills)"
                   [languages]="arr(c.content?.languages)"
                   [certifications]="arr(c.content?.certifications)"
+                  [references]="arr(c.content?.references)"
+                  [hobbies]="arr(c.content?.hobbies)"
+                  [fontSize]="c.content?.typography?.fontSize || 10"
+                  [fontWeight]="c.content?.typography?.fontWeight || 400"
+                  [lineHeight]="c.content?.typography?.lineHeight || 1.5"
+                  [fontFamily]="c.content?.typography?.fontFamily || undefined"
+                  [sectionLabels]="c.content?.sectionLabels || {}"
+                  [sectionOrder]="c.content?.sectionOrder || []"
                 />
               } @else if (layoutOf(c) === 'classic-dark') {
                 <app-classic-dark-cv
@@ -420,6 +442,15 @@ interface CvDetail {
                   [experience]="arr(c.content?.experience)"
                   [skills]="arr(c.content?.skills)"
                   [languages]="arr(c.content?.languages)"
+                  [references]="arr(c.content?.references)"
+                  [hobbies]="arr(c.content?.hobbies)"
+                  [certifications]="arr(c.content?.certifications)"
+                  [fontSize]="c.content?.typography?.fontSize || 10"
+                  [fontWeight]="c.content?.typography?.fontWeight || 400"
+                  [lineHeight]="c.content?.typography?.lineHeight || 1.5"
+                  [fontFamily]="c.content?.typography?.fontFamily || undefined"
+                  [sectionLabels]="c.content?.sectionLabels || {}"
+                  [sectionOrder]="c.content?.sectionOrder || []"
                 />
               } @else if (layoutOf(c) === 'formal-classic') {
                 <app-formal-classic-cv
@@ -436,6 +467,14 @@ interface CvDetail {
                   [experience]="arr(c.content?.experience)"
                   [skills]="arr(c.content?.skills)"
                   [languages]="arr(c.content?.languages)"
+                  [references]="arr(c.content?.references)"
+                  [projects]="arr(c.content?.projects)"
+                  [fontSize]="c.content?.typography?.fontSize || 10"
+                  [fontWeight]="c.content?.typography?.fontWeight || 400"
+                  [lineHeight]="c.content?.typography?.lineHeight || 1.4"
+                  [fontFamily]="c.content?.typography?.fontFamily || undefined"
+                  [sectionLabels]="c.content?.sectionLabels || {}"
+                  [sectionOrder]="c.content?.sectionOrder || []"
                 />
               } @else {
                 <app-professional-cv
@@ -454,6 +493,10 @@ interface CvDetail {
                   [languages]="arr(c.content?.languages)"
                   [certifications]="arr(c.content?.certifications)"
                   [projects]="arr(c.content?.projects)"
+                  [fontSize]="c.content?.typography?.fontSize || 10"
+                  [fontWeight]="c.content?.typography?.fontWeight || 400"
+                  [lineHeight]="c.content?.typography?.lineHeight || 1.4"
+                  [fontFamily]="c.content?.typography?.fontFamily || undefined"
                   [sectionLabels]="c.content?.sectionLabels || {}"
                   [sectionOrder]="c.content?.sectionOrder || []"/>
               }
