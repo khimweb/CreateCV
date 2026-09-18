@@ -31,6 +31,7 @@ import { NavySidebarProfileCvComponent } from '../../shared/components/navy-side
 import { NavyBadgeCvComponent } from '../../shared/components/navy-badge-cv/navy-badge-cv.component';
 import { GraphiteBannerTimelineCvComponent } from '../../shared/components/graphite-banner-timeline-cv/graphite-banner-timeline-cv.component';
 import { MinimalistFramedCvComponent } from '../../shared/components/minimalist-framed-cv/minimalist-framed-cv.component';
+import { AbbeyCreativeCvComponent } from '../../shared/components/abbey-creative-cv/abbey-creative-cv.component';
 import { A4FitDirective } from '../../shared/directives/a4-fit.directive';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslationService } from '../../core/services/translation.service';
@@ -46,13 +47,13 @@ interface CvTemplate {
   hasPhoto: boolean;
   description?: string;
   price_cents?: number;
-  layout: 'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter' | 'framed-cover-letter' | 'sidebar-cover-letter' | 'minimalist-cover-letter' | 'navy-badge' | 'warm-taupe-timeline' | 'slate-rounded-panels' | 'navy-sidebar-profile' | 'graphite-banner-timeline' | 'minimalist-framed';
+  layout: 'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter' | 'framed-cover-letter' | 'sidebar-cover-letter' | 'minimalist-cover-letter' | 'navy-badge' | 'warm-taupe-timeline' | 'slate-rounded-panels' | 'navy-sidebar-profile' | 'graphite-banner-timeline' | 'minimalist-framed' | 'abbey-creative';
 }
 
 @Component({
   selector: 'app-template-gallery',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, FormalClassicCvComponent, CoverLetterCvComponent, FramedCoverLetterCvComponent, SidebarCoverLetterCvComponent, MinimalistCoverLetterCvComponent, NavyBadgeCvComponent, WarmTaupeTimelineCvComponent, SlateRoundedPanelsCvComponent, NavySidebarProfileCvComponent, GraphiteBannerTimelineCvComponent, MinimalistFramedCvComponent, A4FitDirective],
+  imports: [CommonModule, LucideAngularModule, ProfessionalCvComponent, ModernSplitCvComponent, CleanSidebarCvComponent, ElegantFrameCvComponent, ClassicDarkCvComponent, FormalClassicCvComponent, CoverLetterCvComponent, FramedCoverLetterCvComponent, SidebarCoverLetterCvComponent, MinimalistCoverLetterCvComponent, NavyBadgeCvComponent, WarmTaupeTimelineCvComponent, SlateRoundedPanelsCvComponent, NavySidebarProfileCvComponent, GraphiteBannerTimelineCvComponent, MinimalistFramedCvComponent, AbbeyCreativeCvComponent, A4FitDirective],
   template: `
     <section class="gallery-page-container">
       <!-- Ambient Glow Orbs -->
@@ -285,12 +286,13 @@ interface CvTemplate {
                 } @else if (t.layout === 'navy-sidebar-profile') {
                   <app-navy-sidebar-profile-cv
                     [accent]="accentFor(t)"
-                    [name]="'LORNA ALVARADO'"
-                    [jobTitle]="'Sales Representative'"
-                    [email]="'hello@reallygreatsite.com'"
-                    [phone]="'123-456-7890'"
-                    [location]="'123 Anywhere St., Any City'"
-                    [photoUrl]="'/assets/lorna-alvarado-photo.png'"
+                    [name]="'MIKE RICHRD'"
+                    [jobTitle]="'PROFESSIONAL TITLE'"
+                    [email]="'info@yourname.com'"
+                    [phone]="'00 999 123 456 789'"
+                    [location]="'12 Street, City/Country'"
+                    [dob]="'Date of Birth'"
+                    [photoUrl]="'/assets/mike-richrd-photo.png'"
                     [fontSize]="9"
                     [fontWeight]="400"
                     [lineHeight]="1.5"
@@ -370,6 +372,21 @@ interface CvTemplate {
                     [fontSize]="9.5"
                     [fontWeight]="400"
                     [lineHeight]="1.45"
+                  />
+                } @else if (t.layout === 'abbey-creative') {
+                  <app-abbey-creative-cv
+                    [accent]="accentFor(t)"
+                    [name]="'ABBEY WATSON'"
+                    [jobTitle]="'Creative Director'"
+                    [phone]="'02800200'"
+                    [email]="'abbeywatson@gmail.com'"
+                    [location]="'12th Avenue Street Australia 40000'"
+                    [linkedin]="'abbeywatson.com'"
+                    [photoUrl]="'/assets/abbey-watson-photo.png'"
+                    [summary]="'My Name is Abbey Watson lorem empus id fringilla molestie ornare diam in cleste ipsum etium rosn ollicitudin est, porttitor amet hitmasla Done cporttitor dolor shit dolor kiren lorem nisl molestie pretium etfring is the shitp lorem ipcum retiunci amet is tudinest moles tium lorem olestie pretium apaza all the rosen fringilla lorem ipsum .'"
+                    [fontSize]="9"
+                    [fontWeight]="400"
+                    [lineHeight]="1.4"
                   />
                 } @else if (t.layout === 'navy-badge') {
                   <app-navy-badge-cv
@@ -1357,7 +1374,9 @@ export class TemplateGalleryComponent implements OnInit {
             /* keep defaults */
           }
           const name = (t.name as string).toLowerCase();
-          const layout = name.includes('graphite')
+          const layout = name.includes('abbey')
+            ? 'abbey-creative'
+            : name.includes('graphite')
             ? 'graphite-banner-timeline'
             : name.includes('minimalist framed')
             ? 'minimalist-framed'

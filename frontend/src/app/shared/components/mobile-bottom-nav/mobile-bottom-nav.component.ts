@@ -12,6 +12,7 @@ import {
   Receipt,
   HelpCircle,
   X,
+  Sparkles,
 } from 'lucide-angular';
 import { TranslationService } from '../../../core/services/translation.service';
 
@@ -29,6 +30,10 @@ import { TranslationService } from '../../../core/services/translation.service';
       @if (moreOpen()) {
         <div class="more-sheet" role="menu">
           <div class="sheet-handle"></div>
+          <a routerLink="/edit-image" (click)="closeMore()" class="sheet-item" role="menuitem">
+            <span class="sheet-icon edit-icon" style="background: rgba(99, 102, 241, 0.12); color: #6366f1;"><lucide-icon [img]="Sparkles"/></span>
+            <span class="sheet-label">{{ i18n.t('navEditImage') }}</span>
+          </a>
           <a routerLink="/help"     (click)="closeMore()" class="sheet-item" role="menuitem">
             <span class="sheet-icon help-icon"><lucide-icon [img]="HelpCircle"/></span>
             <span class="sheet-label">{{ i18n.t('navHelp') }}</span>
@@ -381,6 +386,7 @@ export class MobileBottomNavComponent {
   readonly Receipt = Receipt;
   readonly HelpCircle = HelpCircle;
   readonly X = X;
+  readonly Sparkles = Sparkles;
 
   moreOpen = signal(false);
 

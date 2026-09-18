@@ -42,6 +42,7 @@ import { SlateRoundedPanelsCvComponent } from '../../../shared/components/slate-
 import { NavySidebarProfileCvComponent } from '../../../shared/components/navy-sidebar-profile-cv/navy-sidebar-profile-cv.component';
 import { NavyBadgeCvComponent } from '../../../shared/components/navy-badge-cv/navy-badge-cv.component';
 import { GraphiteBannerTimelineCvComponent } from '../../../shared/components/graphite-banner-timeline-cv/graphite-banner-timeline-cv.component';
+import { AbbeyCreativeCvComponent } from '../../../shared/components/abbey-creative-cv/abbey-creative-cv.component';
 import { A4FitDirective } from '../../../shared/directives/a4-fit.directive';
 import { DEMO_CV } from '../../../shared/demo-cv-data';
 
@@ -80,6 +81,7 @@ interface AdminTemplate {
     SlateRoundedPanelsCvComponent,
     NavySidebarProfileCvComponent,
     GraphiteBannerTimelineCvComponent,
+    AbbeyCreativeCvComponent,
     A4FitDirective
   ],
   template: `
@@ -319,7 +321,9 @@ interface AdminTemplate {
                     } @else if (t.layout === 'graphite-banner-timeline') {
                       <app-graphite-banner-timeline-cv [accent]="getAccent(t)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="9" [fontWeight]="400" [lineHeight]="1.5" />
                     } @else if (t.layout === 'navy-sidebar-profile') {
-                      <app-navy-sidebar-profile-cv [accent]="getAccent(t)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="9" [fontWeight]="400" [lineHeight]="1.5" />
+                      <app-navy-sidebar-profile-cv [accent]="getAccent(t)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [dob]="'Date of Birth'" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="9" [fontWeight]="400" [lineHeight]="1.5" />
+                    } @else if (t.layout === 'abbey-creative') {
+                      <app-abbey-creative-cv [accent]="getAccent(t)" [name]="'ABBEY WATSON'" [jobTitle]="'Creative Director'" [email]="'abbeywatson@gmail.com'" [phone]="'02800200'" [location]="'12th Avenue Street Australia'" [linkedin]="'abbeywatson.com'" [summary]="demo.summary" [photoUrl]="'/assets/abbey-watson-photo.png'" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [references]="demo.references" [fontSize]="9" [fontWeight]="400" [lineHeight]="1.4" />
                     } @else if (t.layout === 'navy-badge') {
                       <app-navy-badge-cv [accent]="getAccent(t)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [fontSize]="9" [fontWeight]="400" [lineHeight]="1.4" />
                     } @else if (t.layout === 'slate-rounded-panels') {
@@ -460,7 +464,9 @@ interface AdminTemplate {
                 } @else if (p.layout === 'graphite-banner-timeline') {
                   <app-graphite-banner-timeline-cv [accent]="getAccent(p)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="10" [fontWeight]="400" [lineHeight]="1.55" />
                 } @else if (p.layout === 'navy-sidebar-profile') {
-                  <app-navy-sidebar-profile-cv [accent]="getAccent(p)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="10" [fontWeight]="400" [lineHeight]="1.55" />
+                  <app-navy-sidebar-profile-cv [accent]="getAccent(p)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [linkedin]="demo.linkedin" [dob]="'Date of Birth'" [summary]="demo.summary" [photoUrl]="demo.photoUrl" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [certifications]="demo.certifications" [projects]="demo.projects" [references]="demo.references" [hobbies]="demo.hobbies" [fontSize]="10" [fontWeight]="400" [lineHeight]="1.55" />
+                } @else if (p.layout === 'abbey-creative') {
+                  <app-abbey-creative-cv [accent]="getAccent(p)" [name]="'ABBEY WATSON'" [jobTitle]="'Creative Director'" [email]="'abbeywatson@gmail.com'" [phone]="'02800200'" [location]="'12th Avenue Street Australia'" [linkedin]="'abbeywatson.com'" [summary]="demo.summary" [photoUrl]="'/assets/abbey-watson-photo.png'" [experience]="demo.experience" [education]="demo.education" [skills]="demo.skills" [languages]="demo.languages" [references]="demo.references" [fontSize]="10" [fontWeight]="400" [lineHeight]="1.5" />
                 } @else if (p.layout === 'navy-badge') {
                   <app-navy-badge-cv [accent]="getAccent(p)" [name]="demo.name" [jobTitle]="demo.jobTitle" [email]="demo.email" [phone]="demo.phone" [location]="demo.location" [fontSize]="9.5" [fontWeight]="400" [lineHeight]="1.42" />
                 } @else if (p.layout === 'slate-rounded-panels') {
@@ -792,6 +798,7 @@ export class AdminTemplatesComponent implements OnInit {
 
   detectLayout(name: string): string {
     const n = name.toLowerCase();
+    if (n.includes('abbey')) return 'abbey-creative';
     if (n.includes('graphite')) return 'graphite-banner-timeline';
     if (n.includes('navy badge') || n.includes('sokaiya')) return 'navy-badge';
     if (n.includes('navy sidebar')) return 'navy-sidebar-profile';

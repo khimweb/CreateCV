@@ -24,7 +24,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
         <div class="card">
           <!-- Contact -->
           <div class="sec">
-            <div class="white-pill">{{ lbl('Personal Information', 'CONTACT') }}</div>
+            <div class="white-pill">{{ lbl('Contact', 'CONTACT') }}</div>
             <div class="ct-list">
               @if (phone) { <div class="ct-item"><div class="ct-circle"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6.57-6.57A19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.58a16 16 0 0 0 6 6l.94-.94a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><span>{{ phone }}</span></div> }
               @if (email) { <div class="ct-item"><div class="ct-circle"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><span>{{ email }}</span></div> }
@@ -96,7 +96,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
         <!-- About Me -->
         @if (summary) {
         <div class="r-sec">
-          <div class="dark-pill">{{ lbl('Personal Information', 'ABOUT ME') }}</div>
+          <div class="dark-pill">{{ lbl('About Me', 'ABOUT ME') }}</div>
           <p class="about">{{ summary }}</p>
         </div>
         }
@@ -299,8 +299,11 @@ export class ClassicDarkCvComponent {
     for (const [sKey, val] of Object.entries(this.sectionLabels)) {
       const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
       if (sk === k) return val;
+      if (k.includes('contact') && (sk.includes('contact') || sk.includes('personal'))) {
+        return val;
+      }
       if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
-          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+          (sk.includes('about') || sk.includes('profile') || sk.includes('summary') || sk.includes('objective'))) {
         return val;
       }
       if ((k.includes('work') || k.includes('experience')) &&

@@ -19,7 +19,7 @@ interface CvHobby { name?: string; }
       <div class="photo" [class.has-photo]="photoUrl" [style.background-image]="photoUrl ? 'url(' + photoUrl + ')' : null"><span *ngIf="!photoUrl">{{ initials }}</span></div>
       <aside class="sidebar">
         <div class="sidebar-spacer"></div>
-        <section *ngIf="summary" class="sidebar-section about" [style.order]="getSectionOrder('Personal Information')"><h2>{{ lbl('Personal Information', 'About me') }}</h2><p>{{ summary }}</p></section>
+        <section *ngIf="summary" class="sidebar-section about" [style.order]="getSectionOrder('Personal Information')"><h2>{{ lbl('About Me', 'About me') }}</h2><p>{{ summary }}</p></section>
         <section *ngIf="education.length" class="sidebar-section" [style.order]="getSectionOrder('Education')"><h2>{{ lbl('Education', 'Education') }}</h2><div class="education" *ngFor="let item of education"><strong>{{ item.degree || item.field || 'Education' }}</strong><span>{{ item.institution }}</span><small>{{ educationDates(item) }}</small><p *ngIf="item.description">{{ item.description }}</p></div></section>
         <section *ngIf="skills.length" class="sidebar-section" [style.order]="getSectionOrder('Skills')"><h2>{{ lbl('Skills', 'Skills') }}</h2><div class="skill" *ngFor="let skill of skills"><div><span>{{ skill.name }}</span><em>{{ skill.level }}</em></div><i><b [style.width.%]="skillPercent(skill.level)"></b></i></div></section>
         <section *ngIf="languages.length" class="sidebar-section" [style.order]="getSectionOrder('Languages')"><h2>{{ lbl('Languages', 'Languages') }}</h2><div class="language" *ngFor="let language of languages"><span>{{ language.name }}</span><small>{{ language.proficiency || 'Working proficiency' }}</small></div></section>
@@ -154,8 +154,11 @@ export class WarmTaupeTimelineCvComponent {
     for (const [sKey, val] of Object.entries(this.sectionLabels)) {
       const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
       if (sk === k) return val;
+      if (k.includes('contact') && (sk.includes('contact') || sk.includes('personal'))) {
+        return val;
+      }
       if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
-          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+          (sk.includes('about') || sk.includes('profile') || sk.includes('summary') || sk.includes('objective'))) {
         return val;
       }
       if ((k.includes('work') || k.includes('experience')) &&

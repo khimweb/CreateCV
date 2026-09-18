@@ -53,7 +53,7 @@ interface CvReference {
       [style.--lh]="lineHeight"
       [style.--font]="fontFamily"
     >
-      <!-- Left Sidebar Column (Navy Canvas) -->
+      <!-- Left Sidebar Column (Deep Slate Navy Canvas) -->
       <aside class="sidebar">
         <!-- Circular Portrait Frame with White Ring -->
         <div class="photo-frame">
@@ -62,30 +62,33 @@ interface CvReference {
 
         <!-- CONTACT Section -->
         <section class="side-block">
-          <div class="side-header">
-            <span class="badge-icon-circle white-badge">
-              <!-- Telephone Handset Icon -->
-              <svg viewBox="0 0 24 24" fill="currentColor" class="badge-svg">
-                <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.43-3.9-6.63-6.82l1.97-1.57a1.002 1.002 0 0 0 .24-1.02A11.36 11.36 0 0 1 8.92 4c0-.55-.45-1-1-1H4.01c-.55 0-1 .45-1 1 0 9.39 7.63 17.02 17 17.02.55 0 1-.45 1-1v-3.64c0-.55-.45-1-1-1z"/>
-              </svg>
-            </span>
-            <h2 class="side-title">CONTACT</h2>
-          </div>
+          <h2 class="side-title">CONTACT</h2>
+          <div class="side-divider"></div>
 
           <div class="contact-list">
             <div class="contact-item">
-              <span class="contact-icon-box" aria-hidden="true">
-                <!-- Desk / Retro Phone Icon -->
+              <span class="contact-icon-circle" aria-hidden="true">
+                <!-- Location Pin Icon -->
                 <svg viewBox="0 0 24 24" fill="currentColor" class="contact-svg">
-                  <path d="M19 16c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v2zm-7-11c3.87 0 7 2.13 7 4H5c0-1.87 3.13-4 7-4zm8 14H4c-1.1 0-2-.9-2-2v-4c0-1.48.81-2.77 2-3.46V9c0-3.31 3.58-6 8-6s8 2.69 8 6v1.54c1.19.69 2 1.98 2 3.46v4c0 1.1-.9 2-2 2zM12 11.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+                </svg>
+              </span>
+              <span class="contact-text">{{ resolvedLocation }}</span>
+            </div>
+
+            <div class="contact-item">
+              <span class="contact-icon-circle" aria-hidden="true">
+                <!-- Phone Icon -->
+                <svg viewBox="0 0 24 24" fill="currentColor" class="contact-svg">
+                  <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.43-3.9-6.63-6.82l1.97-1.57a1.002 1.002 0 0 0 .24-1.02A11.36 11.36 0 0 1 8.92 4c0-.55-.45-1-1-1H4.01c-.55 0-1 .45-1 1 0 9.39 7.63 17.02 17 17.02.55 0 1-.45 1-1v-3.64c0-.55-.45-1-1-1z"/>
                 </svg>
               </span>
               <span class="contact-text">{{ resolvedPhone }}</span>
             </div>
 
             <div class="contact-item">
-              <span class="contact-icon-box" aria-hidden="true">
-                <!-- Solid Envelope Icon -->
+              <span class="contact-icon-circle" aria-hidden="true">
+                <!-- Mail Icon -->
                 <svg viewBox="0 0 24 24" fill="currentColor" class="contact-svg">
                   <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
                 </svg>
@@ -94,34 +97,27 @@ interface CvReference {
             </div>
 
             <div class="contact-item">
-              <span class="contact-icon-box" aria-hidden="true">
-                <!-- Solid Location Pin Icon -->
+              <span class="contact-icon-circle" aria-hidden="true">
+                <!-- Calendar / Date of Birth Icon -->
                 <svg viewBox="0 0 24 24" fill="currentColor" class="contact-svg">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+                  <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
                 </svg>
               </span>
-              <span class="contact-text">{{ resolvedLocation }}</span>
+              <span class="contact-text">{{ resolvedDob }}</span>
             </div>
           </div>
         </section>
 
         <!-- EDUCATION Section -->
         <section class="side-block">
-          <div class="side-header">
-            <span class="badge-icon-circle white-badge">
-              <!-- Mortarboard / Graduation Cap Icon -->
-              <svg viewBox="0 0 24 24" fill="currentColor" class="badge-svg">
-                <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
-              </svg>
-            </span>
-            <h2 class="side-title">EDUCATION</h2>
-          </div>
+          <h2 class="side-title">EDUCATION</h2>
+          <div class="side-divider"></div>
 
           <div class="edu-list">
             @for (edu of resolvedEducation; track $index) {
               <div class="edu-item">
-                <div class="edu-school">{{ edu.institution }}</div>
                 <div class="edu-degree">{{ edu.degree }}</div>
+                <div class="edu-school">{{ edu.institution }}</div>
                 <div class="edu-years">{{ edu.years }}</div>
               </div>
             }
@@ -130,120 +126,88 @@ interface CvReference {
 
         <!-- SKILLS Section -->
         <section class="side-block">
-          <div class="side-header">
-            <span class="badge-icon-circle white-badge">
-              <!-- Puzzle Piece Icon -->
-              <svg viewBox="0 0 24 24" fill="currentColor" class="badge-svg">
-                <path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5a2.5 2.5 0 0 0-5 0V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z"/>
-              </svg>
-            </span>
-            <h2 class="side-title">SKILLS</h2>
+          <h2 class="side-title">SKILLS</h2>
+          <div class="side-divider"></div>
+
+          <!-- Professional Skills Subgroup -->
+          <div class="skill-category">
+            <h3 class="skill-category-title">// Professional</h3>
+            <ul class="skill-list">
+              @for (skill of professionalSkills; track $index) {
+                <li class="skill-item">{{ skill }}</li>
+              }
+            </ul>
           </div>
 
-          <ul class="side-bullets">
-            @for (skill of resolvedSkills; track $index) {
-              <li>{{ skill }}</li>
-            }
-          </ul>
-        </section>
-
-        <!-- LANGUAGE Section -->
-        <section class="side-block">
-          <div class="side-header">
-            <span class="badge-icon-circle white-badge">
-              <!-- Dictionary / Book Icon -->
-              <svg viewBox="0 0 24 24" fill="currentColor" class="badge-svg">
-                <path d="M18 2H6c-1.2 0-2 .8-2 2v16c0 1.2.8 2 2 2h12c1.2 0 2-.8 2-2V4c0-1.2-.8-2-2-2zM9 4h2v5l-1-.75L9 9V4zm9 16H6V4h1v7l2.5-1.87L12 11V4h6v16z"/>
-              </svg>
-            </span>
-            <h2 class="side-title">LANGUAGE</h2>
-          </div>
-
-          <ul class="side-bullets">
-            @for (lang of resolvedLanguages; track $index) {
-              <li>{{ lang }}</li>
-            }
-          </ul>
+          <!-- Technical Skills Subgroup -->
+          @if (technicalSkills.length) {
+            <div class="skill-category">
+              <h3 class="skill-category-title">// Technical</h3>
+              <ul class="skill-list">
+                @for (skill of technicalSkills; track $index) {
+                  <li class="skill-item">{{ skill }}</li>
+                }
+              </ul>
+            </div>
+          }
         </section>
       </aside>
 
-      <!-- Right Main Column (White Sheet) -->
+      <!-- Right Main Column (Clean White Canvas) -->
       <main class="main-content">
-        <!-- Header: Candidate Name & Job Title -->
+        <!-- Candidate Header -->
         <header class="main-header">
-          <h1 class="candidate-name">
-            <span class="name-line">{{ nameLine1 }}</span>
-            <span class="name-line">{{ nameLine2 }}</span>
-          </h1>
-          <p class="candidate-role">{{ resolvedJobTitle }}</p>
+          <h1 class="candidate-name">{{ resolvedName }}</h1>
+          <p class="candidate-title">{{ resolvedJobTitle }}</p>
+          <p class="candidate-summary">{{ resolvedSummary }}</p>
         </header>
 
-        <!-- ABOUT ME Section -->
-        <section class="main-block">
-          <div class="main-header-row">
-            <span class="badge-icon-circle navy-badge">
-              <!-- User Profile Silhouette Icon -->
-              <svg viewBox="0 0 24 24" fill="currentColor" class="badge-svg-white">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-              </svg>
-            </span>
-            <h2 class="main-title">ABOUT ME</h2>
-          </div>
-          <p class="about-text">{{ resolvedSummary }}</p>
-        </section>
-
-        <!-- EXPERIENCE Section with Timeline -->
-        <section class="main-block">
-          <div class="main-header-row">
-            <span class="badge-icon-circle navy-badge">
-              <!-- Briefcase Icon -->
-              <svg viewBox="0 0 24 24" fill="currentColor" class="badge-svg-white">
-                <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
-              </svg>
-            </span>
-            <h2 class="main-title">EXPERIENCE</h2>
+        <!-- WORK EXPERIENCE Section with Timeline -->
+        <section class="main-section">
+          <div class="section-title-wrap">
+            <h2 class="section-title">WORK EXPERIENCE</h2>
+            <div class="section-rule"></div>
           </div>
 
           <div class="timeline">
             @for (item of resolvedExperience; track $index) {
               <div class="tl-item">
-                <span class="tl-node" aria-hidden="true"></span>
-                <div class="tl-header">
-                  <h3 class="tl-position">{{ item.position }}</h3>
-                  <span class="tl-period">{{ item.period }}</span>
+                <span class="tl-hollow-node" aria-hidden="true"></span>
+                <div class="tl-heading">
+                  <span class="tl-company">{{ item.company }}</span>
+                  <span class="tl-slash">/</span>
+                  <span class="tl-position">{{ item.position }}</span>
                 </div>
-                <div class="tl-company">{{ item.company }}</div>
-                <p class="tl-desc">{{ item.description }}</p>
+                <div class="tl-date">From {{ item.period }}</div>
+                @if (item.description) {
+                  <p class="tl-desc">{{ item.description }}</p>
+                }
+                @if (item.responsibilities && item.responsibilities.length) {
+                  <ul class="tl-bullets">
+                    @for (bullet of item.responsibilities; track $index) {
+                      <li>{{ bullet }}</li>
+                    }
+                  </ul>
+                }
               </div>
             }
           </div>
         </section>
 
         <!-- REFERENCES Section -->
-        <section class="main-block">
-          <div class="main-header-row">
-            <span class="badge-icon-circle navy-badge">
-              <!-- Two People / References Icon -->
-              <svg viewBox="0 0 24 24" fill="currentColor" class="badge-svg-white">
-                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-              </svg>
-            </span>
-            <h2 class="main-title">REFERENCES</h2>
+        <section class="main-section">
+          <div class="section-title-wrap">
+            <h2 class="section-title">REFERENCES</h2>
+            <div class="section-rule"></div>
           </div>
 
           <div class="ref-grid">
             @for (ref of resolvedReferences; track $index) {
               <div class="ref-card">
                 <h3 class="ref-name">{{ ref.name }}</h3>
-                <div class="ref-role">{{ ref.role }}</div>
-                <div class="ref-contact-row">
-                  <span class="ref-lbl">Phone:</span>
-                  <span>{{ ref.phone }}</span>
-                </div>
-                <div class="ref-contact-row">
-                  <span class="ref-lbl">Email:</span>
-                  <span>{{ ref.email }}</span>
-                </div>
+                <div class="ref-company-role">{{ ref.company }} / {{ ref.role }}</div>
+                <div class="ref-line">Phone: {{ ref.phone }}</div>
+                <div class="ref-line">Email: {{ ref.email }}</div>
               </div>
             }
           </div>
@@ -257,15 +221,15 @@ interface CvReference {
     }
 
     .cv-paper {
-      --accent: #16394F;
+      --accent: #333A4C;
       --fs: 10px;
       --fw: 400;
       --lh: 1.55;
-      --font: 'Montserrat', 'Century Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
       box-sizing: border-box;
       display: grid;
-      grid-template-columns: 35.5% 64.5%;
+      grid-template-columns: 34.5% 65.5%;
       width: 210mm;
       min-height: 297mm;
       overflow: hidden;
@@ -280,27 +244,27 @@ interface CvReference {
       print-color-adjust: exact;
     }
 
-    /* Left Sidebar */
+    /* ─── Left Sidebar ─────────────────────────────────── */
     .sidebar {
       box-sizing: border-box;
       min-width: 0;
       min-height: 297mm;
-      padding: 34px 22px 28px 24px;
-      background: var(--accent);
+      padding: 38px 22px 32px 24px;
+      background-color: var(--accent);
       color: #ffffff;
       display: flex;
       flex-direction: column;
     }
 
     .photo-frame {
-      width: 142px;
-      height: 142px;
-      margin: 0 auto 30px auto;
-      border: 4.5px solid #ffffff;
+      width: 136px;
+      height: 136px;
+      margin: 0 auto 34px auto;
+      border: 4px solid #ffffff;
       border-radius: 50%;
       overflow: hidden;
       background-color: #ffffff;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -316,7 +280,7 @@ interface CvReference {
     }
 
     .side-block {
-      margin-bottom: 25px;
+      margin-bottom: 26px;
       break-inside: avoid;
     }
 
@@ -324,85 +288,54 @@ interface CvReference {
       margin-bottom: 0;
     }
 
-    .side-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 11px;
-    }
-
     .side-title {
-      margin: 0;
-      font-size: calc(var(--fs) * 1.25);
+      margin: 0 0 7px 0;
+      font-size: calc(var(--fs) * 1.28);
       font-weight: 700;
       letter-spacing: 0.16em;
       color: #ffffff;
       text-transform: uppercase;
-      line-height: 1;
+      line-height: 1.1;
     }
 
-    /* Circular Badges */
-    .badge-icon-circle {
-      width: 25px;
-      height: 25px;
-      min-width: 25px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .white-badge {
-      background-color: #ffffff;
-      color: var(--accent);
-    }
-
-    .navy-badge {
-      background-color: var(--accent);
-      color: #ffffff;
-    }
-
-    .badge-svg {
-      width: 13.5px;
-      height: 13.5px;
-      fill: var(--accent);
-    }
-
-    .badge-svg-white {
-      width: 13.5px;
-      height: 13.5px;
-      fill: #ffffff;
+    .side-divider {
+      height: 1px;
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.35);
+      margin-bottom: 14px;
     }
 
     /* Contact Details */
     .contact-list {
       display: flex;
       flex-direction: column;
-      gap: 9px;
+      gap: 10px;
     }
 
     .contact-item {
       display: flex;
       align-items: center;
-      gap: 9px;
+      gap: 10px;
       color: #ffffff;
-      font-size: calc(var(--fs) * 1.05);
-      line-height: 1.3;
+      line-height: 1.35;
     }
 
-    .contact-icon-box {
-      width: 16px;
-      height: 16px;
-      min-width: 16px;
+    .contact-icon-circle {
+      width: 22px;
+      height: 22px;
+      min-width: 22px;
+      border-radius: 50%;
+      border: 1.2px solid rgba(255, 255, 255, 0.85);
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
+      background: transparent;
     }
 
     .contact-svg {
-      width: 13.5px;
-      height: 13.5px;
+      width: 11px;
+      height: 11px;
       fill: #ffffff;
     }
 
@@ -410,210 +343,234 @@ interface CvReference {
       flex: 1;
       word-break: break-word;
       color: #ffffff;
+      font-size: calc(var(--fs) * 0.98);
+      letter-spacing: 0.01em;
     }
 
     /* Education Details */
     .edu-list {
       display: flex;
       flex-direction: column;
-      gap: 13px;
+      gap: 14px;
     }
 
     .edu-item {
       display: flex;
       flex-direction: column;
-      gap: 1.5px;
-    }
-
-    .edu-school {
-      font-size: calc(var(--fs) * 1.12);
-      font-weight: 700;
-      color: #ffffff;
-      letter-spacing: 0.02em;
+      gap: 2px;
     }
 
     .edu-degree {
+      font-size: calc(var(--fs) * 1.08);
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.01em;
+      line-height: 1.25;
+    }
+
+    .edu-school {
       font-size: calc(var(--fs) * 0.98);
-      color: #E2E8F0;
+      color: rgba(255, 255, 255, 0.92);
       line-height: 1.3;
     }
 
     .edu-years {
-      font-size: calc(var(--fs) * 0.92);
-      color: #CBD5E1;
+      font-size: calc(var(--fs) * 0.9);
+      color: rgba(255, 255, 255, 0.65);
+      margin-top: 1px;
     }
 
-    /* Bullets in Sidebar (Skills, Language) */
-    .side-bullets {
+    /* Skills Details */
+    .skill-category {
+      margin-bottom: 12px;
+    }
+
+    .skill-category:last-child {
+      margin-bottom: 0;
+    }
+
+    .skill-category-title {
+      margin: 0 0 6px 0;
+      font-size: calc(var(--fs) * 1.05);
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.03em;
+    }
+
+    .skill-list {
       list-style: none;
       padding: 0;
       margin: 0;
       display: flex;
       flex-direction: column;
-      gap: 5.5px;
+      gap: 3.5px;
     }
 
-    .side-bullets li {
-      position: relative;
-      padding-left: 14px;
-      font-size: calc(var(--fs) * 1.04);
-      color: #ffffff;
+    .skill-item {
+      font-size: calc(var(--fs) * 0.96);
+      color: rgba(255, 255, 255, 0.92);
       line-height: 1.35;
     }
 
-    .side-bullets li::before {
-      content: '•';
-      position: absolute;
-      left: 1px;
-      top: -1px;
-      color: #ffffff;
-      font-size: calc(var(--fs) * 1.25);
-    }
-
-    /* Right Main Column */
+    /* ─── Right Main Column ────────────────────────────── */
     .main-content {
       box-sizing: border-box;
       min-width: 0;
-      padding: 34px 28px 28px 30px;
+      padding: 40px 32px 32px 34px;
       display: flex;
       flex-direction: column;
+      background: #ffffff;
     }
 
     /* Header */
     .main-header {
-      margin-bottom: 26px;
+      margin-bottom: 24px;
     }
 
     .candidate-name {
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      font-size: calc(var(--fs) * 3.3);
-      font-weight: 800;
-      line-height: 1.04;
-      letter-spacing: 0.04em;
-      color: #1E293B;
-      text-transform: uppercase;
-    }
-
-    .name-line {
-      display: block;
-    }
-
-    .candidate-role {
-      margin: 8px 0 0;
-      color: #334155;
-      font-size: calc(var(--fs) * 1.48);
-      font-weight: 500;
-      letter-spacing: 0.05em;
-    }
-
-    /* Blocks in Main Content */
-    .main-block {
-      margin-bottom: 23px;
-      break-inside: avoid;
-    }
-
-    .main-block:last-child {
-      margin-bottom: 0;
-    }
-
-    .main-header-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .main-title {
-      margin: 0;
-      color: #1E293B;
-      font-size: calc(var(--fs) * 1.28);
-      font-weight: 800;
+      margin: 0 0 6px 0;
+      font-size: calc(var(--fs) * 2.85);
+      font-weight: 700;
+      line-height: 1.1;
       letter-spacing: 0.16em;
+      color: #1E2532;
       text-transform: uppercase;
-      line-height: 1;
     }
 
-    .about-text {
+    .candidate-title {
+      margin: 0 0 16px 0;
+      font-size: calc(var(--fs) * 1.15);
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      color: #2B3548;
+      text-transform: uppercase;
+    }
+
+    .candidate-summary {
       margin: 0;
       color: #475569;
-      font-size: calc(var(--fs) * 0.98);
+      font-size: calc(var(--fs) * 0.96);
       line-height: 1.58;
       text-align: justify;
     }
 
-    /* Experience Timeline */
+    /* Sections */
+    .main-section {
+      margin-bottom: 24px;
+      break-inside: avoid;
+    }
+
+    .main-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title-wrap {
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      margin: 0 0 6px 0;
+      color: #1E2532;
+      font-size: calc(var(--fs) * 1.28);
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .section-rule {
+      height: 1.2px;
+      width: 100%;
+      background-color: #1E2532;
+    }
+
+    /* Timeline */
     .timeline {
       position: relative;
-      padding-left: 14px;
-      border-left: 1.5px solid #CBD5E1;
-      margin-left: 5px;
+      padding-left: 20px;
+      border-left: 1.5px solid #64748B;
+      margin-left: 6px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
-      margin-top: 8px;
+      gap: 18px;
     }
 
     .tl-item {
       position: relative;
     }
 
-    .tl-node {
+    .tl-hollow-node {
       position: absolute;
-      left: -19px;
-      top: 3.5px;
-      width: 8.5px;
-      height: 8.5px;
+      left: -26px;
+      top: 3px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      background-color: var(--accent);
+      border: 1.8px solid var(--accent);
+      background-color: #ffffff;
+      box-sizing: border-box;
     }
 
-    .tl-header {
+    .tl-heading {
       display: flex;
       align-items: baseline;
-      justify-content: space-between;
-      gap: 8px;
+      gap: 5px;
+      line-height: 1.25;
       margin-bottom: 2px;
     }
 
-    .tl-position {
-      margin: 0;
-      font-size: calc(var(--fs) * 1.16);
-      font-weight: 700;
-      color: #1E293B;
-      letter-spacing: 0.01em;
-    }
-
-    .tl-period {
-      flex: 0 0 auto;
-      font-size: calc(var(--fs) * 0.94);
-      font-weight: 500;
-      color: #64748B;
-      white-space: nowrap;
-    }
-
     .tl-company {
-      font-size: calc(var(--fs) * 1.04);
+      font-size: calc(var(--fs) * 1.12);
+      font-weight: 700;
+      color: #1E2532;
+    }
+
+    .tl-slash {
+      color: #64748B;
+      font-weight: 400;
+    }
+
+    .tl-position {
+      font-size: calc(var(--fs) * 1.1);
+      font-weight: 500;
+      color: #1E2532;
+    }
+
+    .tl-date {
+      font-size: calc(var(--fs) * 0.92);
       font-style: italic;
-      color: #475569;
-      margin-bottom: 3.5px;
+      color: #64748B;
+      margin-bottom: 5px;
     }
 
     .tl-desc {
-      margin: 0;
+      margin: 0 0 5px 0;
       font-size: calc(var(--fs) * 0.95);
-      line-height: 1.46;
+      line-height: 1.48;
       color: #475569;
       text-align: justify;
     }
 
-    /* References Grid */
+    .tl-bullets {
+      list-style: disc;
+      margin: 0;
+      padding-left: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .tl-bullets li {
+      font-size: calc(var(--fs) * 0.92);
+      color: #475569;
+      line-height: 1.44;
+    }
+
+    /* References */
     .ref-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-top: 8px;
+      gap: 22px;
     }
 
     .ref-card {
@@ -623,33 +580,25 @@ interface CvReference {
     }
 
     .ref-name {
-      margin: 0;
-      font-size: calc(var(--fs) * 1.25);
+      margin: 0 0 2px 0;
+      font-size: calc(var(--fs) * 1.15);
       font-weight: 700;
-      color: #1E293B;
+      color: #1E2532;
     }
 
-    .ref-role {
-      font-size: calc(var(--fs) * 1.04);
+    .ref-company-role {
+      font-size: calc(var(--fs) * 0.96);
       color: #475569;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
     }
 
-    .ref-contact-row {
-      display: flex;
-      align-items: baseline;
-      gap: 5px;
-      font-size: calc(var(--fs) * 0.94);
-      color: #334155;
-      line-height: 1.35;
+    .ref-line {
+      font-size: calc(var(--fs) * 0.92);
+      color: #475569;
+      line-height: 1.4;
     }
 
-    .ref-lbl {
-      font-weight: 700;
-      color: #1E293B;
-    }
-
-    /* Print & Responsive */
+    /* Responsive & Print */
     @media screen and (max-width: 700px) {
       :host {
         display: block;
@@ -668,7 +617,7 @@ interface CvReference {
       }
       .cv-paper {
         display: grid !important;
-        grid-template-columns: 35.5% 64.5% !important;
+        grid-template-columns: 34.5% 65.5% !important;
         width: 210mm !important;
         max-width: 210mm !important;
         min-width: 210mm !important;
@@ -692,13 +641,14 @@ interface CvReference {
   `],
 })
 export class NavySidebarProfileCvComponent {
-  @Input() accent = '#16394F';
+  @Input() accent = '#333A4C';
   @Input() name = '';
   @Input() jobTitle = '';
   @Input() email = '';
   @Input() phone = '';
   @Input() location = '';
   @Input() linkedin = '';
+  @Input() dob = '';
   @Input() summary = '';
   @Input() photoUrl: string | null = null;
 
@@ -714,7 +664,7 @@ export class NavySidebarProfileCvComponent {
   @Input() fontSize = 10;
   @Input() fontWeight = 400;
   @Input() lineHeight = 1.55;
-  @Input() fontFamily = "'Montserrat', 'Century Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  @Input() fontFamily = "'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   @Input() sectionLabels: Record<string, string> = {};
   @Input() sectionOrder: string[] = [];
 
@@ -722,57 +672,69 @@ export class NavySidebarProfileCvComponent {
     if (this.photoUrl && !this.photoUrl.includes('placeholder') && this.photoUrl !== '/assets/sample-profile.svg') {
       return this.photoUrl;
     }
-    return '/assets/lorna-alvarado-photo.png';
+    return '/assets/mike-richrd-photo.png';
   }
 
   get resolvedName(): string {
     const raw = (this.name || '').trim();
     if (!raw || raw.toLowerCase() === 'your name' || raw.toLowerCase() === 'untitled cv') {
-      return 'LORNA ALVARADO';
+      return 'MIKE RICHRD';
     }
     return raw;
-  }
-
-  get nameLine1(): string {
-    const parts = this.resolvedName.split(/\s+/).filter(Boolean);
-    if (parts.length <= 1) return this.resolvedName;
-    return parts[0];
-  }
-
-  get nameLine2(): string {
-    const parts = this.resolvedName.split(/\s+/).filter(Boolean);
-    if (parts.length <= 1) return '';
-    return parts.slice(1).join(' ');
   }
 
   get resolvedJobTitle(): string {
     const raw = (this.jobTitle || '').trim();
     if (!raw || raw.toLowerCase() === 'professional title') {
-      return 'Sales Representative';
+      return 'PROFESSIONAL TITLE';
+    }
+    return raw;
+  }
+
+  get resolvedSummary(): string {
+    const raw = (this.summary || '').trim();
+    if (!raw || raw.toLowerCase().includes('lorem ipsum dolor sit amet, consectetur adipiscing elit')) {
+      return 'My Name is Mike Richrd tandard dummy text one evers since the when unknown printer ipsu ipsu galley type and scrambled it to specimen book. Dolors Ipsum is simply dummy text of the and Lorem been the dustryu etting lorem when ane lorem standard Dolor Ipsum is.';
     }
     return raw;
   }
 
   get resolvedPhone(): string {
     const raw = (this.phone || '').trim();
-    if (!raw || raw === '+855 12 345 678' || raw === '+1 234 567 8900') {
-      return '123-456-7890';
+    if (!raw || raw === '+855 12 345 678' || raw === '+1 234 567 8900' || raw === '123-456-7890') {
+      return '00 999 123 456 789';
     }
     return raw;
   }
 
   get resolvedEmail(): string {
     const raw = (this.email || '').trim();
-    if (!raw || raw === 'you@example.com' || raw === 'user@domain.com') {
-      return 'hello@reallygreatsite.com';
+    if (!raw || raw === 'you@example.com' || raw === 'user@domain.com' || raw === 'hello@reallygreatsite.com') {
+      return 'info@yourname.com';
     }
     return raw;
   }
 
   get resolvedLocation(): string {
     const raw = (this.location || '').trim();
-    if (!raw || raw === 'City, Country' || raw === 'Phnom Penh, Cambodia') {
-      return '123 Anywhere St., Any City';
+    if (!raw || raw === 'City, Country' || raw === 'Phnom Penh, Cambodia' || raw === '123 Anywhere St., Any City') {
+      return '12 Street, City/Country';
+    }
+    return raw;
+  }
+
+  get resolvedDob(): string {
+    const raw = (this.dob || '').trim();
+    if (!raw) {
+      return 'Date of Birth';
+    }
+    return raw;
+  }
+
+  get resolvedWebsite(): string {
+    const raw = (this.linkedin || '').trim();
+    if (!raw) {
+      return 'www.domainname.com';
     }
     return raw;
   }
@@ -787,33 +749,28 @@ export class NavySidebarProfileCvComponent {
 
       if (!isGeneric) {
         return this.education.map((e) => ({
-          institution: e.institution || 'University Name',
-          degree: [e.degree, e.field].filter(Boolean).join(' in ') || 'Degree Name',
-          years: [e.startYear, e.current ? 'Present' : e.endYear].filter(Boolean).join(' - ') || '2020 - 2023',
+          institution: e.institution || 'University / Location',
+          degree: [e.degree, e.field].filter(Boolean).join(' in ') || 'Enter Your Major',
+          years: [e.startYear, e.current ? 'Present' : e.endYear].filter(Boolean).join(' - ') || '2011 - 2014',
         }));
       }
     }
 
     return [
       {
-        institution: 'Borcelle University',
-        degree: 'Bachelor of Business Management',
-        years: '2020 - 2023',
+        institution: 'University / Location',
+        degree: 'Enter Your Major',
+        years: '2011 - 2014',
       },
       {
-        institution: 'Wardiere University',
-        degree: 'Bachelor of Business Management',
-        years: '2016 - 2020',
-      },
-      {
-        institution: 'Borcelle University',
-        degree: 'Bachelor of Business Management',
-        years: '2012 - 2016',
+        institution: 'College / Location',
+        degree: 'Enter Your Degree',
+        years: '2007 - 2010',
       },
     ];
   }
 
-  get resolvedSkills(): string[] {
+  get allSkills(): string[] {
     if (this.skills && this.skills.length) {
       const isGeneric =
         this.skills.length === 4 &&
@@ -827,122 +784,129 @@ export class NavySidebarProfileCvComponent {
     }
 
     return [
-      'Management Skills',
-      'Creativity',
-      'Digital Marketing',
-      'Negotiation',
-      'Critical Thinking',
-      'Leadership',
+      'Public Relation',
+      'Social Marketing',
+      'Online marketing',
+      'IT Application',
+      'Planinng Meeting',
+      'Planning',
+      'Business System',
+      'Microsoft Office',
+      'Atocad (3D)',
+      'Adobe Photoshop',
+      'Adobe Illustrator',
+      'Adobe Indesign',
     ];
   }
 
-  get resolvedLanguages(): string[] {
-    if (this.languages && this.languages.length) {
-      const isGeneric =
-        this.languages.length === 2 &&
-        this.languages[0]?.name === 'Khmer' &&
-        (!this.name || this.name === 'Your Name');
-
-      if (!isGeneric) {
-        return this.languages.map((l) => (typeof l === 'string' ? l : l.name || '')).filter(Boolean);
-      }
-    }
-
-    return ['English', 'Spain'];
+  get professionalSkills(): string[] {
+    const list = this.allSkills;
+    if (list.length <= 7) return list;
+    return list.slice(0, 7);
   }
 
-  get resolvedSummary(): string {
-    const raw = (this.summary || '').trim();
-    if (!raw || raw.startsWith('Brief overview of your professional background') || raw === 'Short summary...') {
-      return 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.';
-    }
-    return raw;
+  get technicalSkills(): string[] {
+    const list = this.allSkills;
+    if (list.length <= 7) return [];
+    return list.slice(7);
   }
 
-  get resolvedExperience(): Array<{ position: string; company: string; period: string; description: string }> {
+  get resolvedExperience(): Array<{
+    company: string;
+    position: string;
+    period: string;
+    description: string;
+    responsibilities?: string[];
+  }> {
     if (this.experience && this.experience.length) {
       const isGeneric =
-        this.experience.length === 2 &&
-        this.experience[0]?.company === 'Company Name' &&
+        this.experience.length === 1 &&
+        this.experience[0]?.company === 'Your Company' &&
         (!this.name || this.name === 'Your Name');
 
       if (!isGeneric) {
-        return this.experience.map((e) => {
-          let desc = e.description || '';
-          if (!desc && Array.isArray(e.responsibilities) && e.responsibilities.length) {
-            desc = e.responsibilities.join('. ') + '.';
-          }
-          return {
-            position: e.position || 'Position Title',
-            company: e.company || 'Company Name',
-            period: [e.startDate, e.current ? 'Present' : e.endDate].filter(Boolean).join(' - ') || '2016 - 2020',
-            description: desc || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sem nec risus egestas accumsan.',
-          };
-        });
-      }
-    }
-
-    return [
-      {
-        position: 'Product Design Manager',
-        company: 'Arowwai Industries',
-        period: '2016 - 2020',
-        description:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sem nec risus egestas accumsan. In enim nunc, tincidunt ut quam eget, luctus sollicitudin neque.',
-      },
-      {
-        position: 'Marketing Manager',
-        company: 'Arowwai Industries',
-        period: '2019 - 2020',
-        description:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sem nec risus egestas accumsan. In enim nunc, tincidunt ut quam eget, luctus sollicitudin neque.',
-      },
-      {
-        position: 'Marketing Manager',
-        company: 'Arowwai Industries',
-        period: '2017 - 2019',
-        description:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sem nec risus egestas accumsan. In enim nunc, tincidunt ut quam eget, luctus sollicitudin neque.',
-      },
-      {
-        position: 'Marketing Manager',
-        company: 'Arowwai Industries',
-        period: '2016 - 2017',
-        description:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sem nec risus egestas accumsan. In enim nunc, tincidunt ut quam eget, luctus sollicitudin neque.',
-      },
-    ];
-  }
-
-  get resolvedReferences(): Array<{ name: string; role: string; phone: string; email: string }> {
-    if (this.references && this.references.length) {
-      const isGeneric =
-        this.references.length === 1 &&
-        this.references[0]?.name === 'Reference Full Name' &&
-        (!this.name || this.name === 'Your Name');
-
-      if (!isGeneric) {
-        return this.references.map((r) => ({
-          name: r.name || 'Reference Person',
-          role: [r.company, r.position].filter(Boolean).join(' / ') || 'CEO',
-          phone: r.phone || '123-456-7890',
-          email: r.email || 'hello@reallygreatsite.com',
+        return this.experience.map((e) => ({
+          company: e.company || 'Company Name',
+          position: e.position || 'Your Job Position',
+          period: [e.startDate, e.current ? 'Present' : e.endDate].filter(Boolean).join(' to ') || '2017 to 2019',
+          description: e.description || '',
+          responsibilities: e.responsibilities || [],
         }));
       }
     }
 
     return [
       {
-        name: 'Harumi Kobayashi',
-        role: 'Wardiere Inc. / CEO',
-        phone: '123-456-7890',
-        email: 'hello@reallygreatsite.com',
+        company: 'AB Development',
+        position: 'Your Job Position',
+        period: '2017 to 2019',
+        description:
+          'Dummy text is evers since the when unknown printer ipsu ipsu alleyd lorem ipsum dolor test. dummy text is evers since the when unknown printer ipsu ipsu galley and lorem ipsum dolor test.',
+        responsibilities: [
+          'Esetting lorem when ane lorem standard ipsu ipsu lor Ipsum is',
+          'simply dummy text text the and Lorem industry text is evers since',
+          'the standard lorem test of the and ipsum printer.',
+        ],
       },
       {
-        name: 'Bailey Dupont',
-        role: 'Wardiere Inc. / CEO',
-        phone: '123-456-7890',
-        email: 'hello@reallygreatsite.com',
+        company: 'Blue Agency',
+        position: 'Your Job Position',
+        period: '2015 to 2017',
+        description:
+          'Dummy text is evers since the when unknown printer ipsu ipsu alleyd lorem ipsum dolor test. dummy text is evers since the when',
+        responsibilities: [
+          'Esetting lorem when ane lorem standard ipsu ipsu lor Ipsum is',
+          'simply dummy text text the and Lorem industry text is evers since',
+          'the standard lorem test of the and ipsum printer. unknown printer',
+          'ipsu ipsu galley and lorem ipsum dolor test.',
+        ],
+      },
+      {
+        company: 'Creative Zone LTD',
+        position: 'Your Job Position',
+        period: '2012 to 2014',
+        description:
+          'Dummy text is evers since the when unknown printer ipsu ipsu alleyd lorem ipsum dolor test. dummy text is evers since the when unknown printer ipsu ipsu galley and lorem ipsum dolor test.',
+        responsibilities: [
+          'Esetting lorem when ane lorem standard ipsu ipsu lor Ipsum is',
+          'simply dummy text text the and Lorem industry text is evers since',
+          'the standard lorem test of the and ipsum printer.',
+        ],
+      },
+    ];
+  }
+
+  get resolvedReferences(): Array<{
+    name: string;
+    role: string;
+    company: string;
+    phone: string;
+    email: string;
+  }> {
+    if (this.references && this.references.length) {
+      return this.references.map((r) => ({
+        name: r.name || 'Reference Name',
+        role: r.position || 'Position',
+        company: r.company || 'Company Name',
+        phone: r.phone || '+077 996 841 236',
+        email: r.email || 'info@yourname.com',
+      }));
+    }
+
+    return [
+      {
+        name: 'Amay Newston',
+        role: 'Position',
+        company: 'Company Name',
+        phone: '+077 996 841 236',
+        email: 'info@yourname.com',
+      },
+      {
+        name: 'Olivia May',
+        role: 'Position',
+        company: 'Company Name',
+        phone: '+077 996 841 236',
+        email: 'info@yourname.com',
       },
     ];
   }

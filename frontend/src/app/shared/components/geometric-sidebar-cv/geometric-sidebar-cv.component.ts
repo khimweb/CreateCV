@@ -76,7 +76,7 @@ export interface CvReference {
           <div class="sidebar-body">
             <!-- CONTACT -->
             <section class="sb-section">
-              <h2 class="sb-heading">{{ lbl('Personal Information', 'CONTACT') }}</h2>
+              <h2 class="sb-heading">{{ lbl('Contact', 'CONTACT') }}</h2>
               <div class="sb-rule"></div>
               <div class="sb-content">
                 @if (phone) {
@@ -210,7 +210,7 @@ export interface CvReference {
           <!-- ABOUT ME -->
           @if (summary) {
             <section class="cv-section">
-              <h2 class="sec-heading">{{ lbl('Personal Information', 'ABOUT ME') }}</h2>
+              <h2 class="sec-heading">{{ lbl('About Me', 'ABOUT ME') }}</h2>
               <div class="sec-rule"></div>
               <p class="about-text">{{ summary }}</p>
             </section>
@@ -722,8 +722,11 @@ export class GeometricSidebarCvComponent {
     for (const [sKey, val] of Object.entries(this.sectionLabels)) {
       const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
       if (sk === k) return val;
+      if (k.includes('contact') && (sk.includes('contact') || sk.includes('personal'))) {
+        return val;
+      }
       if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
-          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+          (sk.includes('about') || sk.includes('profile') || sk.includes('summary') || sk.includes('objective'))) {
         return val;
       }
       if ((k.includes('work') || k.includes('experience')) &&

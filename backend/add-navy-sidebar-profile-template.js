@@ -18,7 +18,7 @@ const { db, query } = require('./db/pool');
           'Professional',
           '',
           '',
-          JSON.stringify(['#1E3A52', '#2C4D69', '#12293C', '#334E68']),
+          JSON.stringify(['#333A4C', '#283142', '#1E293B', '#3E4756']),
           299,
         ],
       );

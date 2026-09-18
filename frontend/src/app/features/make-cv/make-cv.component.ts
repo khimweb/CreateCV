@@ -44,6 +44,7 @@ import { NavySidebarProfileCvComponent } from '../../shared/components/navy-side
 import { NavyBadgeCvComponent } from '../../shared/components/navy-badge-cv/navy-badge-cv.component';
 import { GraphiteBannerTimelineCvComponent } from '../../shared/components/graphite-banner-timeline-cv/graphite-banner-timeline-cv.component';
 import { MinimalistFramedCvComponent } from '../../shared/components/minimalist-framed-cv/minimalist-framed-cv.component';
+import { AbbeyCreativeCvComponent } from '../../shared/components/abbey-creative-cv/abbey-creative-cv.component';
 import { ToastService } from '../../shared/components/toast/toast.service';
 import { PREVIEW_PLACEHOLDER } from '../../shared/preview-placeholders';
 import { PptxExportService } from '../../shared/services/pptx-export.service';
@@ -102,6 +103,7 @@ const ACCENT_PALETTE = [
     NavySidebarProfileCvComponent, 
     GraphiteBannerTimelineCvComponent, 
     MinimalistFramedCvComponent,
+    AbbeyCreativeCvComponent,
     WatermarkComponent,
     KhqrPaymentModalComponent
   ],
@@ -282,14 +284,38 @@ const ACCENT_PALETTE = [
                   >Location
                   <input formControlName="location" placeholder="Select or type…" list="locations" />
                 </label>
-                <label>LinkedIn / GitHub (optional)<input formControlName="linkedin" placeholder="linkedin.com/in/you" /></label>
+                @if (layout() === 'navy-sidebar-profile') {
+                  <label>Date of Birth (DOB)<input formControlName="dob" placeholder="Date of Birth" /></label>
+                } @else {
+                  <label>LinkedIn / GitHub (optional)<input formControlName="linkedin" placeholder="linkedin.com/in/you" /></label>
+                }
                 @if (layout() === 'navy-badge') {
                   <label>Date of Birth (DOB)<input formControlName="dob" placeholder="January 06, 2005" /></label>
                   <label>Height<input formControlName="height" placeholder="1.60m" /></label>
                   <label>Marital Status<input formControlName="maritalStatus" placeholder="Single" /></label>
                 }
               </div>
-              <label class="block">Professional summary<textarea formControlName="summary" rows="5" placeholder="Write a short professional summary..."></textarea></label>
+              <div class="space-y-2 pt-2">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      {{ i18n.currentLang() === 'kh' ? 'ចំណងជើង អំពីខ្ញុំ / សេចក្ដីសង្ខេប' : 'About Me / Summary Title' }}
+                    </span>
+                    <input
+                      class="text-sm font-bold text-slate-800 dark:text-white bg-transparent border-b border-dashed border-slate-300 dark:border-slate-600 hover:border-sky-500 focus:border-sky-500 focus:bg-white dark:focus:bg-slate-800 rounded px-1.5 py-0.5 outline-none transition max-w-[200px]"
+                      [value]="labelFor('About Me')"
+                      (input)="onLabelInput('About Me', $event)"
+                      placeholder="About Me"
+                      title="Click to rename About Me section on CV"
+                    />
+                    <span class="text-xs text-slate-400 font-normal shrink-0 hidden sm:inline">✎ Rename</span>
+                  </div>
+                </div>
+                <label class="block">
+                  <span class="text-xs text-slate-500 dark:text-slate-400">{{ i18n.currentLang() === 'kh' ? 'ខ្លឹមសារសង្ខេប' : 'Professional summary' }}</span>
+                  <textarea formControlName="summary" rows="5" placeholder="Write a short professional summary..."></textarea>
+                </label>
+              </div>
             }
 
             @if (active() === 'Cover Letter') {
@@ -1636,9 +1662,9 @@ const ACCENT_PALETTE = [
         </header>
 
         <!-- Scrollable Document Stage (Center-aligned, auto-fit, never clipped) -->
-        <div class="flex-1 w-full overflow-auto py-6 px-2 sm:px-4 flex flex-col items-center cv-stage-scroll">
+        <div class="flex-1 w-full overflow-auto py-6 px-2 sm:px-4 flex flex-col items-center justify-start cv-stage-scroll">
           <div
-            class="print-root a4-sheet relative origin-top flex justify-center shadow-2xl transition-[zoom] duration-150"
+            class="print-root a4-sheet relative origin-top flex justify-center shadow-2xl"
             [style.zoom]="isPrinting() ? null : modalScale()"
             [class.cover-letter-print]="isCoverLetter()"
           >
@@ -1760,10 +1786,18 @@ const ACCENT_PALETTE = [
       } @else if (layout() === 'navy-sidebar-profile') {
         <app-navy-sidebar-profile-cv
           [accent]="accentColor()" [photoUrl]="photoUrl()"
-          [name]="previewName()" [jobTitle]="previewJobTitle()" [email]="previewEmail()" [phone]="previewPhone()" [location]="previewLocation()" [linkedin]="previewLinkedin()" [summary]="previewSummary()"
+          [name]="previewName()" [jobTitle]="previewJobTitle()" [email]="previewEmail()" [phone]="previewPhone()" [location]="previewLocation()" [linkedin]="previewLinkedin()" [dob]="previewDob()" [summary]="previewSummary()"
           [education]="previewEducation()" [experience]="previewExperience()" [skills]="previewSkills()" [languages]="previewLanguages()" [certifications]="previewCertifications()" [projects]="previewProjects()" [references]="previewReferences()" [hobbies]="previewHobbies()"
           [fontSize]="fontSize()" [fontWeight]="fontWeight()" [lineHeight]="lineHeight()" [fontFamily]="fontFamily()"
         
+          [sectionLabels]="sectionLabels()"
+          [sectionOrder]="sectionOrder()"/>
+      } @else if (layout() === 'abbey-creative') {
+        <app-abbey-creative-cv
+          [accent]="accentColor()" [photoUrl]="photoUrl()"
+          [name]="previewName()" [jobTitle]="previewJobTitle()" [email]="previewEmail()" [phone]="previewPhone()" [location]="previewLocation()" [linkedin]="previewLinkedin()" [dob]="previewDob()" [summary]="previewSummary()"
+          [education]="previewEducation()" [experience]="previewExperience()" [skills]="previewSkills()" [languages]="previewLanguages()" [certifications]="previewCertifications()" [projects]="previewProjects()" [references]="previewReferences()" [hobbies]="previewHobbies()"
+          [fontSize]="fontSize()" [fontWeight]="fontWeight()" [lineHeight]="lineHeight()" [fontFamily]="fontFamily()"
           [sectionLabels]="sectionLabels()"
           [sectionOrder]="sectionOrder()"/>
       } @else if (layout() === 'minimalist-framed') {
@@ -2499,24 +2533,17 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
 
   modalFitScale = computed(() => {
     const winW = this.windowWidth();
-    const winH = this.windowHeight();
-    const topBarH = winW < 640 ? 80 : 88;
-    const modalH = Math.max(300, winH - topBarH);
     const padX = winW < 640 ? 20 : (winW < 1024 ? 36 : 64);
-    const padY = winW < 640 ? 80 : 120;
     const availW = Math.max(260, winW - padX);
-    const availH = Math.max(320, modalH - padY);
-
     const scaleW = availW / 793.7;
-    const scaleH = availH / 1122.5;
 
-    // On mobile (< 640px), fit to width for clear readable text, scroll vertically
-    if (winW < 640) {
-      return Math.min(1.0, Math.max(0.32, Number(scaleW.toFixed(3))));
+    // Responsive width-fit like my-cv-detail:
+    // If available width is large enough for full A4 (793.7px), use 1.0 (100% crisp scale)
+    // If screen is narrower (mobile/small tablet), scale down proportionally to fit width
+    if (scaleW >= 1.0) {
+      return 1.0;
     }
-    // On tablet (iPad) & desktop (MacBook Pro), fit by smaller dimension so the entire CV page fits on screen!
-    const bestFit = Math.min(scaleW, scaleH);
-    return Math.min(1.0, Math.max(0.35, Number(bestFit.toFixed(3))));
+    return Math.max(0.35, Number(scaleW.toFixed(3)));
   });
 
   isPrinting = signal<boolean>(false);
@@ -2542,10 +2569,22 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
 
   modalResetFit() {
     this.modalZoom.set(null);
+    setTimeout(() => {
+      if (typeof document !== 'undefined') {
+        const stage = document.querySelector('.print-overlay .cv-stage-scroll');
+        if (stage) stage.scrollTop = 0;
+      }
+    }, 0);
   }
 
   modalSet100() {
     this.modalZoom.set(1.0);
+    setTimeout(() => {
+      if (typeof document !== 'undefined') {
+        const stage = document.querySelector('.print-overlay .cv-stage-scroll');
+        if (stage) stage.scrollTop = 0;
+      }
+    }, 0);
   }
 
   openFullPreview() {
@@ -2555,6 +2594,12 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
       this.windowHeight.set(window.innerHeight);
     }
     this.fullPreview.set(true);
+    setTimeout(() => {
+      if (typeof document !== 'undefined') {
+        const stage = document.querySelector('.print-overlay .cv-stage-scroll');
+        if (stage) stage.scrollTop = 0;
+      }
+    }, 0);
   }
 
   toggleViewMode() {
@@ -2685,7 +2730,7 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
   fontFamily = signal('Arial, Helvetica, sans-serif');
   sectionLines = signal(true);
   accentColor = signal('#667b97');
-  layout = signal<'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter' | 'framed-cover-letter' | 'sidebar-cover-letter' | 'minimalist-cover-letter' | 'navy-badge' | 'warm-taupe-timeline' | 'slate-rounded-panels' | 'navy-sidebar-profile' | 'graphite-banner-timeline' | 'minimalist-framed'>('professional');
+  layout = signal<'professional' | 'modern-split' | 'clean-sidebar' | 'elegant-frame' | 'classic-dark' | 'formal-classic' | 'cover-letter' | 'framed-cover-letter' | 'sidebar-cover-letter' | 'minimalist-cover-letter' | 'navy-badge' | 'warm-taupe-timeline' | 'slate-rounded-panels' | 'navy-sidebar-profile' | 'graphite-banner-timeline' | 'minimalist-framed' | 'abbey-creative'>('professional');
   cvId: string | null = null;
   templateId: string | null = null;
   hobbyDraft = '';
@@ -2760,7 +2805,9 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** User-editable display labels — persisted in CV content */
   sectionLabels = signal<Record<string, string>>({
-    'Personal Information': 'Personal Information',
+    'Personal Information': 'Contact',
+    'Contact':              'Contact',
+    'About Me':             'About Me',
     'Cover Letter':         'Cover Letter',
     'Education':            'Education',
     'Work Experience':      'Work Experience',
@@ -2786,7 +2833,15 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
 
   setLabel(key: string, value: string) {
     const trimmed = value.trim() || key;
-    this.sectionLabels.update(m => ({ ...m, [key]: trimmed }));
+    this.sectionLabels.update(m => {
+      const updated = { ...m, [key]: trimmed };
+      if (key === 'Personal Information') {
+        updated['Contact'] = trimmed;
+      } else if (key === 'Contact') {
+        updated['Personal Information'] = trimmed;
+      }
+      return updated;
+    });
   }
 
   startEditLabel(key: string, event: MouseEvent) {
@@ -2868,6 +2923,7 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
     else if (layoutParam === 'minimalist-cover-letter' || this.templateId === '18') this.layout.set('minimalist-cover-letter');
     else if (layoutParam === 'navy-badge' || this.templateId === '19') this.layout.set('navy-badge');
     else if (layoutParam === 'minimalist-framed' || this.templateId === '20') this.layout.set('minimalist-framed');
+    else if (layoutParam === 'abbey-creative' || this.templateId === '21') this.layout.set('abbey-creative');
   }
 
   ngOnInit() {
@@ -2890,6 +2946,8 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
             this.patchNavySidebarDefaults();
           } else if (isEmpty && (this.layout() === 'minimalist-cover-letter' || cv.template_id === 18 || this.templateId === '18')) {
             this.patchMinimalistCoverLetterDefaults();
+          } else if (isEmpty && (this.layout() === 'abbey-creative' || cv.template_id === 21 || this.templateId === '21')) {
+            this.patchAbbeyCreativeDefaults();
           } else {
             this.patchFromContent(content);
           }
@@ -2905,6 +2963,8 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
       this.patchNavySidebarDefaults();
     } else if (this.layout() === 'minimalist-cover-letter' || this.templateId === '18') {
       this.patchMinimalistCoverLetterDefaults();
+    } else if (this.layout() === 'abbey-creative' || this.templateId === '21') {
+      this.patchAbbeyCreativeDefaults();
     }
 
     // Auto-save on any form change (debounced 10 seconds)
@@ -2983,6 +3043,7 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
   previewPhone() { return this.text(this.form.value.phone, PREVIEW_PLACEHOLDER.phone); }
   previewLocation() { return this.text(this.form.value.location, PREVIEW_PLACEHOLDER.location); }
   previewLinkedin() { return this.text(this.form.value.linkedin, PREVIEW_PLACEHOLDER.linkedin); }
+  previewDob() { return this.text(this.form.value.dob, PREVIEW_PLACEHOLDER.dob || 'Date of Birth'); }
   previewSummary() { return this.text(this.form.value.summary, PREVIEW_PLACEHOLDER.summary); }
 
   previewEducation() {
@@ -3562,7 +3623,11 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (content.layout) this.layout.set(content.layout);
     if (content.sectionLabels && typeof content.sectionLabels === 'object') {
-      this.sectionLabels.update(defaults => ({ ...defaults, ...content.sectionLabels }));
+      const incoming = { ...content.sectionLabels };
+      if (incoming['Personal Information'] && !incoming['Contact']) {
+        incoming['Contact'] = incoming['Personal Information'];
+      }
+      this.sectionLabels.update(defaults => ({ ...defaults, ...incoming }));
     }
     if (Array.isArray(content.sectionOrder) && content.sectionOrder.length) {
       const currentList = [...this.stepList()];
@@ -3739,7 +3804,8 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
       dob: 'January 06, 2005',
       height: '1.60m',
       maritalStatus: 'Single',
-      summary: '',
+      summary:
+        'Motivated and detail-oriented Accounting Assistant with a strong academic background in accounting and practical experience in financial documentation, statement preparation, and administrative support. Highly organized with excellent analytical and communication skills, seeking to contribute to financial accuracy and organizational efficiency.',
     });
     this.photoUrl.set('/assets/saing-sokaiya-photo.jpg');
     this.setAccent('#232D42', false);
@@ -3854,22 +3920,8 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.skills.clear();
     [
-      'QuickBooks Accounting',
-      'Contemporary Management',
-      'Accounting for Marketing',
-      'Psychology',
-      'Principles of Accounting I',
-      'Principles of Accounting II',
-      'English for Business',
-      'Business Writing Skills',
-      'Business Strategy',
-      'Principles of Economics',
-      'Marketing Services',
-      'Business Start-Ups',
-      'Soft Skills',
-      'Fundamental Math for Business',
-      'Consumer Behavior',
-      'Microeconomics',
+      'Writing Skill',
+      'Reading Skill',
     ].forEach((s) => this.skills.push(this.fb.group({ name: [s], level: ['Advanced'] })));
 
     this.languages.clear();
@@ -3908,25 +3960,28 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
 
   patchNavySidebarDefaults() {
     this.form.patchValue({
-      fullName: 'LORNA ALVARADO',
-      jobTitle: 'Sales Representative',
-      email: 'hello@reallygreatsite.com',
-      phone: '123-456-7890',
-      location: '123 Anywhere St., Any City',
+      fullName: 'MIKE RICHRD',
+      jobTitle: 'PROFESSIONAL TITLE',
+      email: 'info@yourname.com',
+      phone: '00 999 123 456 789',
+      location: '12 Street, City/Country',
+      linkedin: 'www.domainname.com',
+      dob: 'Date of Birth',
       summary:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+        'My Name is Mike Richrd tandard dummy text one evers since the when unknown printer ipsu ipsu galley type and scrambled it to specimen book. Dolors Ipsum is simply dummy text of the and Lorem been the dustryu etting lorem when ane lorem standard Dolor Ipsum is.',
     });
-    this.photoUrl.set('/assets/lorna-alvarado-photo.png');
-    this.setAccent('#16394F', false);
+    this.photoUrl.set('/assets/mike-richrd-photo.png');
+    this.setAccent('#333A4C', false);
+    this.fontFamily.set("'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif");
 
     this.education.clear();
     this.education.push(
       this.fb.group({
-        institution: ['Borcelle University'],
-        degree: ['Bachelor of Business Management'],
-        field: ['Business Management'],
-        startYear: ['2020'],
-        endYear: ['2023'],
+        institution: ['University / Location'],
+        degree: ['Enter Your Major'],
+        field: [''],
+        startYear: ['2011'],
+        endYear: ['2014'],
         current: [false],
         gpa: [''],
         description: '',
@@ -3934,23 +3989,11 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
     );
     this.education.push(
       this.fb.group({
-        institution: ['Wardiere University'],
-        degree: ['Bachelor of Business Management'],
-        field: ['Business Management'],
-        startYear: ['2016'],
-        endYear: ['2020'],
-        current: [false],
-        gpa: [''],
-        description: '',
-      })
-    );
-    this.education.push(
-      this.fb.group({
-        institution: ['Borcelle University'],
-        degree: ['Bachelor of Business Management'],
-        field: ['Business Management'],
-        startYear: ['2012'],
-        endYear: ['2016'],
+        institution: ['College / Location'],
+        degree: ['Enter Your Degree'],
+        field: [''],
+        startYear: ['2007'],
+        endYear: ['2010'],
         current: [false],
         gpa: [''],
         description: '',
@@ -3960,40 +4003,8 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
     this.experience.clear();
     this.experience.push(
       this.fb.group({
-        company: ['Arowwai Industries'],
-        position: ['Product Design Manager'],
-        startMonth: [''],
-        startYear: ['2016'],
-        endMonth: [''],
-        endYear: ['2020'],
-        startDate: ['2016'],
-        endDate: ['2020'],
-        current: [false],
-        description:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sem nec risus egestas accumsan. In enim nunc, tincidunt ut quam eget, luctus sollicitudin neque.',
-        responsibilities: this.fb.array([]),
-      })
-    );
-    this.experience.push(
-      this.fb.group({
-        company: ['Arowwai Industries'],
-        position: ['Marketing Manager'],
-        startMonth: [''],
-        startYear: ['2019'],
-        endMonth: [''],
-        endYear: ['2020'],
-        startDate: ['2019'],
-        endDate: ['2020'],
-        current: [false],
-        description:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sem nec risus egestas accumsan. In enim nunc, tincidunt ut quam eget, luctus sollicitudin neque.',
-        responsibilities: this.fb.array([]),
-      })
-    );
-    this.experience.push(
-      this.fb.group({
-        company: ['Arowwai Industries'],
-        position: ['Marketing Manager'],
+        company: ['AB Development'],
+        position: ['Your Job Position'],
         startMonth: [''],
         startYear: ['2017'],
         endMonth: [''],
@@ -4002,58 +4013,223 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
         endDate: ['2019'],
         current: [false],
         description:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sem nec risus egestas accumsan. In enim nunc, tincidunt ut quam eget, luctus sollicitudin neque.',
+          'Dummy text is evers since the when unknown printer ipsu ipsu alleyd lorem ipsum dolor test. dummy text is evers since the when unknown printer ipsu ipsu galley and lorem ipsum dolor test.',
+        responsibilities: this.fb.array([
+          this.fb.control('Esetting lorem when ane lorem standard ipsu ipsu lor Ipsum is'),
+          this.fb.control('simply dummy text text the and Lorem industry text is evers since'),
+          this.fb.control('the standard lorem test of the and ipsum printer.'),
+        ]),
+      })
+    );
+    this.experience.push(
+      this.fb.group({
+        company: ['Blue Agency'],
+        position: ['Your Job Position'],
+        startMonth: [''],
+        startYear: ['2015'],
+        endMonth: [''],
+        endYear: ['2017'],
+        startDate: ['2015'],
+        endDate: ['2017'],
+        current: [false],
+        description:
+          'Dummy text is evers since the when unknown printer ipsu ipsu alleyd lorem ipsum dolor test. dummy text is evers since the when',
+        responsibilities: this.fb.array([
+          this.fb.control('Esetting lorem when ane lorem standard ipsu ipsu lor Ipsum is'),
+          this.fb.control('simply dummy text text the and Lorem industry text is evers since'),
+          this.fb.control('the standard lorem test of the and ipsum printer. unknown printer'),
+          this.fb.control('ipsu ipsu galley and lorem ipsum dolor test.'),
+        ]),
+      })
+    );
+    this.experience.push(
+      this.fb.group({
+        company: ['Creative Zone LTD'],
+        position: ['Your Job Position'],
+        startMonth: [''],
+        startYear: ['2012'],
+        endMonth: [''],
+        endYear: ['2014'],
+        startDate: ['2012'],
+        endDate: ['2014'],
+        current: [false],
+        description:
+          'Dummy text is evers since the when unknown printer ipsu ipsu alleyd lorem ipsum dolor test. dummy text is evers since the when unknown printer ipsu ipsu galley and lorem ipsum dolor test.',
+        responsibilities: this.fb.array([
+          this.fb.control('Esetting lorem when ane lorem standard ipsu ipsu lor Ipsum is'),
+          this.fb.control('simply dummy text text the and Lorem industry text is evers since'),
+          this.fb.control('the standard lorem test of the and ipsum printer.'),
+        ]),
+      })
+    );
+
+    this.skills.clear();
+    [
+      'Public Relation',
+      'Social Marketing',
+      'Online marketing',
+      'IT Application',
+      'Planning Meeting',
+      'Planning',
+      'Business System',
+      'Microsoft Office',
+      'Atocad (3D)',
+      'Adobe Photoshop',
+      'Adobe Illustrator',
+      'Adobe Indesign',
+    ].forEach((s) => this.skills.push(this.fb.group({ name: [s], level: ['Advanced'] })));
+
+    this.languages.clear();
+    this.languages.push(this.fb.group({ name: ['English'], proficiency: ['Fluent'] }));
+
+    this.references.clear();
+    this.references.push(
+      this.fb.group({
+        name: ['Amay Newston'],
+        position: ['Position'],
+        company: ['Company Name'],
+        phone: ['+077 996 841 236'],
+        email: ['info@yourname.com'],
+      })
+    );
+    this.references.push(
+      this.fb.group({
+        name: ['Olivia May'],
+        position: ['Position'],
+        company: ['Company Name'],
+        phone: ['+077 996 841 236'],
+        email: ['info@yourname.com'],
+      })
+    );
+  }
+
+  patchAbbeyCreativeDefaults() {
+    this.form.patchValue({
+      fullName: 'ABBEY WATSON',
+      jobTitle: 'Creative Director',
+      email: 'abbeywatson@gmail.com',
+      phone: '02800200',
+      location: '12th Avenue Street Australia 40000',
+      linkedin: 'abbeywatson.com',
+      dob: '14 May 1992',
+      summary:
+        'My Name is Abbey Watson lorem empus id fringilla molestie ornare diam in cleste ipsum etium rosn ollicitudin est, porttitor amet hitmasla Done cporttitor dolor shit dolor kiren lorem nisl molestie pretium etfring is the shitp lorem ipcum retiunci amet is tudinest moles tium lorem olestie pretium apaza all the rosen fringilla lorem ipsum .',
+    });
+    this.photoUrl.set('/assets/abbey-watson-photo.png');
+    this.setAccent('#E27B2B', false);
+    this.fontFamily.set("'Montserrat', 'Inter', 'Segoe UI', -apple-system, sans-serif");
+
+    this.education.clear();
+    this.education.push(
+      this.fb.group({
+        institution: ['UNIVERSITY OF LOREM'],
+        degree: ['CERTIFICATE OF WEB TRAINIG'],
+        field: [''],
+        startYear: ['2008'],
+        endYear: ['2010'],
+        current: [false],
+        gpa: [''],
+        description: 'Porttitor amet massa Done cporttitor dolor et nisl molestie ium feliscon lore ipsum dolor tfringilla lorem lorem ipsum.',
+      })
+    );
+    this.education.push(
+      this.fb.group({
+        institution: ['UNIVERSITY OF LOREM'],
+        degree: ['BECHELOR OF ART DIRECTOR'],
+        field: [''],
+        startYear: ['2007'],
+        endYear: ['2009'],
+        current: [false],
+        gpa: [''],
+        description: 'Porttitor amet massa Done cporttitor dolor et nisl molestie ium feliscon lore ipsum dolor tfringilla lorem lorem ipsum.',
+      })
+    );
+    this.education.push(
+      this.fb.group({
+        institution: ['UNIVERSITY OF LOREM'],
+        degree: ['BECHELOR OF ART DIRECTOR'],
+        field: [''],
+        startYear: ['2007'],
+        endYear: ['2009'],
+        current: [false],
+        gpa: [''],
+        description: 'Porttitor amet massa Done cporttitor dolor et nisl molestie ium feliscon lore ipsum dolor tfringilla lorem lorem ipsum.',
+      })
+    );
+
+    this.experience.clear();
+    this.experience.push(
+      this.fb.group({
+        company: ['SOFT DESIGN STUDIOS'],
+        position: ['GRAPHIC DESIGNER'],
+        startMonth: [''],
+        startYear: ['2015'],
+        endMonth: [''],
+        endYear: ['2017'],
+        startDate: ['2015'],
+        endDate: ['2017'],
+        current: [false],
+        description: 'Porttitor amet massa Done cporttitor dolor et nisl molestie ium feliscon lore ipsum dolor tfringilla lorem lorem ipsum ollicitudin est dolor time.',
         responsibilities: this.fb.array([]),
       })
     );
     this.experience.push(
       this.fb.group({
-        company: ['Arowwai Industries'],
-        position: ['Marketing Manager'],
+        company: ['WEB TECH LTD'],
+        position: ['WEB DESIGNER'],
         startMonth: [''],
-        startYear: ['2016'],
+        startYear: ['2013'],
         endMonth: [''],
-        endYear: ['2017'],
-        startDate: ['2016'],
-        endDate: ['2017'],
+        endYear: ['2015'],
+        startDate: ['2013'],
+        endDate: ['2015'],
         current: [false],
-        description:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit amet sem nec risus egestas accumsan. In enim nunc, tincidunt ut quam eget, luctus sollicitudin neque.',
+        description: 'Porttitor amet massa Done cporttitor dolor et nisl molestie ium feliscon lore ipsum dolor tfringilla lorem lorem ipsum ollicitudin est dolor time.',
+        responsibilities: this.fb.array([]),
+      })
+    );
+    this.experience.push(
+      this.fb.group({
+        company: ['DEV CREATIVE SOLUTIONS'],
+        position: ['LEAD WEB DESIGNER'],
+        startMonth: [''],
+        startYear: ['2010'],
+        endMonth: [''],
+        endYear: ['2013'],
+        startDate: ['2010'],
+        endDate: ['2013'],
+        current: [false],
+        description: 'Porttitor amet massa Done cporttitor dolor et nisl molestie ium feliscon lore ipsum dolor tfringilla lorem lorem ipsum ollicitudin est dolor time.',
         responsibilities: this.fb.array([]),
       })
     );
 
     this.skills.clear();
     [
-      'Management Skills',
-      'Creativity',
-      'Digital Marketing',
-      'Negotiation',
-      'Critical Thinking',
-      'Leadership',
-    ].forEach((s) => this.skills.push(this.fb.group({ name: [s], level: ['Advanced'] })));
-
-    this.languages.clear();
-    this.languages.push(this.fb.group({ name: ['English'], proficiency: ['Fluent'] }));
-    this.languages.push(this.fb.group({ name: ['Spain'], proficiency: ['Native'] }));
+      { name: 'Wordpress', level: 'Advanced' },
+      { name: 'Joomla', level: 'Intermediate' },
+      { name: 'Photoshop', level: 'Advanced' },
+      { name: 'Illustrator', level: 'Intermediate' },
+      { name: 'HTML 5', level: 'Expert' },
+    ].forEach((s) => this.skills.push(this.fb.group({ name: [s.name], level: [s.level] })));
 
     this.references.clear();
     this.references.push(
       this.fb.group({
-        name: ['Harumi Kobayashi'],
-        position: ['CEO'],
-        company: ['Wardiere Inc.'],
-        phone: ['123-456-7890'],
-        email: ['hello@reallygreatsite.com'],
+        name: ['WILLIAM KLEIMAN'],
+        position: ['Director'],
+        company: ['Matrix media limited'],
+        phone: ['+555 123 5566'],
+        email: ['williamkleiman@gmail.com'],
       })
     );
     this.references.push(
       this.fb.group({
-        name: ['Bailey Dupont'],
-        position: ['CEO'],
-        company: ['Wardiere Inc.'],
-        phone: ['123-456-7890'],
-        email: ['hello@reallygreatsite.com'],
+        name: ['JENSEN SMITH'],
+        position: ['Web developer'],
+        company: ['Design mate LTD'],
+        phone: ['+123 5556 4455'],
+        email: ['jensonsmith@gmail.com'],
       })
     );
   }

@@ -80,7 +80,7 @@ export interface CvHobby {
           <div class="sb-section">
             <div class="sb-label">
               <span class="sb-arrow">&#9658;</span>
-              <span>{{ lbl('Personal Information', 'CONTACT') }}</span>
+              <span>{{ lbl('Contact', 'CONTACT') }}</span>
             </div>
             <div class="sb-body">
               @if (email) {
@@ -207,7 +207,7 @@ export interface CvHobby {
             <section class="cv-section">
               <div class="sec-heading">
                 <svg class="sec-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <h2>{{ lbl('Personal Information', 'PROFILE') }}</h2>
+                <h2>{{ lbl('Profile', 'PROFILE') }}</h2>
               </div>
               <div class="sec-rule"></div>
               <p class="profile-text">{{ summary }}</p>
@@ -718,8 +718,11 @@ export class ModernSplitCvComponent {
     for (const [sKey, val] of Object.entries(this.sectionLabels)) {
       const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
       if (sk === k) return val;
+      if (k.includes('contact') && (sk.includes('contact') || sk.includes('personal'))) {
+        return val;
+      }
       if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
-          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+          (sk.includes('about') || sk.includes('profile') || sk.includes('summary') || sk.includes('objective'))) {
         return val;
       }
       if ((k.includes('work') || k.includes('experience')) &&

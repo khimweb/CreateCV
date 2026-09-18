@@ -29,6 +29,7 @@ import { CoverLetterCvComponent } from '../../shared/components/cover-letter-cv/
 import { SidebarCoverLetterCvComponent } from '../../shared/components/sidebar-cover-letter-cv/sidebar-cover-letter-cv.component';
 import { FramedCoverLetterCvComponent } from '../../shared/components/framed-cover-letter-cv/framed-cover-letter-cv.component';
 import { MinimalistCoverLetterCvComponent } from '../../shared/components/minimalist-cover-letter-cv/minimalist-cover-letter-cv.component';
+import { AbbeyCreativeCvComponent } from '../../shared/components/abbey-creative-cv/abbey-creative-cv.component';
 import { A4FitDirective } from '../../shared/directives/a4-fit.directive';
 
 @Component({
@@ -46,6 +47,7 @@ import { A4FitDirective } from '../../shared/directives/a4-fit.directive';
     SidebarCoverLetterCvComponent,
     FramedCoverLetterCvComponent,
     MinimalistCoverLetterCvComponent,
+    AbbeyCreativeCvComponent,
     A4FitDirective,
   ],
   template: `
@@ -594,17 +596,18 @@ import { A4FitDirective } from '../../shared/directives/a4-fit.directive';
           </a>
 
           <!-- CV 4: Navy Sidebar Profile -->
-          <a [routerLink]="['/templates/preview', '13']" [queryParams]="{ color: '#16394F' }" class="template-slide-card">
+          <a [routerLink]="['/templates/preview', '13']" [queryParams]="{ color: '#333A4C' }" class="template-slide-card">
             <div appA4Fit class="a4-preview-frame">
               <div class="a4-scaler-thumb">
                 <app-navy-sidebar-profile-cv
-                  [accent]="'#16394F'"
-                  [name]="'LORNA ALVARADO'"
-                  [jobTitle]="'Sales Representative'"
-                  [email]="'hello@reallygreatsite.com'"
-                  [phone]="'123-456-7890'"
-                  [location]="'123 Anywhere St., Any City'"
-                  [photoUrl]="'/assets/lorna-alvarado-photo.png'"
+                  [accent]="'#333A4C'"
+                  [name]="'MIKE RICHRD'"
+                  [jobTitle]="'PROFESSIONAL TITLE'"
+                  [email]="'info@yourname.com'"
+                  [phone]="'00 999 123 456 789'"
+                  [location]="'12 Street, City/Country'"
+                  [dob]="'Date of Birth'"
+                  [photoUrl]="'/assets/mike-richrd-photo.png'"
                   [fontSize]="9"
                   [fontWeight]="400"
                   [lineHeight]="1.5"
@@ -624,6 +627,44 @@ import { A4FitDirective } from '../../shared/directives/a4-fit.directive';
                   <span class="slide-price-pill price-pill-cv">\${{ pricing().plans.professionalCv.priceUsd }}</span>
                 </div>
                 <p class="slide-category">{{ i18n.currentLang() === 'kh' ? 'រចនាបថឆ្នូតចំហៀងពណ៌ចាស់ និងរូបថតរង្វង់មូល' : 'Executive dark sidebar & circular portrait' }}</p>
+              </div>
+              <div class="slide-arrow-btn">↗</div>
+            </div>
+          </a>
+
+          <!-- CV Template 5: Abbey Creative (ID 21) -->
+          <a [routerLink]="['/templates/preview', '21']" [queryParams]="{ color: '#E27B2B' }" class="template-slide-card">
+            <div appA4Fit class="a4-preview-frame">
+              <div class="a4-scaler-thumb">
+                <app-abbey-creative-cv
+                  [accent]="'#E27B2B'"
+                  [name]="'ABBEY WATSON'"
+                  [jobTitle]="'Creative Director'"
+                  [email]="'abbeywatson@gmail.com'"
+                  [phone]="'02800200'"
+                  [location]="'12th Avenue Street Australia 40000'"
+                  [linkedin]="'abbeywatson.com'"
+                  [photoUrl]="'/assets/abbey-watson-photo.png'"
+                  [summary]="'My Name is Abbey Watson lorem empus id fringilla molestie ornare diam in cleste ipsum etium rosn ollicitudin est, porttitor amet hitmasla Done cporttitor dolor shit dolor kiren lorem nisl molestie pretium etfring is the shitp lorem ipcum retiunci amet is tudinest moles tium lorem olestie pretium apaza all the rosen fringilla lorem ipsum .'"
+                  [fontSize]="9"
+                  [fontWeight]="400"
+                  [lineHeight]="1.4"
+                />
+              </div>
+              <div class="card-hover-action">
+                <span class="hover-use-btn">
+                  {{ i18n.t('useTemplate') }}
+                  <lucide-icon [img]="ArrowUpRight" class="w-4 h-4 ml-1" />
+                </span>
+              </div>
+            </div>
+            <div class="slide-card-footer">
+              <div class="slide-info-left">
+                <div class="slide-title-row">
+                  <h3 class="slide-title">{{ i18n.currentLang() === 'kh' ? 'Abbey Creative Director' : 'Abbey Creative' }}</h3>
+                  <span class="slide-price-pill price-pill-cv">\${{ pricing().plans.professionalCv.priceUsd }}</span>
+                </div>
+                <p class="slide-category">{{ i18n.currentLang() === 'kh' ? 'ផ្ទៃខាងក្រោយងងឹតចំហៀង ពណ៌ទឹកក្រូច និងរបារជំនាញ' : 'Dark slate sidebar, warm orange accents & skill bars' }}</p>
               </div>
               <div class="slide-arrow-btn">↗</div>
             </div>

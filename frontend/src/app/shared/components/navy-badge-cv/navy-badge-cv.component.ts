@@ -107,24 +107,30 @@ import { CommonModule } from '@angular/common';
 
           <!-- PERSONAL TRAIT Section -->
           <section class="nb-side-section">
-            <div class="nb-pill-badge">PERSONAL TRAIT</div>
+            <div class="nb-pill-badge">{{ personalTraitBadgeTitle }}</div>
 
             <div class="nb-traits-list">
               @for (trait of resolvedTraits; track $index) {
                 <div class="nb-trait-item">- {{ trait }}</div>
               }
             </div>
+          </section>
 
-            @if (resolvedExtraTraits.length) {
-              <div class="nb-traits-separator"></div>
-              <div class="nb-extra-heading">Extra Helpful Traits</div>
-              <div class="nb-traits-list">
-                @for (trait of resolvedExtraTraits; track $index) {
-                  <div class="nb-trait-item">- {{ trait }}</div>
+          <!-- SKILL Section -->
+          @if (resolvedSkills.length) {
+            <section class="nb-side-section">
+              <div class="nb-pill-badge">{{ skillBadgeTitle }}</div>
+
+              <div class="nb-skills-list">
+                @for (skill of resolvedSkills; track $index) {
+                  <div class="nb-skill-item">
+                    <span class="nb-skill-bullet">•</span>
+                    <span>{{ skill.name }}</span>
+                  </div>
                 }
               </div>
-            }
-          </section>
+            </section>
+          }
         </aside>
 
         <!-- Right Column: Navy Header on top + Curved White Card -->
@@ -140,6 +146,14 @@ import { CommonModule } from '@angular/common';
 
           <!-- White Content Card with signature curved top-left and bottom-left corners -->
           <main class="nb-main-card">
+            <!-- PERSONAL SUMMARY Section -->
+            @if (resolvedSummary) {
+              <section class="nb-main-section">
+                <h2 class="nb-section-title" [innerHTML]="summarySectionTitle"></h2>
+                <p class="nb-summary-text">{{ resolvedSummary }}</p>
+              </section>
+            }
+
             <!-- EXPERIENCE Section -->
             <section class="nb-main-section">
               <h2 class="nb-section-title">E X P E R I E N C E</h2>
@@ -298,10 +312,10 @@ import { CommonModule } from '@angular/common';
       min-width: 0;
       background-color: var(--accent);
       color: #ffffff;
-      padding: 16px 14px 14px 16px;
+      padding: 14px 14px 12px 16px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 12px;
     }
 
     .nb-photo-wrapper {
@@ -490,16 +504,30 @@ import { CommonModule } from '@angular/common';
       padding-left: 1px;
     }
 
-    .nb-traits-separator {
-      border-top: 1px solid rgba(255, 255, 255, 0.22);
-      margin: 10px 0 6px;
+    /* Skills bullet list (no value bar) */
+    .nb-skills-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: calc(var(--fs) * 0.9);
+      line-height: 1.34;
+      color: #ffffff;
     }
 
-    .nb-extra-heading {
-      font-weight: 700;
-      font-size: calc(var(--fs) * 0.96);
-      margin-bottom: 5px;
+    .nb-skill-item {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      padding-left: 1px;
       color: #ffffff;
+      word-break: break-word;
+    }
+
+    .nb-skill-bullet {
+      font-size: 1em;
+      line-height: 1;
+      color: #ffffff;
+      flex-shrink: 0;
     }
 
     /* Right Column (Navy banner + Curved White Card) */
@@ -512,7 +540,7 @@ import { CommonModule } from '@angular/common';
 
     /* Header Banner on Navy background */
     .nb-header {
-      padding: 22px 14px 16px;
+      padding: 16px 14px 12px;
       text-align: center;
       display: flex;
       flex-direction: column;
@@ -564,11 +592,11 @@ import { CommonModule } from '@angular/common';
       border-bottom-left-radius: 38px;
       border-top-right-radius: 6px;
       border-bottom-right-radius: 14px;
-      padding: 22px 22px 22px 24px;
+      padding: 18px 22px 18px 24px;
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 13px;
+      gap: 10px;
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
       color: #1f2937;
     }
@@ -580,20 +608,28 @@ import { CommonModule } from '@angular/common';
 
     .nb-section-title {
       font-family: var(--font);
-      font-size: calc(var(--fs) * 1.18);
+      font-size: calc(var(--fs) * 1.15);
       font-weight: 800;
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--accent);
       border-bottom: 1.5px solid var(--accent);
       padding-bottom: 2px;
-      margin: 0 0 7px;
+      margin: 0 0 5px;
+    }
+
+    .nb-summary-text {
+      margin: 0;
+      font-size: calc(var(--fs) * 0.92);
+      line-height: 1.42;
+      color: #1f2937;
+      text-align: justify;
     }
 
     .nb-exp-list {
       display: flex;
       flex-direction: column;
-      gap: 9px;
+      gap: 7px;
     }
 
     .nb-exp-headline {
@@ -915,6 +951,59 @@ export class NavyBadgeCvComponent {
     ];
   }
 
+  get personalTraitBadgeTitle(): string {
+    const custom =
+      this.sectionLabels?.['Hobbies'] ||
+      this.sectionLabels?.['Personal Traits'] ||
+      this.sectionLabels?.['Personal Trait'];
+    if (custom && custom.trim() && custom.trim().toLowerCase() !== 'hobbies' && custom.trim().toLowerCase() !== 'personal traits') {
+      return custom.trim().toUpperCase();
+    }
+    return 'PERSONAL TRAIT';
+  }
+
+  get skillBadgeTitle(): string {
+    const custom = this.sectionLabels?.['Skills'] || this.sectionLabels?.['Skill'];
+    if (custom && custom.trim() && custom.trim().toLowerCase() !== 'skills') {
+      return custom.trim().toUpperCase();
+    }
+    return 'SKILL';
+  }
+
+  get summarySectionTitle(): string {
+    const custom =
+      this.sectionLabels?.['Personal Summary'] ||
+      this.sectionLabels?.['About Me'] ||
+      this.sectionLabels?.['Summary'];
+    if (custom && custom.trim() && custom.trim().toLowerCase() !== 'about me' && custom.trim().toLowerCase() !== 'personal summary') {
+      return this.formatSpacedTitle(custom.trim());
+    }
+    return 'P E R S O N A L &nbsp; S U M M A R Y';
+  }
+
+  private formatSpacedTitle(title: string): string {
+    const upper = title.toUpperCase().trim();
+    if (upper.includes(' ')) {
+      return upper
+        .split(/\s+/)
+        .map((word) => word.split('').join(' '))
+        .join(' &nbsp; ');
+    }
+    return upper.split('').join(' ');
+  }
+
+  get resolvedSummary(): string {
+    const raw = (this.summary || '').trim();
+    if (
+      !raw ||
+      raw.toLowerCase().includes('write a short professional summary') ||
+      raw.toLowerCase().includes('goal-oriented and adaptable professional')
+    ) {
+      return 'Motivated and detail-oriented Accounting Assistant with a strong academic background in accounting and practical experience in financial documentation, statement preparation, and administrative support. Highly organized with excellent analytical and communication skills, seeking to contribute to financial accuracy and organizational efficiency.';
+    }
+    return raw;
+  }
+
   get resolvedTraits(): string[] {
     if (this.hobbies && this.hobbies.length) {
       const isPlaceholderHobbies =
@@ -934,18 +1023,53 @@ export class NavyBadgeCvComponent {
       'Responsible and reliable',
       'Honest and trustworthy',
       'Organized and disciplined',
-      'Patient and hardworking',
-      'Quick learner and adaptable',
-      'Able to maintain confidentiality',
-      'Strong sanse of responsibility',
     ];
   }
 
-  get resolvedExtraTraits(): string[] {
+  private isAccountingDefaultSkills(): boolean {
+    if (!this.skills || !this.skills.length) return false;
+    return (
+      this.skills.length === 16 &&
+      (this.skills[0]?.name === 'QuickBooks Accounting' || this.skills[0] === 'QuickBooks Accounting')
+    );
+  }
+
+  get resolvedSkills(): Array<{ name: string; percent: number }> {
+    if (this.skills && this.skills.length && !this.isGenericSkills() && !this.isAccountingDefaultSkills()) {
+      const items: Array<{ name: string; percent: number }> = [];
+      for (const s of this.skills) {
+        const rawName = typeof s === 'string' ? s : s?.name;
+        if (!rawName || !rawName.trim()) continue;
+        const cleanName = rawName.replace(/^[\s•\-\.]+\s*/, '').trim() || rawName.trim();
+        const name = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+        const level = typeof s === 'object' ? s?.level : 'Advanced';
+        let percent = 80;
+        if (typeof level === 'number') {
+          percent = level;
+        } else if (typeof level === 'string') {
+          const parsed = parseInt(level, 10);
+          if (!isNaN(parsed) && parsed > 0 && parsed <= 100) {
+            percent = parsed;
+          } else {
+            const l = level.toLowerCase();
+            if (l === 'beginner') percent = 50;
+            else if (l === 'basic') percent = 60;
+            else if (l === 'intermediate') percent = 75;
+            else if (l === 'advanced') percent = 88;
+            else if (l === 'expert') percent = 95;
+          }
+        }
+        items.push({ name, percent });
+      }
+
+      if (items.length > 0) {
+        return items.slice(0, 8);
+      }
+    }
+
     return [
-      'Strong Communication Skills.',
-      'Time Management – balances multiple reports and deadlines.',
-      'Problem-Solving – finds solutions to financial discrepancies.',
+      { name: 'Writing Skill', percent: 85 },
+      { name: 'Reading Skill', percent: 80 },
     ];
   }
 

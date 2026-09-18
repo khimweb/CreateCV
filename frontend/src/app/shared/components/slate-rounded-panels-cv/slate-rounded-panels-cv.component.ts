@@ -50,7 +50,7 @@ interface CvHobby { name?: string; }
         </aside>
 
         <main class="content">
-          <section class="block" *ngIf="summary"><h2>{{ lbl('Personal Information', 'About me') }}</h2><p class="about">{{ summary }}</p></section>
+          <section class="block" *ngIf="summary"><h2>{{ lbl('About Me', 'About me') }}</h2><p class="about">{{ summary }}</p></section>
           <section class="block" *ngIf="experience.length"><h2>{{ lbl('Work Experience', 'Experience') }}</h2><div class="exp" *ngFor="let item of experience"><div class="exp-head"><span class="exp-title">{{ item.position || 'Position' }}</span><span class="exp-date">{{ experienceDates(item) }}</span></div><div class="exp-company">{{ item.company }}</div><p class="exp-desc" *ngFor="let responsibility of item.responsibilities">{{ responsibility }}</p></div></section>
           <section class="block" *ngIf="projects.length"><h2>{{ lbl('Projects', 'Projects') }}</h2><div class="exp" *ngFor="let project of projects"><div class="exp-head"><span class="exp-title">{{ project.name }}</span></div><p class="exp-desc">{{ project.description || project.link }}</p></div></section>
           <section class="block" *ngIf="references.length"><h2>{{ lbl('References', 'Reference') }}</h2><div class="ref-grid"><div class="ref" *ngFor="let reference of references"><div class="ref-name">{{ reference.name }}<ng-container *ngIf="reference.position"> | {{ reference.position }}</ng-container></div><div class="ref-company">{{ reference.company }}</div><div *ngIf="reference.phone">{{ reference.phone }}</div><div *ngIf="reference.email">{{ reference.email }}</div></div></div></section>
@@ -131,8 +131,11 @@ export class SlateRoundedPanelsCvComponent {
     for (const [sKey, val] of Object.entries(this.sectionLabels)) {
       const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
       if (sk === k) return val;
+      if (k.includes('contact') && (sk.includes('contact') || sk.includes('personal'))) {
+        return val;
+      }
       if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
-          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+          (sk.includes('about') || sk.includes('profile') || sk.includes('summary') || sk.includes('objective'))) {
         return val;
       }
       if ((k.includes('work') || k.includes('experience')) &&

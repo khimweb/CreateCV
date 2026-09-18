@@ -25,7 +25,7 @@ interface CvHobby { name?: string; }
           <div class="photo-frame"><div class="photo" [style.background-image]="photoUrl ? 'url(' + photoUrl + ')' : null"><span *ngIf="!photoUrl">{{ initials }}</span></div></div>
 
           <section class="side-block" *ngIf="hasContact">
-            <h2>{{ lbl('Personal Information', 'Contact') }}</h2>
+            <h2>{{ lbl('Contact', 'Contact') }}</h2>
             <ul class="contact-list">
               <li *ngIf="phone">
                 <svg class="contact-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6.57-6.57A19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.58a16 16 0 0 0 6 6l.94-.94a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -62,7 +62,7 @@ interface CvHobby { name?: string; }
 
         <main class="content">
           <section class="main-section" *ngIf="summary">
-            <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 20c0-3.6 2.9-6.2 6.5-6.2s6.5 2.6 6.5 6.2"/></svg></span><h2>{{ lbl('Personal Information', 'Profile') }}</h2></div>
+            <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 20c0-3.6 2.9-6.2 6.5-6.2s6.5 2.6 6.5 6.2"/></svg></span><h2>{{ lbl('Profile', 'Profile') }}</h2></div>
             <div class="timeline"><div class="tl-item"><i class="tl-node" aria-hidden="true"></i><p class="para">{{ summary }}</p></div></div>
           </section>
 
@@ -193,8 +193,11 @@ export class GraphiteBannerTimelineCvComponent {
     for (const [sKey, val] of Object.entries(this.sectionLabels)) {
       const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
       if (sk === k) return val;
+      if (k.includes('contact') && (sk.includes('contact') || sk.includes('personal'))) {
+        return val;
+      }
       if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
-          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+          (sk.includes('about') || sk.includes('profile') || sk.includes('summary') || sk.includes('objective'))) {
         return val;
       }
       if ((k.includes('work') || k.includes('experience')) &&

@@ -12,6 +12,7 @@ export const PREVIEW_PLACEHOLDER = {
   phone: '+855 12 345 678',
   location: 'Phnom Penh, Cambodia',
   linkedin: 'linkedin.com/in/your-profile',
+  dob: 'Date of Birth',
   summary:
     'Goal-oriented and adaptable professional with strong communication skills, a collaborative mindset, and a track record of delivering dependable results.',
   education: [

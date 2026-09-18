@@ -39,7 +39,7 @@ export interface CvHobby { name?: string; }
 
               <!-- CONTACT -->
               <div class="sec">
-                <h3 class="sec-title">{{ lbl('Personal Information', 'CONTACT') }}</h3>
+                <h3 class="sec-title">{{ lbl('Contact', 'CONTACT') }}</h3>
                 <div class="contact-list">
                   @if (phone) {
                     <div class="c-row">
@@ -132,7 +132,7 @@ export interface CvHobby { name?: string; }
               <!-- ABOUT ME -->
               @if (summary) {
                 <div class="sec">
-                  <h2 class="sec-title-r">{{ lbl('Personal Information', 'ABOUT ME') }}</h2>
+                  <h2 class="sec-title-r">{{ lbl('About Me', 'ABOUT ME') }}</h2>
                   <p class="about-text">{{ summary }}</p>
                 </div>
               }
@@ -531,8 +531,11 @@ export class ElegantFrameCvComponent {
     for (const [sKey, val] of Object.entries(this.sectionLabels)) {
       const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
       if (sk === k) return val;
+      if (k.includes('contact') && (sk.includes('contact') || sk.includes('personal'))) {
+        return val;
+      }
       if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
-          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+          (sk.includes('about') || sk.includes('profile') || sk.includes('summary') || sk.includes('objective'))) {
         return val;
       }
       if ((k.includes('work') || k.includes('experience')) &&

@@ -38,6 +38,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'edit-image',
+    loadComponent: () =>
+      import('./features/edit-image/edit-image.component').then(m => m.EditImageComponent),
+  },
+  {
     path: 'payments',
     loadComponent: () =>
       import('./features/payments/user-payments.component').then(m => m.UserPaymentsComponent),

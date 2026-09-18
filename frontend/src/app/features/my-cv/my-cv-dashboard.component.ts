@@ -44,6 +44,7 @@ import { NavySidebarProfileCvComponent } from '../../shared/components/navy-side
 import { NavyBadgeCvComponent } from '../../shared/components/navy-badge-cv/navy-badge-cv.component';
 import { GraphiteBannerTimelineCvComponent } from '../../shared/components/graphite-banner-timeline-cv/graphite-banner-timeline-cv.component';
 import { MinimalistFramedCvComponent } from '../../shared/components/minimalist-framed-cv/minimalist-framed-cv.component';
+import { AbbeyCreativeCvComponent } from '../../shared/components/abbey-creative-cv/abbey-creative-cv.component';
 import { A4FitDirective } from '../../shared/directives/a4-fit.directive';
 
 interface SavedCv {
@@ -80,6 +81,7 @@ interface SavedCv {
     NavySidebarProfileCvComponent,
     GraphiteBannerTimelineCvComponent,
     MinimalistFramedCvComponent,
+    AbbeyCreativeCvComponent,
     A4FitDirective,
     LucideAngularModule,
     WatermarkComponent,
@@ -344,7 +346,7 @@ interface SavedCv {
                   />
                 } @else if (layoutOf(cv) === 'navy-sidebar-profile') {
                   <app-navy-sidebar-profile-cv
-                    [accent]="contentOf(cv).accent || cv.selected_color || '#1E3A52'" 
+                    [accent]="contentOf(cv).accent || cv.selected_color || '#333A4C'" 
                     [photoUrl]="contentOf(cv).photoUrl || null"
                     [name]="contentOf(cv).fullName || cv.title" 
                     [jobTitle]="contentOf(cv).jobTitle || ''" 
@@ -352,6 +354,7 @@ interface SavedCv {
                     [phone]="contentOf(cv).phone || ''" 
                     [location]="contentOf(cv).location || ''" 
                     [linkedin]="contentOf(cv).linkedin || ''" 
+                    [dob]="contentOf(cv).dob || ''" 
                     [summary]="contentOf(cv).summary || ''"
                     [education]="asArray(contentOf(cv).education)" 
                     [experience]="asArray(contentOf(cv).experience)" 
@@ -361,6 +364,33 @@ interface SavedCv {
                     [projects]="asArray(contentOf(cv).projects)" 
                     [references]="asArray(contentOf(cv).references)" 
                     [hobbies]="asArray(contentOf(cv).hobbies)"
+                    [fontSize]="9"
+                    [fontWeight]="400"
+                    [lineHeight]="1.5"
+                  />
+                } @else if (layoutOf(cv) === 'abbey-creative') {
+                  <app-abbey-creative-cv
+                    [accent]="contentOf(cv).accent || cv.selected_color || '#E27B2B'" 
+                    [photoUrl]="contentOf(cv).photoUrl || null"
+                    [name]="contentOf(cv).fullName || cv.title" 
+                    [jobTitle]="contentOf(cv).jobTitle || ''" 
+                    [email]="contentOf(cv).email || ''" 
+                    [phone]="contentOf(cv).phone || ''" 
+                    [location]="contentOf(cv).location || ''" 
+                    [linkedin]="contentOf(cv).linkedin || ''" 
+                    [dob]="contentOf(cv).dob || ''" 
+                    [summary]="contentOf(cv).summary || ''"
+                    [education]="asArray(contentOf(cv).education)" 
+                    [experience]="asArray(contentOf(cv).experience)" 
+                    [skills]="asArray(contentOf(cv).skills)" 
+                    [languages]="asArray(contentOf(cv).languages)" 
+                    [certifications]="asArray(contentOf(cv).certifications)" 
+                    [projects]="asArray(contentOf(cv).projects)" 
+                    [references]="asArray(contentOf(cv).references)" 
+                    [hobbies]="asArray(contentOf(cv).hobbies)"
+                    [fontSize]="9"
+                    [fontWeight]="400"
+                    [lineHeight]="1.5"
                   />
                 } @else if (layoutOf(cv) === 'navy-badge') {
                   <app-navy-badge-cv
@@ -1646,6 +1676,7 @@ export class MyCvDashboardComponent implements OnInit {
     if (name.includes('minimalist framed')) return 'minimalist-framed';
     if (name.includes('navy badge') || name.includes('sokaiya')) return 'navy-badge';
     if (name.includes('navy sidebar')) return 'navy-sidebar-profile';
+    if (name.includes('abbey')) return 'abbey-creative';
     if (name.includes('slate rounded')) return 'slate-rounded-panels';
     if (name.includes('warm taupe')) return 'warm-taupe-timeline';
     if (name.includes('modern accent') || name.includes('sidebar cover')) return 'sidebar-cover-letter';

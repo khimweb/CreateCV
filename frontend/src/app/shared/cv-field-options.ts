@@ -142,6 +142,8 @@ export const LINE_HEIGHTS = [
 ];
 
 export const FONT_FAMILIES = [
+  { label: 'Montserrat', value: "'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" },
+  { label: 'Inter', value: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif" },
   { label: 'Arial', value: 'Arial, Helvetica, sans-serif' },
   { label: 'Segoe UI', value: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" },
   { label: 'Helvetica Neue', value: "'Helvetica Neue', Helvetica, Arial, sans-serif" },

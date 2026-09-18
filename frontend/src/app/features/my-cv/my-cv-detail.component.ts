@@ -14,6 +14,7 @@ import { NavySidebarProfileCvComponent } from '../../shared/components/navy-side
 import { NavyBadgeCvComponent } from '../../shared/components/navy-badge-cv/navy-badge-cv.component';
 import { GraphiteBannerTimelineCvComponent } from '../../shared/components/graphite-banner-timeline-cv/graphite-banner-timeline-cv.component';
 import { MinimalistFramedCvComponent } from '../../shared/components/minimalist-framed-cv/minimalist-framed-cv.component';
+import { AbbeyCreativeCvComponent } from '../../shared/components/abbey-creative-cv/abbey-creative-cv.component';
 import { ModernSplitCvComponent } from '../../shared/components/modern-split-cv/modern-split-cv.component';
 import { CleanSidebarCvComponent } from '../../shared/components/clean-sidebar-cv/clean-sidebar-cv.component';
 import { ElegantFrameCvComponent } from '../../shared/components/elegant-frame-cv/elegant-frame-cv.component';
@@ -57,6 +58,7 @@ interface CvDetail {
     NavySidebarProfileCvComponent, 
     GraphiteBannerTimelineCvComponent, 
     MinimalistFramedCvComponent,
+    AbbeyCreativeCvComponent,
     ModernSplitCvComponent,
     CleanSidebarCvComponent,
     ElegantFrameCvComponent,
@@ -228,10 +230,20 @@ interface CvDetail {
                   [sectionOrder]="c.content?.sectionOrder || []"/>
               } @else if (layoutOf(c) === 'navy-sidebar-profile') {
                 <app-navy-sidebar-profile-cv
-                  [accent]="c.content?.accent || c.selected_color || '#1E3A52'"
+                  [accent]="c.content?.accent || c.selected_color || '#333A4C'"
                   [photoUrl]="c.content?.photoUrl || null"
-                  [name]="c.content?.fullName || c.title" [jobTitle]="c.content?.jobTitle || ''" [email]="c.content?.email || ''" [phone]="c.content?.phone || ''" [location]="c.content?.location || ''" [linkedin]="c.content?.linkedin || ''" [summary]="c.content?.summary || ''"
+                  [name]="c.content?.fullName || c.title" [jobTitle]="c.content?.jobTitle || ''" [email]="c.content?.email || ''" [phone]="c.content?.phone || ''" [location]="c.content?.location || ''" [linkedin]="c.content?.linkedin || ''" [dob]="c.content?.dob || ''" [summary]="c.content?.summary || ''"
                   [education]="arr(c.content?.education)" [experience]="arr(c.content?.experience)" [skills]="arr(c.content?.skills)" [languages]="arr(c.content?.languages)" [certifications]="arr(c.content?.certifications)" [projects]="arr(c.content?.projects)" [references]="arr(c.content?.references)" [hobbies]="arr(c.content?.hobbies)"
+                  [fontSize]="c.content?.typography?.fontSize || 10" [fontWeight]="c.content?.typography?.fontWeight || 400" [lineHeight]="c.content?.typography?.lineHeight || 1.55" [fontFamily]="c.content?.typography?.fontFamily || undefined"
+                  [sectionLabels]="c.content?.sectionLabels || {}"
+                  [sectionOrder]="c.content?.sectionOrder || []"/>
+              } @else if (layoutOf(c) === 'abbey-creative') {
+                <app-abbey-creative-cv
+                  [accent]="c.content?.accent || c.selected_color || '#E27B2B'"
+                  [photoUrl]="c.content?.photoUrl || null"
+                  [name]="c.content?.fullName || c.title" [jobTitle]="c.content?.jobTitle || ''" [email]="c.content?.email || ''" [phone]="c.content?.phone || ''" [location]="c.content?.location || ''" [linkedin]="c.content?.linkedin || ''" [dob]="c.content?.dob || ''" [summary]="c.content?.summary || ''"
+                  [education]="arr(c.content?.education)" [experience]="arr(c.content?.experience)" [skills]="arr(c.content?.skills)" [languages]="arr(c.content?.languages)" [certifications]="arr(c.content?.certifications)" [projects]="arr(c.content?.projects)" [references]="arr(c.content?.references)" [hobbies]="arr(c.content?.hobbies)"
+                  [fontSize]="c.content?.typography?.fontSize || 10" [fontWeight]="c.content?.typography?.fontWeight || 400" [lineHeight]="c.content?.typography?.lineHeight || 1.5" [fontFamily]="c.content?.typography?.fontFamily || undefined"
                   [sectionLabels]="c.content?.sectionLabels || {}"
                   [sectionOrder]="c.content?.sectionOrder || []"/>
               } @else if (layoutOf(c) === 'navy-badge') {
@@ -687,6 +699,7 @@ export class MyCvDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     if (name.includes('minimalist framed')) return 'minimalist-framed';
     if (name.includes('navy badge') || name.includes('sokaiya')) return 'navy-badge';
     if (name.includes('navy sidebar')) return 'navy-sidebar-profile';
+    if (name.includes('abbey')) return 'abbey-creative';
     if (name.includes('slate rounded')) return 'slate-rounded-panels';
     if (name.includes('warm taupe')) return 'warm-taupe-timeline';
     if (name.includes('modern accent') || name.includes('sidebar cover')) return 'sidebar-cover-letter';

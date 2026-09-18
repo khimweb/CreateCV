@@ -17,7 +17,8 @@ import {
   Globe,
   Menu,
   X,
-  LayoutDashboard
+  LayoutDashboard,
+  Sparkles
 } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../toast/toast.service';
@@ -56,6 +57,10 @@ import { TranslationService, Language } from '../../../core/services/translation
           <a routerLink="/my-cv" (click)="onNavClick($event)" routerLinkActive="active">
             {{ i18n.t('navMyCv') }}
           </a>
+          <a routerLink="/edit-image" (click)="onNavClick($event)" routerLinkActive="active" class="nav-ai-item">
+            <span>{{ i18n.t('navEditImage') }}</span>
+            <span class="ai-badge-pulse">AI</span>
+          </a>
 
           <!-- MORE DROPDOWN -->
           <div class="more-wrap">
@@ -71,6 +76,11 @@ import { TranslationService, Language } from '../../../core/services/translation
 
             @if (showMore()) {
               <div class="nav-popover">
+                <a routerLink="/edit-image" (click)="closeMenus()" class="popover-ai-link">
+                  <lucide-icon [img]="Sparkles" />
+                  <span>{{ i18n.t('navEditImage') }}</span>
+                  <span class="ai-badge-sm">AI</span>
+                </a>
                 <a routerLink="/about" (click)="closeMenus()">
                   <lucide-icon [img]="Info" />
                   <span>{{ i18n.t('navAbout') }}</span>
@@ -162,6 +172,11 @@ import { TranslationService, Language } from '../../../core/services/translation
                       <span>{{ i18n.t('navAdminPanel') }}</span>
                     </a>
                   }
+
+                  <a routerLink="/edit-image" (click)="closeMenus()">
+                    <lucide-icon [img]="Sparkles" />
+                    <span>{{ i18n.t('navEditImage') }}</span>
+                  </a>
 
                   <a routerLink="/payments" (click)="closeMenus()">
                     <lucide-icon [img]="Receipt" />
@@ -334,6 +349,34 @@ import { TranslationService, Language } from '../../../core/services/translation
       color: #4f46e5;
       font-weight: 800;
       box-shadow: 0 4px 14px rgba(79, 70, 229, 0.14), 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .nav-ai-item {
+      position: relative;
+    }
+    .ai-badge-pulse {
+      font-size: 0.65rem;
+      font-weight: 900;
+      padding: 1px 6px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      color: #ffffff;
+      letter-spacing: 0.05em;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+      animation: pulse-glow 2.5s infinite;
+    }
+    .ai-badge-sm {
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      color: #ffffff;
+      margin-left: auto;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.06); opacity: 0.88; }
     }
 
     .chevron-icon {
@@ -885,6 +928,7 @@ export class NavbarComponent {
   readonly Menu = Menu;
   readonly X = X;
   readonly LayoutDashboard = LayoutDashboard;
+  readonly Sparkles = Sparkles;
 
   showProfile = signal(false);
   showMore = signal(false);

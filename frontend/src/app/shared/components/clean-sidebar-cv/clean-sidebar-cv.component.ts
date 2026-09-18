@@ -48,7 +48,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
 
           <!-- CONTACT -->
           <div class="sb-block">
-            <div class="sb-heading">{{ lbl('Personal Information', 'CONTACT') }}</div>
+            <div class="sb-heading">{{ lbl('Contact', 'CONTACT') }}</div>
             <div class="sb-content">
               @if (phone) {
                 <div class="contact-row">
@@ -134,7 +134,7 @@ export interface CvReference { name?: string; position?: string; company?: strin
           <!-- ABOUT ME -->
           @if (summary) {
             <section class="cv-section">
-              <div class="sec-pill">{{ lbl('Personal Information', 'ABOUT ME') }}</div>
+              <div class="sec-pill">{{ lbl('About Me', 'ABOUT ME') }}</div>
               <p class="about-text">{{ summary }}</p>
             </section>
           }
@@ -472,8 +472,11 @@ export class CleanSidebarCvComponent {
     for (const [sKey, val] of Object.entries(this.sectionLabels)) {
       const sk = sKey.toLowerCase().replace(/[^a-z]/g, '');
       if (sk === k) return val;
+      if (k.includes('contact') && (sk.includes('contact') || sk.includes('personal'))) {
+        return val;
+      }
       if ((k.includes('about') || k.includes('profile') || k.includes('summary') || k.includes('objective')) &&
-          (sk.includes('personal') || sk.includes('about') || sk.includes('profile') || sk.includes('summary'))) {
+          (sk.includes('about') || sk.includes('profile') || sk.includes('summary') || sk.includes('objective'))) {
         return val;
       }
       if ((k.includes('work') || k.includes('experience')) &&
