@@ -146,9 +146,9 @@ const ACCENT_PALETTE = [
         </div>
       </div>
 
-      <div class="max-w-[1440px] mx-auto grid grid-cols-1 xl:grid-cols-[100px_minmax(0,1fr)_420px] gap-5 xl:gap-7">
+      <div class="max-w-[1440px] mx-auto grid grid-cols-1 xl:grid-cols-[100px_minmax(0,1fr)_420px] gap-5 xl:gap-7 items-start">
         <!-- Desktop Left Sidebar (Only visible on XL screens >= 1280px) -->
-        <aside class="hidden xl:flex flex-col gap-2 sticky top-28 h-fit">
+        <aside class="hidden xl:flex flex-col gap-1.5 sticky top-[96px] self-start z-20 max-h-[calc(100vh-172px)] overflow-y-auto scrollbar-none py-1">
           @for (item of steps; track item.key) {
             @if (!item.coverOnly || isCoverLetter()) {
             <button type="button" (click)="active.set(item.key)" class="step" [class.selected]="active() === item.key"
@@ -179,7 +179,7 @@ const ACCENT_PALETTE = [
 
         <section class="min-w-0" [class.hidden]="viewMode() === 'preview'" [class.xl:block]="true">
         <!-- Modern Single Responsive Steps Navigation (Only on screens < xl) -->
-        <div class="xl:hidden sticky top-16 sm:top-20 z-30 mb-5 -mx-1 sm:mx-0">
+        <div class="xl:hidden sticky top-[68px] sm:top-[96px] z-30 mb-5 -mx-1 sm:mx-0">
           <div class="p-1.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-md shadow-slate-900/5 flex gap-1.5 overflow-x-auto scrollbar-none scroll-smooth py-1.5 px-2">
             @for (item of steps; track item.key) {
               @if (!item.coverOnly || isCoverLetter()) {
@@ -1405,19 +1405,19 @@ const ACCENT_PALETTE = [
         </section>
 
         <!-- Live preview + typography -->
-        <aside class="w-full xl:col-start-3 xl:row-start-1 xl:w-[420px]" [class.hidden]="viewMode() === 'edit'" [class.xl:block]="true">
-          <div class="sticky top-24 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 sm:p-4 shadow-sm space-y-3">
-            <div class="flex items-center justify-between font-bold dark:text-white">
-              <span class="text-emerald-600 text-sm flex items-center gap-1.5">
+        <aside class="w-full xl:col-start-3 xl:row-start-1 xl:w-[420px] self-start sticky top-[96px] z-30" [class.hidden]="viewMode() === 'edit'" [class.xl:block]="true">
+          <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 sm:p-3.5 shadow-sm space-y-2.5 flex flex-col h-[calc(100vh-172px)] min-h-[460px] max-h-[760px]">
+            <div class="flex items-center justify-between font-bold dark:text-white shrink-0">
+              <span class="text-emerald-600 text-sm flex items-center gap-1.5 font-bold">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 ● LIVE PREVIEW
               </span>
               <div class="flex items-center gap-1.5">
-                <button type="button" class="outline sm" (click)="zoomOut()">−</button>
-                <button type="button" class="outline sm font-mono text-xs px-2" (click)="toggleAutoFit()">
-                  {{ isAutoFit() ? 'Fit' : ((zoom() * 100).toFixed(0) + '%') }}
+                <button type="button" class="outline sm" (click)="zoomOut()" title="Zoom Out">−</button>
+                <button type="button" class="outline sm font-mono text-xs px-2" (click)="toggleAutoFit()" title="Fit to screen">
+                  {{ isAutoFit() ? 'Fit' : (scalePercent() + '%') }}
                 </button>
-                <button type="button" class="outline sm" (click)="zoomIn()">+</button>
+                <button type="button" class="outline sm" (click)="zoomIn()" title="Zoom In">+</button>
                 <button type="button" class="outline sm" (click)="openFullPreview()" title="Full screen">
                   <lucide-icon [img]="Eye" class="w-4 h-4" />
                 </button>
@@ -1425,7 +1425,7 @@ const ACCENT_PALETTE = [
             </div>
 
             <!-- Professional typography toolbar -->
-            <div class="typo-bar" title="Typography — applies to your CV">
+            <div class="typo-bar shrink-0" title="Typography — applies to your CV">
               <div class="typo-group">
                 <lucide-icon [img]="Type" class="w-3.5 h-3.5 text-slate-400" />
                 <button type="button" class="typo-btn" (click)="bumpFont(-1)" title="Decrease font size">A−</button>
@@ -1481,14 +1481,14 @@ const ACCENT_PALETTE = [
             </div>
 
             @if (usingSampleData()) {
-              <p class="sample-hint">Showing sample content so you can see the layout. Your details replace it as you type.</p>
+              <p class="sample-hint shrink-0">Showing sample content so you can see the layout. Your details replace it as you type.</p>
             }
 
             <div 
               #previewStageEl
-              class="h-[62vh] sm:h-[72vh] xl:h-[520px] min-h-[460px] overflow-auto rounded-xl border-2 border-slate-900/80 dark:border-slate-700 bg-slate-100 dark:bg-slate-950 p-2 sm:p-3 flex justify-center items-start cv-stage-scroll"
+              class="flex-1 min-h-0 overflow-auto rounded-xl border-2 border-slate-900/80 dark:border-slate-700 bg-slate-100 dark:bg-slate-950 p-2 flex justify-center items-center cv-stage-scroll relative"
             >
-              <div [style.zoom]="calculatedScale()" class="origin-top flex justify-center a4-wrap">
+              <div [style.zoom]="calculatedScale()" class="origin-top flex justify-center a4-wrap m-auto shrink-0 transition-transform duration-200">
                 <ng-container *ngTemplateOutlet="cvPreview"></ng-container>
               </div>
             </div>
@@ -2069,19 +2069,24 @@ const ACCENT_PALETTE = [
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.35rem;
-        padding: 0.75rem 0.4rem;
-        border-radius: 1rem;
+        gap: 0.2rem;
+        padding: 0.4rem 0.25rem 0.35rem;
+        border-radius: 0.85rem;
         border: 1px solid #dce4ef;
         background: white;
         color: #60718b;
-        font-size: 0.68rem;
+        font-size: 0.64rem;
+        line-height: 1.15;
         font-weight: 600;
         text-align: center;
         width: 100%;
-        min-height: 74px;
+        min-height: 52px;
         cursor: pointer;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .step lucide-icon {
+        width: 1.15rem;
+        height: 1.15rem;
       }
       .step:hover {
         border-color: #93c5fd;
@@ -2089,6 +2094,18 @@ const ACCENT_PALETTE = [
         color: #0369a1;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
+      }
+      .a4-wrap {
+        width: 210mm;
+        min-width: 210mm;
+        box-sizing: border-box;
+        box-shadow: 0 10px 30px -6px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.06);
+        background: #ffffff;
+        border-radius: 4px;
+        transform-origin: top center;
+      }
+      .cv-stage-scroll {
+        -webkit-overflow-scrolling: touch;
       }
             .step-arrow-btn {
         border: none;
@@ -2509,27 +2526,35 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
 
   viewMode = signal<'edit' | 'preview'>('edit');
   isAutoFit = signal<boolean>(true);
-  previewStageWidth = signal<number>(400);
+  previewStageWidth = signal<number>(380);
+  previewStageHeight = signal<number>(500);
   windowWidth = signal<number>(typeof window !== 'undefined' ? window.innerWidth : 1200);
   windowHeight = signal<number>(typeof window !== 'undefined' ? window.innerHeight : 800);
   modalZoom = signal<number | null>(null);
 
-  calculatedScale = computed(() => {
-    if (!this.isAutoFit()) {
-      return this.zoom() * 0.48;
-    }
+  fitScale = computed(() => {
     const stageW = this.previewStageWidth();
-    if (!stageW || stageW <= 0) {
-      const winW = this.windowWidth();
-      if (winW >= 1280) return 0.48;
-      const padding = winW < 640 ? 32 : 48;
-      const avail = Math.max(280, winW - padding);
-      return Math.min(1.2, Math.max(0.3, avail / 793.7));
-    }
-    const availableWidth = Math.max(240, stageW - 16);
-    const scale = availableWidth / 793.7;
-    return Math.min(1.2, Math.max(0.3, Number(scale.toFixed(3))));
+    const stageH = this.previewStageHeight();
+
+    const availW = Math.max(180, (stageW || 380) - 16);
+    const availH = Math.max(220, (stageH || 500) - 16);
+
+    const scaleW = availW / 793.7;
+    const scaleH = availH / 1122.5;
+
+    // Fit both width and height so the entire A4 CV is visible without clipping
+    return Math.min(1.0, Math.max(0.2, Number(Math.min(scaleW, scaleH).toFixed(3))));
   });
+
+  calculatedScale = computed(() => {
+    const base = this.fitScale();
+    if (this.isAutoFit()) {
+      return base;
+    }
+    return Math.min(2.0, Math.max(0.2, Number((base * this.zoom()).toFixed(3))));
+  });
+
+  scalePercent = computed(() => Math.round(this.calculatedScale() * 100));
 
   modalFitScale = computed(() => {
     const winW = this.windowWidth();
@@ -2614,13 +2639,13 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isAutoFit.set(!this.isAutoFit());
     if (this.isAutoFit()) {
       this.zoom.set(1);
-      this.updateStageWidth();
     }
+    this.updateStageDimensions();
   }
 
   onPreviewModeEnter() {
     setTimeout(() => {
-      this.updateStageWidth();
+      this.updateStageDimensions();
     }, 60);
   }
 
@@ -2629,7 +2654,7 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
     if (typeof window !== 'undefined') {
       this.windowWidth.set(window.innerWidth);
       this.windowHeight.set(window.innerHeight);
-      this.updateStageWidth();
+      this.updateStageDimensions();
     }
   }
 
@@ -2640,13 +2665,20 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  updateStageWidth() {
+  updateStageDimensions() {
     if (this.previewStageEl?.nativeElement) {
-      const width = this.previewStageEl.nativeElement.clientWidth;
-      if (width > 0) {
-        this.previewStageWidth.set(width);
+      const el = this.previewStageEl.nativeElement;
+      if (el.clientWidth > 0) {
+        this.previewStageWidth.set(el.clientWidth);
+      }
+      if (el.clientHeight > 0) {
+        this.previewStageHeight.set(el.clientHeight);
       }
     }
+  }
+
+  updateStageWidth() {
+    this.updateStageDimensions();
   }
 
   ngAfterViewInit() {
@@ -2657,14 +2689,15 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
         this.previewResizeObserver = new ResizeObserver((entries) => {
           for (const entry of entries) {
             const cr = entry.contentRect;
-            if (cr && cr.width > 0) {
-              this.previewStageWidth.set(cr.width);
+            if (cr) {
+              if (cr.width > 0) this.previewStageWidth.set(cr.width);
+              if (cr.height > 0) this.previewStageHeight.set(cr.height);
             }
           }
         });
         this.previewResizeObserver.observe(this.previewStageEl.nativeElement);
       }
-      this.updateStageWidth();
+      this.updateStageDimensions();
     }
   }
 
@@ -3454,11 +3487,11 @@ export class MakeCvComponent implements OnInit, AfterViewInit, OnDestroy {
 
   zoomIn() {
     this.isAutoFit.set(false);
-    this.zoom.set(Math.min(2, +(this.zoom() + 0.1).toFixed(2)));
+    this.zoom.set(Math.min(2.5, +(this.zoom() + 0.15).toFixed(2)));
   }
   zoomOut() {
     this.isAutoFit.set(false);
-    this.zoom.set(Math.max(0.4, +(this.zoom() - 0.1).toFixed(2)));
+    this.zoom.set(Math.max(0.4, +(this.zoom() - 0.15).toFixed(2)));
   }
 
   buildContent() {

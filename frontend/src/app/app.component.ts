@@ -23,7 +23,7 @@ import gsap from 'gsap';
   styles: [`
     .app-shell-container{background:linear-gradient(150deg,#f8faff 0%,#eef3ff 45%,#f4f8ff 100%);position:relative}
     :host-context(.dark) .app-shell-container{background:linear-gradient(145deg,#0d1527 0%,#111b32 50%,#111a2c 100%)}
-    .page-content{overflow-x:hidden}
+    .page-content{overflow-x:clip}
     @media(max-width:1024px){.page-content{padding-bottom:calc(96px + env(safe-area-inset-bottom, 0px))}}
     @media(max-width:1024px){.page-content.no-bottom-nav{padding-bottom:calc(76px + env(safe-area-inset-bottom, 0px))}}
   `],
