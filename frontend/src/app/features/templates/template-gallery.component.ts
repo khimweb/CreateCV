@@ -1226,11 +1226,21 @@ interface CvTemplate {
 
       @media (max-width: 768px) {
         .gallery-page-container {
-          padding: 96px 16px 60px;
+          padding: 90px 12px 60px;
+        }
+        .gallery-header {
+          margin-bottom: 20px;
+        }
+        .gallery-title {
+          font-size: 1.75rem;
+        }
+        .gallery-subtitle {
+          font-size: 0.88rem;
         }
         .search-and-photo-row {
           flex-direction: column;
           align-items: stretch;
+          gap: 10px;
         }
         .search-box {
           flex: 1 1 auto;
@@ -1248,34 +1258,91 @@ interface CvTemplate {
           width: 100%;
           justify-content: center;
         }
-      }
-
-      @media (max-width: 640px) {
-        .gallery-page-container {
-          padding: 88px 14px 48px;
-        }
-        .gallery-header {
-          margin-bottom: 24px;
-        }
-        .gallery-title {
-          font-size: 1.95rem;
-        }
-        .gallery-subtitle {
-          font-size: 0.92rem;
-        }
-        .filter-toolbar {
-          padding: 14px 14px;
-          margin-bottom: 24px;
-          border-radius: 18px;
-        }
+        /* 2-column grid on tablet / large phone */
         .gallery-grid {
-          grid-template-columns: 1fr;
-          gap: 20px;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 14px;
         }
         .template-card-item {
-          max-width: 440px;
-          width: 100%;
-          margin: 0 auto;
+          padding: 10px;
+          border-radius: 16px;
+        }
+        .card-footer-wrap {
+          padding: 8px 4px 2px;
+          gap: 6px;
+        }
+        .template-name {
+          font-size: 0.82rem;
+        }
+        .mini-use-btn {
+          font-size: 0.68rem;
+          padding: 3px 8px;
+        }
+        .swatch {
+          width: 13px;
+          height: 13px;
+        }
+        .swatches-count, .format-badge {
+          font-size: 0.62rem;
+        }
+        .filter-toolbar {
+          padding: 12px 12px;
+          margin-bottom: 20px;
+          border-radius: 18px;
+          gap: 12px;
+        }
+        .chip-filter {
+          padding: 5px 10px;
+          font-size: 0.72rem;
+        }
+        .category-pill {
+          padding: 5px 10px;
+          font-size: 0.74rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .gallery-page-container {
+          padding: 86px 10px 44px;
+        }
+        /* Keep 2 columns on small phones */
+        .gallery-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+        }
+        .template-card-item {
+          padding: 8px;
+          border-radius: 14px;
+        }
+        .card-footer-wrap {
+          padding: 6px 3px 1px;
+          gap: 5px;
+        }
+        .template-name {
+          font-size: 0.76rem;
+          max-width: 68%;
+        }
+        .mini-use-btn {
+          font-size: 0.64rem;
+          padding: 3px 7px;
+          gap: 2px;
+        }
+        .swatches-and-meta {
+          gap: 4px;
+        }
+        .swatch {
+          width: 12px;
+          height: 12px;
+        }
+        .format-badge {
+          font-size: 0.58rem;
+          padding: 2px 5px;
+        }
+        .gallery-title {
+          font-size: 1.55rem;
+        }
+        .results-meta {
+          display: none;
         }
       }
 

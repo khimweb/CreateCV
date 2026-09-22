@@ -366,6 +366,123 @@ async function buildStudioPortrait({
 }
 
 /**
+ * Modern Face-ID Diffusion using Replicate (InstantID / PuLID)
+ * Generates photorealistic AI studio headshots while retaining the user's authentic facial identity
+ */
+async function generateFaceIdWithReplicate({
+  imageBase64,
+  outfitInfo,
+  bgInfo,
+}) {
+  const token = process.env.REPLICATE_API_TOKEN;
+  if (!token) {
+    throw new Error('REPLICATE_API_TOKEN is not configured');
+  }
+
+  const Replicate = require('replicate');
+  const replicate = new Replicate({ auth: token });
+
+  const prompt = `Professional 8k executive headshot photo of the person, ${outfitInfo.prompt}, ${bgInfo.prompt}, wearing tailored formal business attire, photorealistic, natural skin texture and pores, soft studio key lighting, sharp focus, 85mm portrait photography`;
+  const negativePrompt = `casual clothes, t-shirt, messy, bad anatomy, deformed eyes, bad teeth, cartoon, 3d, anime, illustration, blurry, artifacts, low resolution, bad lighting`;
+
+  console.log('[Replicate] Running Face-ID Diffusion model for outfit:', outfitInfo.name);
+
+  // Normalize image data URI
+  const imageUri = imageBase64.startsWith('data:')
+    ? imageBase64
+    : `data:image/jpeg;base64,${imageBase64}`;
+
+  // InstantID model on Replicate
+  const output = await replicate.run(
+    'zsxkib/instant-id:6af8583c704fdddd5739376f625d57cdcb76c4f24f44e829371ba0500aa3bcdc',
+    {
+      input: {
+        image: imageUri,
+        prompt: prompt,
+        negative_prompt: negativePrompt,
+        identity_strength: 0.82,
+        adapter_strength_ratio: 0.85,
+        num_inference_steps: 30,
+        guidance_scale: 5,
+      },
+    }
+  );
+
+  const resultUrl = Array.isArray(output) ? output[0] : output;
+  if (!resultUrl) {
+    throw new Error('Replicate did not return an image URL');
+  }
+
+  console.log('[Replicate] Successfully generated image:', resultUrl);
+
+  // Download image buffer and convert to base64 for instant client rendering
+  const resp = await fetch(resultUrl);
+  if (!resp.ok) {
+    throw new Error(`Failed to download generated image from Replicate CDN: ${resp.status}`);
+  }
+  const arrayBuffer = await resp.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  return `data:image/png;base64,${buffer.toString('base64')}`;
+}
+
+/**
+ * Modern Face-ID Diffusion using Fal.ai (FLUX-PuLID)
+ * Fastest inference speed with zero Cloudflare geo-blocking
+ */
+async function generateFaceIdWithFal({
+  imageBase64,
+  outfitInfo,
+  bgInfo,
+}) {
+  const falKey = process.env.FAL_KEY;
+  if (!falKey) {
+    throw new Error('FAL_KEY is not configured');
+  }
+
+  const prompt = `Professional 8k executive headshot photo of the person, ${outfitInfo.prompt}, ${bgInfo.prompt}, wearing tailored formal business attire, photorealistic, natural skin texture and pores, soft studio key lighting, sharp focus, 85mm portrait photography`;
+  const negativePrompt = `casual clothes, t-shirt, messy, bad anatomy, deformed eyes, bad teeth, cartoon, 3d, anime, illustration, blurry, artifacts, low resolution, bad lighting`;
+
+  const imageUri = imageBase64.startsWith('data:')
+    ? imageBase64
+    : `data:image/jpeg;base64,${imageBase64}`;
+
+  console.log('[Fal.ai] Running Face-ID FLUX-PuLID for outfit:', outfitInfo.name);
+
+  const resp = await fetch('https://fal.run/fal-ai/flux-pulid', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Key ${falKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      reference_image_url: imageUri,
+      prompt: prompt,
+      negative_prompt: negativePrompt,
+      id_weight: 0.85,
+      num_inference_steps: 28,
+    }),
+  });
+
+  if (!resp.ok) {
+    const errorText = await resp.text();
+    throw new Error(`Fal.ai error (${resp.status}): ${errorText}`);
+  }
+
+  const data = await resp.json();
+  const resultUrl = data.images?.[0]?.url;
+  if (!resultUrl) {
+    throw new Error('No image returned from Fal.ai');
+  }
+
+  console.log('[Fal.ai] Successfully generated image:', resultUrl);
+
+  const imgResp = await fetch(resultUrl);
+  const arrayBuffer = await imgResp.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  return `data:image/png;base64,${buffer.toString('base64')}`;
+}
+
+/**
  * Generate a professional portrait wearing a formal suit ("big shirt")
  */
 async function generateProfessionalPhoto({
@@ -406,6 +523,57 @@ async function generateProfessionalPhoto({
   }
 
   // --- Real User Uploaded Photo ---
+  // 1. Try Fal.ai FLUX-PuLID Face-ID Diffusion (if configured)
+  if (process.env.FAL_KEY && (process.env.IMAGE_AI_PROVIDER === 'fal' || !process.env.REPLICATE_API_TOKEN)) {
+    try {
+      console.log('[Image Editor] Attempting Fal.ai FLUX-PuLID Face-ID Diffusion...');
+      const aiImageUrl = await generateFaceIdWithFal({ imageBase64, outfitInfo, bgInfo });
+      return {
+        success: true,
+        provider: 'fal_flux_pulid',
+        mode: 'user_custom_photo',
+        imageUrl: aiImageUrl,
+        beforeUrl: imageBase64,
+        outfit: outfitInfo.name,
+        background: bgInfo.name,
+        bgHex: bgInfo.hex,
+        outfitId: outfitInfo.id,
+        transparentSuitUrl: outfitInfo.transparent,
+        message: 'Successfully generated AI photorealistic studio portrait with Fal.ai FLUX!',
+      };
+    } catch (falErr) {
+      console.warn('[Image Editor] Fal.ai generation failed:', falErr.message);
+    }
+  }
+
+  // 2. Try Replicate InstantID Face-ID Diffusion
+  if (process.env.REPLICATE_API_TOKEN && process.env.IMAGE_AI_PROVIDER !== 'sharp') {
+    try {
+      console.log('[Image Editor] Attempting Replicate Face-ID Diffusion...');
+      const aiImageUrl = await generateFaceIdWithReplicate({
+        imageBase64,
+        outfitInfo,
+        bgInfo,
+      });
+
+      return {
+        success: true,
+        provider: 'replicate_instant_id',
+        mode: 'user_custom_photo',
+        imageUrl: aiImageUrl,
+        beforeUrl: imageBase64,
+        outfit: outfitInfo.name,
+        background: bgInfo.name,
+        bgHex: bgInfo.hex,
+        outfitId: outfitInfo.id,
+        transparentSuitUrl: outfitInfo.transparent,
+        message: 'Successfully generated AI photorealistic studio portrait!',
+      };
+    } catch (replicateErr) {
+      console.warn('[Image Editor] Replicate Face-ID failed, falling back to studio composite:', replicateErr.message);
+    }
+  }
+
   const match = imageBase64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
   const mimeType = match ? match[1] : 'image/jpeg';
   const rawBase64 = match ? match[2] : imageBase64;

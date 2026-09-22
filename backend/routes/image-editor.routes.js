@@ -7,12 +7,15 @@ router.get('/presets', (req, res) => {
   try {
     const outfits = Object.values(imageEditorService.OUTFIT_MAP);
     const backgrounds = Object.values(imageEditorService.BACKGROUND_MAP);
-    const provider = process.env.IMAGE_AI_PROVIDER || (process.env.GEMINI_API_KEY ? 'gemini' : (process.env.REPLICATE_API_TOKEN ? 'replicate' : 'demo'));
+    const provider = process.env.REPLICATE_API_TOKEN
+      ? 'replicate_face_id'
+      : (process.env.IMAGE_AI_PROVIDER || (process.env.GEMINI_API_KEY ? 'gemini' : 'demo'));
 
     res.json({
       success: true,
       provider,
-      hasApiKey: !!(process.env.GEMINI_API_KEY || process.env.REPLICATE_API_TOKEN),
+      hasReplicateKey: !!process.env.REPLICATE_API_TOKEN,
+      hasApiKey: !!(process.env.REPLICATE_API_TOKEN || process.env.GEMINI_API_KEY),
       outfits,
       backgrounds,
     });

@@ -79,10 +79,10 @@ interface FaqItem {
           </div>
         </section>
 
-        <!-- PRIMARY DIRECT CONTACT CARDS (TELEGRAM & TIKTOK PROMINENT) -->
+        <!-- PRIMARY DIRECT CONTACT CARDS (TELEGRAM PERSONAL + TELEGRAM GROUP) -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- 1. TELEGRAM CARD (VIBRANT BLUE + OFFICIAL QR CODE) -->
-          <div class="relative group bg-gradient-to-br from-sky-500/10 via-blue-600/5 to-indigo-600/10 dark:from-sky-950/40 dark:via-slate-900 dark:to-blue-950/40 p-5 sm:p-8 rounded-3xl border border-sky-200 dark:border-sky-800/60 shadow-xl shadow-sky-500/5 hover:shadow-sky-500/15 transition-all duration-300 flex flex-col justify-between overflow-hidden">
+          <!-- 1. TELEGRAM PERSONAL ACCOUNT @cqprofessional -->
+          <div class="relative group bg-gradient-to-br from-sky-500/10 via-blue-600/5 to-indigo-600/10 dark:from-sky-950/40 dark:via-slate-900 dark:to-blue-950/40 p-5 sm:p-7 rounded-3xl border border-sky-200 dark:border-sky-800/60 shadow-xl shadow-sky-500/5 hover:shadow-sky-500/15 transition-all duration-300 flex flex-col justify-between overflow-hidden">
             <div class="absolute -top-12 -right-12 w-40 h-40 bg-sky-500/20 rounded-full blur-2xl group-hover:scale-125 transition duration-500 pointer-events-none"></div>
 
             <div class="space-y-4 relative">
@@ -91,110 +91,141 @@ interface FaqItem {
                   <lucide-icon [img]="Send" class="w-7 h-7 -translate-x-0.5 translate-y-0.5" />
                 </div>
                 <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 text-[11px] font-black uppercase tracking-wider">
-                  {{ i18n.t('helpTgBadge') }}
+                  ✦ Official Account
                 </span>
               </div>
 
               <div class="space-y-1">
-                <div class="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider">{{ i18n.t('helpTgEyebrow') }}</div>
-                <h3 class="text-2xl font-black text-slate-900 dark:text-white">
-                  {{ i18n.t('helpTgTitle') }}
+                <div class="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider">Direct Support</div>
+                <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                  CQ Professional
                 </h3>
               </div>
 
               <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                {{ i18n.t('helpTgDesc1') }} <strong>Phorn Sokhim</strong> (&#64;phornsokkhim) {{ i18n.t('helpTgDesc2') }}
+                Message <strong>Phorn Sokhim</strong> directly on Telegram for instant personal CV support and consultations.
               </p>
 
-              <!-- OFFICIAL TELEGRAM QR CODE SHOWCASE -->
+              <!-- QR Code showcase -->
               <div class="p-4 bg-white/90 dark:bg-slate-800/90 rounded-2xl border border-sky-200 dark:border-sky-800/80 shadow-sm flex flex-col sm:flex-row items-center gap-4">
-                <div class="relative group/qr shrink-0 cursor-pointer" (click)="showQrModal.set(true)">
+                <div class="relative shrink-0">
                   <img
-                    src="/assets/telegram-qr-phornsokkhim.png"
-                    alt="Official Telegram QR Code @phornsokkhim"
-                    class="w-24 sm:w-32 h-24 sm:h-32 rounded-xl object-contain bg-white p-1 border border-slate-200 dark:border-slate-700 shadow hover:scale-105 transition-transform duration-200"
+                    src="/assets/telegram-qr-cqprofessional.png"
+                    alt="Telegram QR Code @cqprofessional"
+                    class="w-24 sm:w-28 h-24 sm:h-28 rounded-xl object-contain bg-white p-1 border border-slate-200 dark:border-slate-700 shadow"
                   />
-                  <div class="absolute bottom-1 right-1 bg-sky-600 text-white p-1 rounded-lg text-[10px] font-bold flex items-center gap-0.5 shadow">
-                    <lucide-icon [img]="Search" class="w-2.5 h-2.5" />
-                  </div>
                 </div>
-
-                <div class="space-y-1.5 text-center sm:text-left flex-1">
-                  <div class="flex items-center justify-center sm:justify-start gap-1.5">
-                    <span class="px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 text-[10px] font-black uppercase tracking-wider">
-                      {{ i18n.t('helpTgOfficialQr') }}
-                    </span>
-                    <span class="text-emerald-600 dark:text-emerald-400 text-[11px] font-bold">{{ i18n.t('helpTgActiveNow') }}</span>
-                  </div>
-                  <div class="text-sm font-black text-slate-900 dark:text-white">
-                    &#64;phornsokkhim
-                  </div>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 leading-snug">
-                    {{ i18n.t('helpTgScanHint') }}
-                  </p>
-                  <button
-                    type="button"
-                    (click)="showQrModal.set(true)"
-                    class="inline-flex items-center gap-1 text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline pt-0.5 cursor-pointer"
-                  >
-                    <span>{{ i18n.t('helpTgZoomQr') }}</span>
-                    <lucide-icon [img]="ArrowUpRight" class="w-3 h-3" />
-                  </button>
+                <div class="space-y-1.5 text-center sm:text-left flex-1 min-w-0">
+                  <span class="px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 text-[10px] font-black uppercase tracking-wider">Official QR Code</span>
+                  <div class="text-base font-black text-slate-900 dark:text-white">&#64;cqprofessional</div>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 leading-snug">Scan the QR code to open Telegram directly. Active now!</p>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400">📱 +855 76 491 0220</div>
                 </div>
               </div>
 
-              <!-- Channel & Bot Indicators -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div class="p-2.5 bg-white/70 dark:bg-slate-800/70 rounded-xl border border-sky-100 dark:border-sky-900/40 text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between gap-2 min-w-0">
-                  <span class="truncate min-w-0">{{ i18n.t('helpTgChannel') }}: <strong>&#64;cvresumeonline</strong></span>
-                  <span class="text-sky-600 dark:text-sky-400 font-bold text-[10px] shrink-0">📣 Channel</span>
-                </div>
-                <div class="p-2.5 bg-white/70 dark:bg-slate-800/70 rounded-xl border border-sky-100 dark:border-sky-900/40 text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between gap-2 min-w-0">
-                  <span class="truncate min-w-0">{{ i18n.t('helpTgTicketBot') }}: <strong>&#64;cqticketproblemreport_bot</strong></span>
-                  <span class="text-emerald-600 dark:text-emerald-400 font-bold text-[10px] shrink-0">🤖 Bot</span>
-                </div>
+              <!-- Channel indicator -->
+              <div class="p-2.5 bg-white/70 dark:bg-slate-800/70 rounded-xl border border-sky-100 dark:border-sky-900/40 text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between gap-2">
+                <span class="truncate min-w-0">Also join: <strong>&#64;cvresumecqprofessional</strong></span>
+                <span class="text-sky-600 dark:text-sky-400 font-bold text-[10px] shrink-0">📣 Group</span>
               </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="pt-6 relative space-y-2">
+            <!-- Action buttons -->
+            <div class="pt-5 relative space-y-2">
               <a
-                href="https://t.me/phornsokkhim"
+                href="https://t.me/cqprofessional"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold text-sm shadow-lg shadow-sky-500/25 transition flex items-center justify-center gap-2 active:scale-[0.99]"
               >
                 <lucide-icon [img]="Send" class="w-4 h-4" />
-                <span>{{ i18n.t('helpTgBtnMessage') }}</span>
+                <span>Message &#64;cqprofessional</span>
                 <lucide-icon [img]="ArrowUpRight" class="w-4 h-4" />
               </a>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <a
-                  href="https://t.me/cvresumeonline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="py-2.5 px-3 rounded-xl bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-xs transition flex items-center justify-center gap-1.5"
-                >
-                  <span>{{ i18n.t('helpTgBtnChannel') }}</span>
-                  <lucide-icon [img]="ExternalLink" class="w-3 h-3 text-sky-500" />
-                </a>
-
-                <a
-                  href="https://t.me/cqticketproblemreport_bot"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="py-2.5 px-3 rounded-xl bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 font-semibold text-xs transition flex items-center justify-center gap-1.5"
-                >
-                  <span>{{ i18n.t('helpTgBtnBot') }}</span>
-                  <lucide-icon [img]="ArrowUpRight" class="w-3 h-3" />
-                </a>
-              </div>
+              <a
+                href="https://t.me/phornsokkhim"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="w-full py-2.5 px-4 rounded-xl bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-xs transition flex items-center justify-center gap-1.5"
+              >
+                <span>Also reach &#64;phornsokkhim</span>
+                <lucide-icon [img]="ExternalLink" class="w-3 h-3 text-sky-500" />
+              </a>
             </div>
           </div>
 
-          <!-- 2. TIKTOK CARD (SLEEK MODERN DARK / NEON ACCENTS) -->
-          <div class="relative group bg-gradient-to-br from-rose-500/10 via-slate-900/5 to-cyan-500/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 p-5 sm:p-8 rounded-3xl border border-slate-300/80 dark:border-slate-800 shadow-xl shadow-slate-900/5 hover:shadow-slate-900/15 transition-all duration-300 flex flex-col justify-between overflow-hidden">
+          <!-- 2. TELEGRAM GROUP @cvresumecqprofessional (CQ-Professional Hiring Career) -->
+          <div class="relative group bg-gradient-to-br from-violet-500/10 via-purple-600/5 to-indigo-600/10 dark:from-violet-950/40 dark:via-slate-900 dark:to-purple-950/40 p-5 sm:p-7 rounded-3xl border border-violet-200 dark:border-violet-800/60 shadow-xl shadow-violet-500/5 hover:shadow-violet-500/15 transition-all duration-300 flex flex-col justify-between overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-40 h-40 bg-violet-500/20 rounded-full blur-2xl group-hover:scale-125 transition duration-500 pointer-events-none"></div>
+
+            <div class="space-y-4 relative">
+              <div class="flex items-center justify-between">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/30">
+                  <lucide-icon [img]="Send" class="w-7 h-7 -translate-x-0.5 translate-y-0.5" />
+                </div>
+                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-900/60 text-violet-700 dark:text-violet-300 text-[11px] font-black uppercase tracking-wider">
+                  📣 Official Group
+                </span>
+              </div>
+
+              <div class="space-y-1">
+                <div class="text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider">CQ-Professional Hiring Career</div>
+                <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                  Career Community
+                </h3>
+              </div>
+
+              <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                Join our official Telegram group for job opportunities, CV tips, hiring announcements, and career advice from CQ-Professional.
+              </p>
+
+              <!-- QR Code showcase -->
+              <div class="p-4 bg-white/90 dark:bg-slate-800/90 rounded-2xl border border-violet-200 dark:border-violet-800/80 shadow-sm flex flex-col sm:flex-row items-center gap-4">
+                <div class="relative shrink-0">
+                  <img
+                    src="/assets/telegram-qr-cvresumecqprofessional.png"
+                    alt="Telegram Group QR Code @cvresumecqprofessional"
+                    class="w-24 sm:w-28 h-24 sm:h-28 rounded-xl object-contain bg-white p-1 border border-slate-200 dark:border-slate-700 shadow"
+                  />
+                </div>
+                <div class="space-y-1.5 text-center sm:text-left flex-1 min-w-0">
+                  <span class="px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/60 text-violet-700 dark:text-violet-300 text-[10px] font-black uppercase tracking-wider">Official Group QR</span>
+                  <div class="text-base font-black text-slate-900 dark:text-white">&#64;cvresumecqprofessional</div>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 leading-snug">Scan to join the official CQ-Professional Hiring Career group.</p>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400">👥 50+ members · Active daily</div>
+                </div>
+              </div>
+
+              <!-- Website indicator -->
+              <div class="p-2.5 bg-white/70 dark:bg-slate-800/70 rounded-xl border border-violet-100 dark:border-violet-900/40 text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between gap-2">
+                <span class="truncate min-w-0">Website: <strong>cv-builder.store</strong></span>
+                <span class="text-violet-600 dark:text-violet-400 font-bold text-[10px] shrink-0">✅ Verified</span>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="pt-5 relative space-y-2">
+              <a
+                href="https://t.me/cvresumecqprofessional"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-bold text-sm shadow-lg shadow-violet-500/25 transition flex items-center justify-center gap-2 active:scale-[0.99]"
+              >
+                <lucide-icon [img]="Send" class="w-4 h-4" />
+                <span>Join &#64;cvresumecqprofessional</span>
+                <lucide-icon [img]="ArrowUpRight" class="w-4 h-4" />
+              </a>
+              <div class="text-center">
+                <span class="text-xs text-slate-500 dark:text-slate-400">t.me/cvresumecqprofessional · Free to join</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TIKTOK + SECONDARY CONTACT CARDS -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- TikTok Card -->
+          <div class="relative group bg-gradient-to-br from-rose-500/10 via-slate-900/5 to-cyan-500/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 p-5 sm:p-7 rounded-3xl border border-slate-300/80 dark:border-slate-800 shadow-xl shadow-slate-900/5 hover:shadow-slate-900/15 transition-all duration-300 flex flex-col justify-between overflow-hidden">
             <div class="absolute -top-12 -right-12 w-40 h-40 bg-rose-500/15 rounded-full blur-2xl group-hover:scale-125 transition duration-500 pointer-events-none"></div>
 
             <div class="space-y-4 relative">
@@ -209,7 +240,7 @@ interface FaqItem {
 
               <div class="space-y-1">
                 <div class="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">{{ i18n.t('helpTiktokEyebrow') }}</div>
-                <h3 class="text-2xl font-black text-slate-900 dark:text-white">
+                <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
                   {{ i18n.t('helpTiktokTitle') }}
                 </h3>
               </div>
@@ -224,7 +255,7 @@ interface FaqItem {
               </div>
             </div>
 
-            <div class="pt-6 relative space-y-2.5">
+            <div class="pt-5 relative space-y-2.5">
               <a
                 href="https://www.tiktok.com/@cqprofessional1111"
                 target="_blank"
@@ -234,7 +265,6 @@ interface FaqItem {
                 <span>{{ i18n.t('helpTiktokBtn') }}</span>
                 <lucide-icon [img]="ArrowUpRight" class="w-4 h-4 text-cyan-400" />
               </a>
-
               <div class="text-center">
                 <span class="text-xs text-slate-500 dark:text-slate-400">
                   {{ i18n.t('helpTiktokHint') }}
@@ -242,72 +272,39 @@ interface FaqItem {
               </div>
             </div>
           </div>
-        </section>
 
-        <!-- SECONDARY DIRECT HOTLINES (PHONE, EMAIL, BILLING) -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- Hotline Phone -->
-          <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
-            <div class="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase">
-              <lucide-icon [img]="Phone" class="w-4 h-4" />
-              <span>{{ i18n.t('helpHotlinePhone') }}</span>
+          <!-- Quick Contact Info Card -->
+          <div class="flex flex-col gap-4">
+            <!-- Phone -->
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2 flex-1">
+              <div class="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase">
+                <lucide-icon [img]="Phone" class="w-4 h-4" />
+                <span>{{ i18n.t('helpHotlinePhone') }}</span>
+              </div>
+              <div class="text-lg font-black text-slate-900 dark:text-white">096 491 0220</div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">{{ i18n.t('helpHotlinePhoneHours') }}</p>
+              <a href="tel:+855964910220" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 pt-1">
+                <span>{{ i18n.t('helpHotlineCallNow') }}</span>
+                <lucide-icon [img]="ArrowUpRight" class="w-3.5 h-3.5" />
+              </a>
             </div>
-            <div class="text-lg font-black text-slate-900 dark:text-white">
-              096 491 0220
+
+            <!-- Email -->
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2 flex-1">
+              <div class="flex items-center gap-2 text-xs font-bold text-blue-600 dark:text-blue-400 uppercase">
+                <lucide-icon [img]="Mail" class="w-4 h-4" />
+                <span>{{ i18n.t('helpHotlineEmail') }}</span>
+              </div>
+              <div class="text-sm font-black text-slate-900 dark:text-white break-all">sokkhim519&#64;gmail.com</div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">{{ i18n.t('helpHotlineEmailDesc') }}</p>
+              <a href="mailto:sokkhim519@gmail.com" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 pt-1">
+                <span>{{ i18n.t('helpHotlineSendEmail') }}</span>
+                <lucide-icon [img]="ArrowUpRight" class="w-3.5 h-3.5" />
+              </a>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">
-              {{ i18n.t('helpHotlinePhoneHours') }}
-            </p>
-            <a
-              href="tel:+855964910220"
-              class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 pt-1"
-            >
-              <span>{{ i18n.t('helpHotlineCallNow') }}</span>
-              <lucide-icon [img]="ArrowUpRight" class="w-3.5 h-3.5" />
-            </a>
           </div>
 
-          <!-- Email Support -->
-          <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
-            <div class="flex items-center gap-2 text-xs font-bold text-blue-600 dark:text-blue-400 uppercase">
-              <lucide-icon [img]="Mail" class="w-4 h-4" />
-              <span>{{ i18n.t('helpHotlineEmail') }}</span>
-            </div>
-            <div class="text-sm font-black text-slate-900 dark:text-white truncate">
-              sokkhim519&#64;gmail.com
-            </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">
-              {{ i18n.t('helpHotlineEmailDesc') }}
-            </p>
-            <a
-              href="mailto:sokkhim519@gmail.com"
-              class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 pt-1"
-            >
-              <span>{{ i18n.t('helpHotlineSendEmail') }}</span>
-              <lucide-icon [img]="ArrowUpRight" class="w-3.5 h-3.5" />
-            </a>
-          </div>
 
-          <!-- Billing & Payments Page -->
-          <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
-            <div class="flex items-center gap-2 text-xs font-bold text-purple-600 dark:text-purple-400 uppercase">
-              <lucide-icon [img]="CheckCircle2" class="w-4 h-4" />
-              <span>{{ i18n.t('helpHotlineBilling') }}</span>
-            </div>
-            <div class="text-sm font-black text-slate-900 dark:text-white">
-              {{ i18n.t('helpHotlineBillingTitle') }}
-            </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">
-              {{ i18n.t('helpHotlineBillingDesc') }}
-            </p>
-            <a
-              routerLink="/payments"
-              class="inline-flex items-center gap-1.5 text-xs font-bold text-purple-600 hover:text-purple-700 dark:text-purple-400 pt-1"
-            >
-              <span>{{ i18n.t('helpHotlineGoPayments') }}</span>
-              <lucide-icon [img]="ArrowUpRight" class="w-3.5 h-3.5" />
-            </a>
-          </div>
         </section>
 
         <!-- FREQUENTLY ASKED QUESTIONS (FAQ) -->
@@ -317,6 +314,7 @@ interface FaqItem {
               <lucide-icon [img]="HelpCircle" class="w-4 h-4" />
               <span>{{ i18n.t('helpFaqEyebrow') }}</span>
             </div>
+
             <h2 class="text-2xl font-black text-slate-900 dark:text-white">
               {{ i18n.t('helpFaqTitle') }}
             </h2>
