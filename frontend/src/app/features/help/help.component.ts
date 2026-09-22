@@ -751,9 +751,9 @@ interface FaqItem {
             {{ i18n.t('helpFooterText') }}
           </p>
           <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-semibold">
-            <a href="https://t.me/phornsokkhim" target="_blank" class="text-sky-600 hover:underline">Telegram: &#64;phornsokkhim</a>
+            <a href="https://t.me/cqprofessional" target="_blank" class="text-sky-600 hover:underline">&#64;cqprofessional</a>
             <span class="hidden sm:inline">•</span>
-            <a href="https://t.me/cvresumeonline" target="_blank" class="text-blue-600 hover:underline">Channel: &#64;cvresumeonline</a>
+            <a href="https://t.me/cvresumecqprofessional" target="_blank" class="text-violet-600 hover:underline">&#64;cvresumecqprofessional</a>
             <span class="hidden sm:inline">•</span>
             <a href="https://t.me/cqticketproblemreport_bot" target="_blank" class="text-indigo-600 hover:underline">Bot: &#64;cqticketproblemreport_bot</a>
             <span class="hidden sm:inline">•</span>
