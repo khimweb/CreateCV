@@ -1,0 +1,25 @@
+# robots.txt for CQ-Professional (https://cv-builder.store)
+User-agent: *
+Allow: /
+Allow: /templates
+Allow: /about
+Allow: /contact
+Allow: /pricing
+Allow: /help
+Allow: /edit-image
+
+# Disallow user private data, auth sessions, and admin routes
+Disallow: /admin
+Disallow: /admin/
+Disallow: /my-cv
+Disallow: /my-cv/
+Disallow: /make-cv
+Disallow: /make-cv/
+Disallow: /settings
+Disallow: /settings/
+Disallow: /payments
+Disallow: /payments/
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://cv-builder.store/sitemap.xml

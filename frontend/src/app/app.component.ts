@@ -5,6 +5,7 @@ import { MobileBottomNavComponent } from './shared/components/mobile-bottom-nav/
 import { SiteFooterComponent } from './shared/components/site-footer/site-footer.component';
 import { ToastComponent } from './shared/components/toast/toast.component';
 import { AuthService } from './core/services/auth.service';
+import { SeoService } from './core/services/seo.service';
 import { filter } from 'rxjs/operators';
 import gsap from 'gsap';
 
@@ -30,6 +31,7 @@ import gsap from 'gsap';
 })
 export class AppComponent {
   private el = inject(ElementRef);
+  private seo = inject(SeoService);
   private currentTl: gsap.core.Timeline | null = null;
 
   constructor(private router: Router, private auth: AuthService) {
@@ -38,6 +40,13 @@ export class AppComponent {
     if (this.auth.isLoggedIn()) {
       this.auth.refreshCurrentUser().subscribe({ error: () => {} });
     }
+
+    // Dynamic SEO update on route navigation
+    this.router.events.pipe(
+      filter((e: RouterEvent): e is NavigationEnd => e instanceof NavigationEnd)
+    ).subscribe((e) => {
+      this.seo.updateForUrl(e.urlAfterRedirects || e.url);
+    });
 
     // Ensure page-content is always 100% visible and un-dimmed across all route transitions
     this.router.events.pipe(
