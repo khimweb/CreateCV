@@ -56,4 +56,20 @@ async function requireApproved(req, res, next) {
   }
 }
 
-module.exports = { requireAuth, requireAdmin, requireApproved };
+async function requireAccountantOrAdmin(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'UNAUTHENTICATED' });
+  }
+  try {
+    const user = await db.users.findById(req.user.id);
+    if (!user || (user.role !== 'accountant' && user.role !== 'admin')) {
+      return res.status(403).json({ error: 'FORBIDDEN', message: 'Accountant or Admin access only.' });
+    }
+    req.user.role = user.role;
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { requireAuth, requireAdmin, requireApproved, requireAccountantOrAdmin };

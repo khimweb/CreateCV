@@ -208,7 +208,7 @@ export class AppComponent {
       document.documentElement.classList.remove('dark');
     }
   }
-  isHiddenNavRoute(){const url=this.router.url.split('?')[0];return url==='/login'||url==='/register'||url.startsWith('/admin');}
+  isHiddenNavRoute(){const url=this.router.url.split('?')[0];return url==='/login'||url==='/register'||url==='/forgot-password'||url.startsWith('/admin')||url.startsWith('/accountant');}
   isBottomNavHidden(){return this.isHiddenNavRoute();}
 }
 

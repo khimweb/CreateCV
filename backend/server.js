@@ -82,6 +82,7 @@ const cvsRoutes = require('./routes/cvs.routes');
 const ordersRoutes = require('./routes/orders.routes');
 const contactRoutes = require('./routes/contact.routes');
 const adminRoutes = require('./routes/admin.routes');
+const accountantRoutes = require('./routes/accountant.routes');
 const imageEditorRoutes = require('./routes/image-editor.routes');
 
 const app = express();
@@ -130,6 +131,7 @@ app.use('/api/v1/cvs', cvsRoutes);
 app.use('/api/v1/orders', ordersRoutes);
 app.use('/api/v1/contact', contactLimiter, contactRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/accountant', accountantRoutes);
 app.use('/api/v1/image-editor', imageEditorRoutes);
 
 // Public pricing route for homepage and app

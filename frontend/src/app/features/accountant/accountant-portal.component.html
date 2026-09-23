@@ -1,0 +1,2912 @@
+<div class="accountant-root" [class.dark]="!isLight()" [class.light]="isLight()">
+  <!-- ═════════════════════════════════════════════════════════════════════
+       SMOOTH FLUID ANIMATED BACKGROUND (iOS 26 LIQUID MESH ORBS)
+  ═════════════════════════════════════════════════════════════════════ -->
+  <div class="cold-ambient-bg" aria-hidden="true">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+    <div class="glow-orb orb-4"></div>
+    <div class="aurora-flow-mesh"></div>
+    <div class="glow-grid-overlay"></div>
+    <div class="specular-reflection-sheen"></div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════════
+       iOS 26 DYNAMIC ISLAND FLOATING ALERT (MIRROR FLOAT & DROP SHADOW)
+  ═════════════════════════════════════════════════════════════════════ -->
+  <aside
+    class="dynamic-island-container"
+    *ngIf="dynamicIsland().active"
+    [class.active]="dynamicIsland().active"
+    [class.island-success]="dynamicIsland().type === 'success'"
+    [class.island-danger]="dynamicIsland().type === 'danger'"
+    [class.island-info]="dynamicIsland().type === 'info'"
+    (click)="closeDynamicIsland()"
+    role="status"
+    aria-live="polite"
+  >
+    <div class="dynamic-island-pill mirror-card">
+      <div class="island-icon-badge">
+        <span *ngIf="dynamicIsland().type === 'success'">✓</span>
+        <span *ngIf="dynamicIsland().type === 'danger'">✕</span>
+        <span *ngIf="dynamicIsland().type === 'info'">ℹ</span>
+      </div>
+      <div class="island-content">
+        <span class="island-title">{{ dynamicIsland().title }}</span>
+        <span class="island-subtitle">{{ dynamicIsland().subtitle }}</span>
+      </div>
+      <button type="button" class="btn-island-close" (click)="closeDynamicIsland(); $event.stopPropagation()">✕</button>
+    </div>
+  </aside>
+
+  <div class="accountant-layout">
+    <!-- ═════════════════════════════════════════════════════════════════════
+         HEADER NAVIGATION (ICONLESS, COLD MODERN, SMOOTH HOVER & CLICK)
+    ═════════════════════════════════════════════════════════════════════ -->
+    <header class="accountant-nav-header mirror-card">
+      <div class="nav-inner">
+        <!-- Brand / Identity -->
+        <div class="brand-group" (click)="setTab('home')">
+          <div class="brand-badge mirror-float">
+            <span class="brand-monogram">CQ</span>
+          </div>
+          <div class="brand-meta">
+            <span class="brand-title">CQ FINANCE</span>
+            <span class="brand-subtitle">ACCOUNTING ENGINE</span>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation Links (Iconless, Clean Modern Typography) -->
+        <nav class="nav-menu desktop-only-nav" aria-label="Accountant Primary Navigation">
+          <button
+            type="button"
+            class="nav-item-btn mirror-pill"
+            [class.active]="currentTab() === 'home'"
+            (click)="setTab('home')"
+          >
+            <span>{{ lang() === 'kh' ? 'ផ្ទាំងដើម' : 'Home' }}</span>
+            <span class="active-indicator" *ngIf="currentTab() === 'home'"></span>
+          </button>
+
+          <button
+            type="button"
+            class="nav-item-btn mirror-pill"
+            [class.active]="currentTab() === 'analys'"
+            (click)="setTab('analys')"
+          >
+            <span>{{ lang() === 'kh' ? 'ការវិភាគ' : 'Analys' }}</span>
+            <span class="active-indicator" *ngIf="currentTab() === 'analys'"></span>
+          </button>
+
+          <button
+            type="button"
+            class="nav-item-btn mirror-pill"
+            [class.active]="currentTab() === 'calculate'"
+            (click)="setTab('calculate')"
+          >
+            <span>{{ lang() === 'kh' ? 'គណនា' : 'Calculate' }}</span>
+            <span class="active-indicator" *ngIf="currentTab() === 'calculate'"></span>
+          </button>
+
+          <button
+            type="button"
+            class="nav-item-btn mirror-pill"
+            [class.active]="currentTab() === 'report'"
+            (click)="setTab('report')"
+          >
+            <span>{{ lang() === 'kh' ? 'របាយការណ៍' : 'Report' }}</span>
+            <span class="active-indicator" *ngIf="currentTab() === 'report'"></span>
+          </button>
+
+          <!-- More Dropdown (Iconless) -->
+          <div class="more-dropdown-container">
+            <button
+              type="button"
+              class="nav-item-btn more-btn mirror-pill"
+              [class.active]="currentTab() === 'contact' || currentTab() === 'about' || currentTab() === 'help'"
+              (click)="toggleMoreDropdown($event)"
+            >
+              <span>{{ lang() === 'kh' ? 'បន្ថែម' : 'More' }}</span>
+              <span class="dropdown-chevron" [class.rotated]="isMoreOpen()">▾</span>
+              <span class="active-indicator" *ngIf="currentTab() === 'contact' || currentTab() === 'about' || currentTab() === 'help'"></span>
+            </button>
+
+            <!-- Dropdown Menu (No icons, smooth sliding fade) -->
+            <div class="dropdown-menu-pane mirror-card" *ngIf="isMoreOpen()">
+              <button
+                type="button"
+                class="dropdown-entry"
+                [class.selected]="currentTab() === 'contact'"
+                (click)="selectSubTab('contact')"
+              >
+                <span>{{ lang() === 'kh' ? 'ទំនាក់ទំនង' : 'Contact' }}</span>
+              </button>
+              <button
+                type="button"
+                class="dropdown-entry"
+                [class.selected]="currentTab() === 'about'"
+                (click)="selectSubTab('about')"
+              >
+                <span>{{ lang() === 'kh' ? 'អំពីយើង' : 'About' }}</span>
+              </button>
+              <button
+                type="button"
+                class="dropdown-entry"
+                [class.selected]="currentTab() === 'help'"
+                (click)="selectSubTab('help')"
+              >
+                <span>{{ lang() === 'kh' ? 'ជំនួយ & ណែនាំ' : 'Help' }}</span>
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <!-- Right Quick Actions & Control Pills -->
+        <div class="header-right-controls">
+          <!-- + Add Money / - Deduct Money Quick Actions -->
+          <div class="ledger-quick-btns">
+            <button type="button" class="btn-quick-action btn-add-money mirror-btn" (click)="openAddMoneyModal('income')" title="Add Money (+)">
+              <span class="btn-symbol">+</span>
+              <span class="btn-label-desktop">{{ lang() === 'kh' ? 'បញ្ចូលប្រាក់' : 'Add Money' }}</span>
+            </button>
+            <button type="button" class="btn-quick-action btn-deduct-money mirror-btn" (click)="openAddMoneyModal('expense')" title="Deduct Money (-)">
+              <span class="btn-symbol">-</span>
+              <span class="btn-label-desktop">{{ lang() === 'kh' ? 'ដកប្រាក់' : 'Deduct Money' }}</span>
+            </button>
+          </div>
+
+          <!-- Language Toggle Pill -->
+          <div class="control-pill-group mirror-pill">
+            <button
+              type="button"
+              class="lang-pill-btn"
+              [class.active]="lang() === 'kh'"
+              (click)="switchLanguage('kh')"
+              title="ភាសាខ្មែរ"
+            >
+              KH
+            </button>
+            <span class="divider-slash">|</span>
+            <button
+              type="button"
+              class="lang-pill-btn"
+              [class.active]="lang() === 'en'"
+              (click)="switchLanguage('en')"
+              title="English"
+            >
+              EN
+            </button>
+          </div>
+
+          <!-- Theme Toggle Pill -->
+          <button
+            type="button"
+            class="theme-pill-btn mirror-pill"
+            (click)="toggleTheme()"
+            [title]="isLight() ? 'Switch to Dark Mode' : 'Switch to Light Mode'"
+          >
+            <span *ngIf="isLight()">☀️ Light</span>
+            <span *ngIf="!isLight()">🌙 Dark</span>
+          </button>
+
+          <!-- Accountant Identity Badge & Logout (Desktop) -->
+          <div class="profile-accountant-box desktop-only-flex">
+            <div class="accountant-chip">
+              <span class="chip-dot"></span>
+              <span class="chip-name">{{ currentUser()?.fullName || 'Senior Accountant' }}</span>
+              <span class="chip-role">ACCOUNTANT</span>
+            </div>
+            <button
+              type="button"
+              class="btn-logout-pill mirror-pill"
+              (click)="handleLogout()"
+              title="Sign Out"
+            >
+              {{ lang() === 'kh' ? 'ចាកចេញ' : 'Sign Out' }}
+            </button>
+          </div>
+
+          <!-- Mobile Hamburger Menu Button -->
+          <button
+            type="button"
+            class="mobile-menu-trigger mirror-pill mobile-only-btn"
+            (click)="toggleMobileMenu(); $event.stopPropagation()"
+            title="Menu"
+          >
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Quick Drawer Dropdown -->
+      <div class="mobile-drawer-sheet mirror-card" *ngIf="mobileMenuOpen()" (click)="$event.stopPropagation()">
+        <div class="drawer-user-info">
+          <span class="chip-dot"></span>
+          <div class="drawer-user-meta">
+            <strong>{{ currentUser()?.fullName || 'Senior Accountant' }}</strong>
+            <span class="text-xs text-muted">{{ currentUser()?.email }}</span>
+          </div>
+          <span class="chip-role">ACCOUNTANT</span>
+        </div>
+        <div class="drawer-divider"></div>
+        <div class="drawer-sublinks">
+          <button type="button" class="drawer-link-btn" (click)="selectSubTab('contact'); mobileMenuOpen.set(false)">
+            {{ lang() === 'kh' ? 'ទំនាក់ទំនងផ្នែកគណនេយ្យ (Contact)' : 'Accounting Contact' }}
+          </button>
+          <button type="button" class="drawer-link-btn" (click)="selectSubTab('about'); mobileMenuOpen.set(false)">
+            {{ lang() === 'kh' ? 'អំពីប្រព័ន្ធហិរញ្ញវត្ថុ (About)' : 'About CQ Finance' }}
+          </button>
+          <button type="button" class="drawer-link-btn" (click)="selectSubTab('help'); mobileMenuOpen.set(false)">
+            {{ lang() === 'kh' ? 'ជំនួយ & ណែនាំ (Help)' : 'Accounting Help & FAQ' }}
+          </button>
+        </div>
+        <div class="drawer-divider"></div>
+        <button type="button" class="btn-drawer-logout mirror-btn" (click)="handleLogout()">
+          {{ lang() === 'kh' ? 'ចាកចេញពីគណនី (Sign Out)' : 'Sign Out' }}
+        </button>
+      </div>
+    </header>
+
+    <!-- ═════════════════════════════════════════════════════════════════════
+         MAIN CONTENT AREA
+    ═════════════════════════════════════════════════════════════════════ -->
+    <main class="accountant-main">
+      <!-- ═══════════════════════════════════════════════════════════════════
+           TAB 1: HOME (FINANCIAL DASHBOARD & LIVE TRANSACTION LEDGER)
+      ═══════════════════════════════════════════════════════════════════ -->
+      <section class="tab-pane animate-fade" *ngIf="currentTab() === 'home'">
+        <!-- Hero Banner: Today's Snapshot with 3D Vault Sticker -->
+        <div class="today-banner mirror-card mirror-float">
+          <div class="today-info">
+            <span class="today-badge">LIVE LEDGER</span>
+            <h1 class="today-title">
+              {{ lang() === 'kh' ? 'ផ្ទាំងគ្រប់គ្រងហិរញ្ញវត្ថុ & ចំណូល' : 'Financial Management & Revenue Ledger' }}
+            </h1>
+            <p class="today-sub">
+              {{ lang() === 'kh' ? 'កត់ត្រា និងតាមដានរាល់ប្រតិបត្តិការទូទាត់ទិញគំរូ CV, ចំណូលបន្ថែម និងចំណាយជាក់ស្តែង' : 'Real-time database tracking for template purchases, custom additions, and operational deductions.' }}
+            </p>
+          </div>
+
+          <!-- 3D Animated Cyber Vault & Coin Stack Sticker -->
+          <div class="hero-sticker-wrap" aria-hidden="true">
+            <div class="premium-3d-sticker sticker-vault">
+              <svg viewBox="0 0 120 120" class="sticker-svg" width="96" height="96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="vGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+                  </radialGradient>
+                  <linearGradient id="vGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#fef08a"/>
+                    <stop offset="50%" stop-color="#eab308"/>
+                    <stop offset="100%" stop-color="#a16207"/>
+                  </linearGradient>
+                  <linearGradient id="vTitanium" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#334155"/>
+                    <stop offset="50%" stop-color="#1e293b"/>
+                    <stop offset="100%" stop-color="#0f172a"/>
+                  </linearGradient>
+                  <linearGradient id="vCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#67e8f9"/>
+                    <stop offset="100%" stop-color="#0284c7"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="60" cy="60" r="48" fill="url(#vGlow)" class="sticker-pulse-aura"/>
+                <rect x="24" y="24" width="72" height="72" rx="20" fill="url(#vTitanium)" stroke="url(#vCyan)" stroke-width="2.5" class="sticker-vault-body"/>
+                <rect x="30" y="30" width="60" height="60" rx="15" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
+                <circle cx="60" cy="60" r="18" fill="#0f172a" stroke="url(#vGold)" stroke-width="3" class="sticker-spin-dial"/>
+                <circle cx="60" cy="60" r="7" fill="url(#vGold)"/>
+                <path d="M60 42v6M60 72v6M42 60h6M72 60h6" stroke="url(#vGold)" stroke-width="2.5" stroke-linecap="round"/>
+                <g class="sticker-float-coin-1">
+                  <ellipse cx="94" cy="34" rx="12" ry="7" fill="url(#vGold)" stroke="#fef08a" stroke-width="1"/>
+                  <text x="94" y="37" font-size="7" font-weight="bold" fill="#713f12" text-anchor="middle">$</text>
+                </g>
+                <g class="sticker-float-coin-2">
+                  <ellipse cx="22" cy="80" rx="10" ry="6" fill="url(#vGold)" stroke="#fef08a" stroke-width="1"/>
+                  <text x="22" y="83" font-size="6" font-weight="bold" fill="#713f12" text-anchor="middle">៛</text>
+                </g>
+                <path class="sticker-sparkle-1" d="M30 20l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="#fde047"/>
+                <path class="sticker-sparkle-2" d="M96 86l1.5 3 3 1.5-3 1.5-1.5 3-1.5-3-3-1.5 3-1.5z" fill="#38bdf8"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="today-stat-boxes">
+            <div class="stat-pill-box mirror-card">
+              <span class="sp-label">{{ lang() === 'kh' ? 'ចំណូលថ្ងៃនេះ (Net)' : "Today's Net Revenue" }}</span>
+              <span class="sp-val text-cyan">&dollar;{{ animatedKpis().todayRevenue.toFixed(2) }}</span>
+            </div>
+            <div class="stat-pill-box mirror-card">
+              <span class="sp-label">{{ lang() === 'kh' ? 'ចំណូលចូល (+)' : "Today's Inflow" }}</span>
+              <span class="sp-val text-green">+&dollar;{{ animatedKpis().todayIncome.toFixed(2) }}</span>
+            </div>
+            <div class="stat-pill-box mirror-card" *ngIf="kpis().todayExpense > 0">
+              <span class="sp-label">{{ lang() === 'kh' ? 'ចំណាយដក (-)' : "Today's Outflow" }}</span>
+              <span class="sp-val text-rose">-&dollar;{{ animatedKpis().todayExpense.toFixed(2) }}</span>
+            </div>
+            <div class="stat-pill-box mirror-card">
+              <span class="sp-label">{{ lang() === 'kh' ? 'បញ្ជាទិញថ្ងៃនេះ' : "Today's Orders" }}</span>
+              <span class="sp-val">{{ animatedKpis().todayOrders | number:'1.0-0' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Core Metric KPI Cards (Mirror Float, Specular Drop Shadow & 3D Animated Stickers) -->
+        <div class="kpi-cards-grid">
+          <!-- Card 1: Total Revenue -->
+          <div class="kpi-card highlight-cyan mirror-card mirror-float">
+            <div class="kpi-head">
+              <div>
+                <span class="kpi-label">{{ lang() === 'kh' ? 'ចំណូលសុទ្ធសរុប (Net Revenue)' : 'Total Net Revenue' }}</span>
+                <span class="kpi-tag">REAL DATA</span>
+              </div>
+              <div class="kpi-sticker-badge">
+                <div class="premium-3d-sticker sticker-coin" title="Real Time Vault Cashflow">
+                  <svg viewBox="0 0 64 64" width="34" height="34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="32" cy="32" r="26" fill="#f59e0b" fill-opacity="0.3" class="sticker-pulse-aura"/>
+                    <circle cx="32" cy="32" r="21" fill="url(#vGold)" stroke="#fef9c3" stroke-width="2" class="sticker-coin-face"/>
+                    <circle cx="32" cy="32" r="16" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.2" stroke-dasharray="2 2"/>
+                    <text x="32" y="39" font-family="'Outfit', sans-serif" font-weight="900" font-size="18" fill="#713f12" text-anchor="middle">$</text>
+                    <path class="sticker-sparkle-1" d="M46 14l1.5 3 3 1.5-3 1.5-1.5 3-1.5-3-3-1.5 3-1.5z" fill="#fde047"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-value-row">
+              <h2 class="kpi-number">&dollar;{{ animatedKpis().totalRevenue.toFixed(2) }}</h2>
+              <span class="khr-tag">≈ {{ Math.round(animatedKpis().totalRevenue * 4100).toLocaleString('en-US') }} ៛</span>
+            </div>
+            <div class="kpi-foot">
+              <span class="kpi-sub-detail text-green">+&dollar;{{ animatedKpis().totalIncome.toFixed(2) }} Inflow</span>
+              <span class="kpi-sub-detail text-rose" *ngIf="kpis().totalExpense > 0">-&dollar;{{ animatedKpis().totalExpense.toFixed(2) }} Deductions</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Paid Transactions -->
+          <div class="kpi-card highlight-blue mirror-card mirror-float">
+            <div class="kpi-head">
+              <div>
+                <span class="kpi-label">{{ lang() === 'kh' ? 'ប្រតិបត្តិការជោគជ័យ' : 'Paid Transactions' }}</span>
+                <span class="kpi-tag">VOLUME</span>
+              </div>
+              <div class="kpi-sticker-badge">
+                <div class="premium-3d-sticker sticker-card" title="Settled Payments Volume">
+                  <svg viewBox="0 0 64 64" width="34" height="34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g class="sticker-card-tilt">
+                      <rect x="8" y="16" width="48" height="32" rx="8" fill="url(#vCyan)" stroke="#e0f2fe" stroke-width="1.5"/>
+                      <rect x="14" y="24" width="11" height="9" rx="2" fill="url(#vGold)"/>
+                      <path d="M42 24a8 8 0 0 1 0 12" stroke="rgba(255,255,255,0.8)" stroke-width="1.8" stroke-linecap="round" fill="none" class="sticker-nfc-wave"/>
+                      <path d="M46 21a13 13 0 0 1 0 18" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" fill="none" class="sticker-nfc-wave-outer"/>
+                      <circle cx="44" cy="40" r="3" fill="#34d399"/>
+                    </g>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-value-row">
+              <h2 class="kpi-number">{{ animatedKpis().paidOrders | number:'1.0-0' }}</h2>
+              <span class="badge-sub">/ {{ animatedKpis().totalOrders | number:'1.0-0' }} total</span>
+            </div>
+            <div class="kpi-foot">
+              <span class="growth-pill">{{ getConversionRate() }}% success</span>
+              <span class="foot-note">{{ kpis().pendingOrders }} pending</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Average Order Value -->
+          <div class="kpi-card highlight-purple mirror-card mirror-float">
+            <div class="kpi-head">
+              <div>
+                <span class="kpi-label">{{ lang() === 'kh' ? 'តម្លៃជាមធ្យម / បញ្ជាទិញ (AOV)' : 'Average Order Value' }}</span>
+                <span class="kpi-tag">TICKET</span>
+              </div>
+              <div class="kpi-sticker-badge">
+                <div class="premium-3d-sticker sticker-rocket" title="Average Ticket Optimization">
+                  <svg viewBox="0 0 64 64" width="34" height="34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="32" cy="32" r="22" fill="none" stroke="rgba(192, 132, 252, 0.3)" stroke-width="2" stroke-dasharray="3 3"/>
+                    <g class="sticker-rocket-body">
+                      <path d="M38 12c-6 0-14 8-16 16l8 8c8-2 16-10 16-16-2-5-5-8-8-8z" fill="#8b5cf6" stroke="#f3e8ff" stroke-width="1.5"/>
+                      <circle cx="35" cy="21" r="3" fill="#38bdf8"/>
+                      <path d="M22 28l-6 4 4 6 6-2zM36 42l-2 6 6 4 4-6z" fill="#ec4899"/>
+                      <path d="M22 36c-3 5-4 10-2 13 3 2 8 1 13-2l-11-11z" fill="#f97316" class="sticker-flame-pulse"/>
+                    </g>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-value-row">
+              <h2 class="kpi-number">&dollar;{{ animatedKpis().averageOrderValue.toFixed(2) }}</h2>
+              <span class="khr-tag">≈ {{ Math.round(animatedKpis().averageOrderValue * 4100).toLocaleString('en-US') }} ៛</span>
+            </div>
+            <div class="kpi-foot">
+              <span class="growth-pill positive">Optimal</span>
+              <span class="foot-note">{{ lang() === 'kh' ? 'គំរូ និងសេវាផ្ទាល់' : 'Per paid transaction' }}</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Net Operating Profit -->
+          <div class="kpi-card highlight-emerald mirror-card mirror-float">
+            <div class="kpi-head">
+              <div>
+                <span class="kpi-label">{{ lang() === 'kh' ? 'ប្រាក់ចំណេញប្រតិបត្តិការ' : 'Net Operating Profit' }}</span>
+                <span class="kpi-tag">AFTER FEES</span>
+              </div>
+              <div class="kpi-sticker-badge">
+                <div class="premium-3d-sticker sticker-diamond" title="Real Net Profit Margin">
+                  <svg viewBox="0 0 64 64" width="34" height="34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="32" cy="32" r="24" fill="#10b981" fill-opacity="0.25" class="sticker-pulse-aura"/>
+                    <g class="sticker-gem-facets">
+                      <polygon points="32,10 52,24 32,54 12,24" fill="#10b981" stroke="#ecfdf5" stroke-width="1.5"/>
+                      <polygon points="32,10 40,24 32,54 24,24" fill="rgba(255,255,255,0.3)"/>
+                      <line x1="12" y1="24" x2="52" y2="24" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+                      <path class="sticker-sparkle-1" d="M46 16l1.5 3 3 1.5-3 1.5-1.5 3-1.5-3-3-1.5 3-1.5z" fill="#fff"/>
+                      <path class="sticker-sparkle-2" d="M16 38l1 2 2 1-2 1-1 2-1-2-2-1 2-1z" fill="#a7f3d0"/>
+                    </g>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-value-row">
+              <h2 class="kpi-number">&dollar;{{ animatedKpis().estimatedNetProfit.toFixed(2) }}</h2>
+              <span class="khr-tag">≈ {{ Math.round(animatedKpis().estimatedNetProfit * 4100).toLocaleString('en-US') }} ៛</span>
+            </div>
+            <div class="kpi-foot">
+              <span class="growth-pill">Fee: &dollar;{{ animatedKpis().estimatedFees.toFixed(2) }}</span>
+              <span class="foot-note">{{ lang() === 'kh' ? 'កាត់ 1.5% gateway' : 'Post processing fee' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             LIVE TRANSACTION LEDGER (ADD, DEDUCT, EDIT, DELETE & HISTORY)
+        ═══════════════════════════════════════════════════════════════════ -->
+        <div class="ledger-panel mirror-card">
+          <div class="ledger-head">
+            <div class="lh-left flex items-center gap-3">
+              <div class="premium-3d-sticker sticker-ledger-badge shrink-0" title="Real-Time SQLite Central Ledger">
+                <svg viewBox="0 0 64 64" width="42" height="42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <radialGradient id="ledgGlow" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.6"/>
+                      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+                    </radialGradient>
+                  </defs>
+                  <circle cx="32" cy="32" r="28" fill="url(#ledgGlow)" class="sticker-pulse-aura"/>
+                  <rect x="14" y="16" width="36" height="34" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1.8"/>
+                  <rect x="18" y="20" width="28" height="26" rx="4" fill="rgba(56, 189, 248, 0.12)"/>
+                  <line x1="22" y1="26" x2="42" y2="26" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="22" y1="32" x2="38" y2="32" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="22" y1="38" x2="34" y2="38" stroke="#fde047" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="48" cy="18" r="4" fill="#34d399" class="sticker-flame-pulse"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="panel-title">{{ lang() === 'kh' ? 'សៀវភៅកត់ត្រាហិរញ្ញវត្ថុជាក់ស្តែង' : 'Live Transaction History & Ledger' }}</h3>
+                <p class="panel-subtitle">
+                  {{ lang() === 'kh' ? 'ទិន្នន័យជាក់ស្តែងពី Database — ភ្ជាប់ដោយផ្ទាល់រវាងការទិញរបស់អតិថិជន ការបន្ថែម និងការដកប្រាក់' : 'Directly connected with customer purchases, manual cash income, and deductions in SQLite.' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Action Buttons: + Add Money and - Deduct Money -->
+            <div class="lh-actions">
+              <button type="button" class="btn-action-primary btn-green mirror-btn mirror-float" (click)="openAddMoneyModal('income')">
+                <span class="symbol">+</span>
+                <span>{{ lang() === 'kh' ? 'បញ្ចូលប្រាក់ (+) Add Money' : '+ Add Money' }}</span>
+              </button>
+              <button type="button" class="btn-action-primary btn-rose mirror-btn mirror-float" (click)="openAddMoneyModal('expense')">
+                <span class="symbol">-</span>
+                <span>{{ lang() === 'kh' ? 'ដកប្រាក់ (-) Deduct Money' : '- Deduct Money' }}</span>
+              </button>
+              <button type="button" class="btn-refresh-pill mirror-pill" (click)="loadOverview(); loadTransactions()" title="Refresh Ledger">
+                <span>🔄</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter Toolbar (Cold Minimalist Design) -->
+          <div class="ledger-filters-bar">
+            <!-- Search Input -->
+            <div class="search-input-wrap">
+              <span class="search-icon">🔍</span>
+              <input
+                type="text"
+                class="ledger-search-input mirror-pill"
+                [(ngModel)]="searchQuery"
+                (ngModelChange)="onSearchChange()"
+                [placeholder]="lang() === 'kh' ? 'ស្វែងរកតាមឈ្មោះ, អ៊ីមែល, លេខកូដ ឬកំណត់ចំណាំ...' : 'Search by customer, email, reference, note...'"
+              />
+              <button type="button" class="btn-clear-search" *ngIf="searchQuery" (click)="searchQuery = ''; onSearchChange()">✕</button>
+            </div>
+
+            <!-- Filter Status & Type Buttons -->
+            <div class="filter-pills-row">
+              <button
+                type="button"
+                class="filter-pill mirror-pill"
+                [class.active]="currentTypeFilter === 'all'"
+                (click)="setTypeFilter('all')"
+              >
+                {{ lang() === 'kh' ? 'ទាំងអស់' : 'All' }}
+              </button>
+              <button
+                type="button"
+                class="filter-pill pill-income mirror-pill"
+                [class.active]="currentTypeFilter === 'income'"
+                (click)="setTypeFilter('income')"
+              >
+                {{ lang() === 'kh' ? '+ ចំណូល' : '+ Income' }}
+              </button>
+              <button
+                type="button"
+                class="filter-pill pill-expense mirror-pill"
+                [class.active]="currentTypeFilter === 'expense'"
+                (click)="setTypeFilter('expense')"
+              >
+                {{ lang() === 'kh' ? '- ចំណាយ' : '- Deductions' }}
+              </button>
+
+              <span class="filter-divider"></span>
+
+              <button
+                type="button"
+                class="filter-pill mirror-pill"
+                [class.active]="currentStatusFilter === 'all'"
+                (click)="setStatusFilter('all')"
+              >
+                {{ lang() === 'kh' ? 'គ្រប់ស្ថានភាព' : 'All Status' }}
+              </button>
+              <button
+                type="button"
+                class="filter-pill mirror-pill"
+                [class.active]="currentStatusFilter === 'paid'"
+                (click)="setStatusFilter('paid')"
+              >
+                {{ lang() === 'kh' ? 'បានបង់' : 'Paid' }}
+              </button>
+              <button
+                type="button"
+                class="filter-pill mirror-pill"
+                [class.active]="currentStatusFilter === 'pending'"
+                (click)="setStatusFilter('pending')"
+              >
+                {{ lang() === 'kh' ? 'រង់ចាំ' : 'Pending' }}
+              </button>
+              <button
+                type="button"
+                class="filter-pill mirror-pill"
+                [class.active]="currentStatusFilter === 'refunded'"
+                (click)="setStatusFilter('refunded')"
+              >
+                {{ lang() === 'kh' ? 'បានសង' : 'Refunded' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- DESKTOP / TABLET VIEW: Cold Glass Table -->
+          <div class="table-responsive desktop-tablet-only">
+            <table class="cold-table">
+              <thead>
+                <tr>
+                  <th>{{ lang() === 'kh' ? 'កាលបរិច្ឆេទ' : 'Date & Time' }}</th>
+                  <th>{{ lang() === 'kh' ? 'អតិថិជន / គណនី' : 'Customer / Account' }}</th>
+                  <th>{{ lang() === 'kh' ? 'សេវាកម្ម / គំរូ' : 'Service / Template' }}</th>
+                  <th>{{ lang() === 'kh' ? 'ច្រកទូទាត់' : 'Payment Method' }}</th>
+                  <th>{{ lang() === 'kh' ? 'ចំនួនទឹកប្រាក់' : 'Amount' }}</th>
+                  <th>{{ lang() === 'kh' ? 'ស្ថានភាព' : 'Status' }}</th>
+                  <th>{{ lang() === 'kh' ? 'កំណត់ចំណាំ' : 'Notes / Ref' }}</th>
+                  <th class="text-right">{{ lang() === 'kh' ? 'សកម្មភាព' : 'Actions' }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of recentTransactions(); trackBy: trackById" [class.expense-row]="item.entry_type === 'expense' || item.amount < 0">
+                  <td class="font-mono text-muted text-sm whitespace-nowrap">
+                    {{ item.purchased_at | slice:0:16 }}
+                  </td>
+                  <td>
+                    <div class="customer-cell">
+                      <span class="customer-name font-bold">{{ item.customer_name || 'Direct Customer' }}</span>
+                      <span class="customer-email text-muted">{{ item.customer_email || '—' }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="template-chip">{{ item.template_name }}</span>
+                  </td>
+                  <td>
+                    <span class="provider-pill" [class.bakong]="item.payment_provider?.includes('bakong')" [class.cash]="item.payment_provider?.includes('cash')">
+                      <span *ngIf="item.payment_provider?.includes('bakong')">🇰🇭 Bakong KHQR</span>
+                      <span *ngIf="item.payment_provider?.includes('cash')">💵 Cash In-Person</span>
+                      <span *ngIf="item.payment_provider?.includes('aba')">🏦 ABA Bank</span>
+                      <span *ngIf="!item.payment_provider?.includes('bakong') && !item.payment_provider?.includes('cash') && !item.payment_provider?.includes('aba')">
+                        💳 {{ item.payment_provider || 'Standard' }}
+                      </span>
+                    </span>
+                  </td>
+                  <td class="amount-cell whitespace-nowrap">
+                    <span *ngIf="item.entry_type === 'expense' || item.amount < 0" class="val-expense font-mono font-bold text-rose">
+                      - &dollar;{{ Math.abs(item.amount).toFixed(2) }}
+                    </span>
+                    <span *ngIf="item.entry_type !== 'expense' && item.amount >= 0" class="val-income font-mono font-bold text-green">
+                      + &dollar;{{ item.amount.toFixed(2) }}
+                    </span>
+                    <span class="khr-equiv-sub">≈ {{ Math.round(Math.abs(item.amount) * 4100).toLocaleString('en-US') }} ៛</span>
+                  </td>
+                  <td>
+                    <span class="status-pill" [class]="item.status">
+                      <span class="dot"></span>
+                      <span>{{ item.status | uppercase }}</span>
+                    </span>
+                  </td>
+                  <td class="text-sm max-w-xs truncate" [title]="item.notes || item.payment_ref || ''">
+                    <span class="text-muted" *ngIf="item.notes">{{ item.notes }}</span>
+                    <span class="text-muted font-mono" *ngIf="!item.notes && item.payment_ref">Ref: {{ item.payment_ref }}</span>
+                    <span class="text-muted opacity-40" *ngIf="!item.notes && !item.payment_ref">—</span>
+                  </td>
+                  <td class="text-right whitespace-nowrap">
+                    <div class="row-actions-group">
+                      <button
+                        type="button"
+                        class="btn-table-action btn-edit mirror-btn"
+                        (click)="openEditModal(item)"
+                        title="Edit Transaction"
+                      >
+                        {{ lang() === 'kh' ? 'កែប្រែ' : 'Edit' }}
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-table-action btn-delete mirror-btn"
+                        (click)="confirmDelete(item)"
+                        title="Delete Transaction"
+                      >
+                        {{ lang() === 'kh' ? 'លុប' : 'Delete' }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr *ngIf="recentTransactions().length === 0">
+                  <td colspan="8" class="empty-table-state">
+                    <div class="empty-inner">
+                      <span class="empty-icon">📂</span>
+                      <p class="empty-title">{{ lang() === 'kh' ? 'មិនមានប្រតិបត្តិការណាមួយត្រូវបានរកឃើញទេ' : 'No transactions found in this view.' }}</p>
+                      <button type="button" class="btn-action-primary btn-green mt-4 mirror-btn" (click)="openAddMoneyModal('income')">
+                        <span>+ Add Money</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- MOBILE ONLY VIEW: Touch-Optimized iOS Card Stack -->
+          <div class="mobile-ledger-stack mobile-only-block">
+            <div
+              *ngFor="let item of recentTransactions(); trackBy: trackById"
+              class="mobile-transaction-card mirror-card mirror-float"
+              [class.card-expense]="item.entry_type === 'expense' || item.amount < 0"
+            >
+              <!-- Card Top: Customer & Amount -->
+              <div class="mtc-header">
+                <div>
+                  <h4 class="mtc-customer-name">{{ item.customer_name || 'Direct Customer' }}</h4>
+                  <span class="mtc-date">{{ item.purchased_at | slice:0:16 }}</span>
+                </div>
+                <div class="mtc-amount-box text-right">
+                  <span *ngIf="item.entry_type === 'expense' || item.amount < 0" class="mtc-val text-rose font-mono font-bold">
+                    - &dollar;{{ Math.abs(item.amount).toFixed(2) }}
+                  </span>
+                  <span *ngIf="item.entry_type !== 'expense' && item.amount >= 0" class="mtc-val text-green font-mono font-bold">
+                    + &dollar;{{ item.amount.toFixed(2) }}
+                  </span>
+                  <span class="mtc-khr">≈ {{ Math.round(Math.abs(item.amount) * 4100).toLocaleString('en-US') }} ៛</span>
+                </div>
+              </div>
+
+              <!-- Card Middle: Service & Provider Badges -->
+              <div class="mtc-meta-row">
+                <span class="template-chip">{{ item.template_name }}</span>
+                <span class="provider-pill" [class.bakong]="item.payment_provider?.includes('bakong')">
+                  {{ item.payment_provider || 'Standard' }}
+                </span>
+                <span class="status-pill" [class]="item.status">
+                  <span class="dot"></span>
+                  <span>{{ item.status | uppercase }}</span>
+                </span>
+              </div>
+
+              <!-- Notes / Ref if available -->
+              <p class="mtc-notes" *ngIf="item.notes || item.payment_ref">
+                <span class="text-muted">{{ item.notes || ('Ref: ' + item.payment_ref) }}</span>
+              </p>
+
+              <!-- Card Bottom: Actions -->
+              <div class="mtc-actions-footer">
+                <span class="mtc-id">#{{ item.id }}</span>
+                <div class="mtc-btns">
+                  <button type="button" class="btn-table-action btn-edit mirror-btn" (click)="openEditModal(item)">
+                    {{ lang() === 'kh' ? 'កែប្រែ' : 'Edit' }}
+                  </button>
+                  <button type="button" class="btn-table-action btn-delete mirror-btn" (click)="confirmDelete(item)">
+                    {{ lang() === 'kh' ? 'លុប' : 'Delete' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile Empty State -->
+            <div *ngIf="recentTransactions().length === 0" class="mobile-empty-card mirror-card text-center py-8">
+              <span class="empty-icon text-3xl">📂</span>
+              <p class="font-bold mt-2">{{ lang() === 'kh' ? 'មិនមានទិន្នន័យប្រតិបត្តិការទេ' : 'No transactions recorded' }}</p>
+              <button type="button" class="btn-action-primary btn-green mt-3 mirror-btn" (click)="openAddMoneyModal('income')">
+                + Add Money
+              </button>
+            </div>
+          </div>
+
+          <!-- Pagination Bar -->
+          <div class="ledger-pagination" *ngIf="totalPages() > 1">
+            <span class="pg-info text-muted">
+              {{ lang() === 'kh' ? 'ទំព័រ ' + currentPage() + '/' + totalPages() : 'Page ' + currentPage() + '/' + totalPages() }} ({{ totalTransactionsCount() }})
+            </span>
+            <div class="pg-buttons">
+              <button
+                type="button"
+                class="pg-btn mirror-pill"
+                [disabled]="currentPage() <= 1"
+                (click)="goToPage(currentPage() - 1)"
+              >
+                ◀ {{ lang() === 'kh' ? 'មុន' : 'Prev' }}
+              </button>
+              <button
+                type="button"
+                class="pg-btn mirror-pill"
+                [disabled]="currentPage() >= totalPages()"
+                (click)="goToPage(currentPage() + 1)"
+              >
+                {{ lang() === 'kh' ? 'បន្ទាប់' : 'Next' }} ▶
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+           TAB 2: ANALYS (IOS FLUID ANALYTICS + GOOGLE CHARTS + PERIOD TABS)
+      ═══════════════════════════════════════════════════════════════════ -->
+      <section class="tab-pane animate-fade" *ngIf="currentTab() === 'analys'">
+        <!-- Analytics Header & iOS Controls -->
+        <div class="analytics-top-bar">
+          <div class="flex items-center gap-4">
+            <div class="premium-3d-sticker sticker-analys-hologram shrink-0" title="Interactive Financial Analytics">
+              <svg viewBox="0 0 80 80" width="56" height="56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="aGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+                  </radialGradient>
+                  <linearGradient id="aBar1" x1="0" y1="100%" x2="0" y2="0%">
+                    <stop offset="0%" stop-color="#0284c7"/>
+                    <stop offset="100%" stop-color="#38bdf8"/>
+                  </linearGradient>
+                  <linearGradient id="aBar2" x1="0" y1="100%" x2="0" y2="0%">
+                    <stop offset="0%" stop-color="#059669"/>
+                    <stop offset="100%" stop-color="#34d399"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="40" cy="40" r="34" fill="url(#aGlow)" class="sticker-pulse-aura"/>
+                <ellipse cx="40" cy="62" rx="28" ry="10" fill="rgba(56, 189, 248, 0.2)" stroke="#38bdf8" stroke-width="1.5"/>
+                <rect x="22" y="38" width="8" height="20" rx="3" fill="url(#aBar1)"/>
+                <rect x="36" y="24" width="8" height="34" rx="3" fill="url(#aBar2)"/>
+                <rect x="50" y="30" width="8" height="28" rx="3" fill="url(#aBar1)"/>
+                <path d="M18 46 L34 32 L46 38 L62 18" stroke="#fde047" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="62" cy="18" r="4" fill="#fde047"/>
+              </svg>
+            </div>
+            <div>
+              <span class="cold-chip">ADVANCED FINANCIAL ANALYTICS</span>
+              <h1 class="pane-title">{{ lang() === 'kh' ? 'ការវិភាគចំណូល & លំហូរសាច់ប្រាក់' : 'Revenue & Cash Flow Analytics' }}</h1>
+              <p class="pane-sub">
+                {{ lang() === 'kh' ? 'ទិន្នន័យជាក់ស្តែងតាមម៉ោង ថ្ងៃ សប្តាហ៍ ខែ និងឆ្នាំ ជាមួយប្រព័ន្ធគំនូសតាងរលូនដូច iOS' : 'Interactive time-series analysis powered by real database transactions with Google & iOS fluid charts.' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Period Tabs (Day | Week | Month | Year) - iOS Segmented Control -->
+          <div class="period-control-wrapper">
+            <div class="ios-segmented-control mirror-pill" role="tablist">
+              <button
+                type="button"
+                class="segment-pill"
+                [class.active]="selectedPeriod() === 'day'"
+                (click)="changePeriod('day')"
+              >
+                {{ lang() === 'kh' ? 'ថ្ងៃ (Day)' : 'Day' }}
+              </button>
+              <button
+                type="button"
+                class="segment-pill"
+                [class.active]="selectedPeriod() === 'week'"
+                (click)="changePeriod('week')"
+              >
+                {{ lang() === 'kh' ? 'សប្តាហ៍ (Week)' : 'Week' }}
+              </button>
+              <button
+                type="button"
+                class="segment-pill"
+                [class.active]="selectedPeriod() === 'month'"
+                (click)="changePeriod('month')"
+              >
+                {{ lang() === 'kh' ? 'ខែ (Month)' : 'Month' }}
+              </button>
+              <button
+                type="button"
+                class="segment-pill"
+                [class.active]="selectedPeriod() === 'year'"
+                (click)="changePeriod('year')"
+              >
+                {{ lang() === 'kh' ? 'ឆ្នាំ (Year)' : 'Year' }}
+              </button>
+            </div>
+
+            <!-- Engine Toggle: iOS Fluid vs Google Charts -->
+            <div class="engine-toggle-group mirror-pill">
+              <button
+                type="button"
+                class="engine-btn"
+                [class.active]="chartEngine() === 'ios'"
+                (click)="chartEngine.set('ios')"
+                title="Apple iOS Fluid Canvas & Scrubber"
+              >
+                iOS Fluid
+              </button>
+              <button
+                type="button"
+                class="engine-btn"
+                [class.active]="chartEngine() === 'google'"
+                (click)="switchChartEngine('google')"
+                title="Google Visualization Charts API"
+              >
+                Google Charts
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Period Summary Stat Cards -->
+        <div class="analytics-metrics-strip">
+          <div class="metric-mini-card mirror-card mirror-float">
+            <span class="mc-label">{{ lang() === 'kh' ? 'ចំណូលសុទ្ធក្នុងកាលបរិច្ឆេទនេះ' : 'Period Net Revenue' }}</span>
+            <h3 class="mc-value text-cyan">&dollar;{{ periodSummary().totalRevenue.toFixed(2) }}</h3>
+            <span class="mc-khr">≈ {{ (periodSummary().totalRevenue * 4100).toLocaleString('en-US') }} ៛</span>
+          </div>
+          <div class="metric-mini-card mirror-card mirror-float">
+            <span class="mc-label">{{ lang() === 'kh' ? 'ចំណូលចូលសរុប (+)' : 'Gross Inflow (+)' }}</span>
+            <h3 class="mc-value text-green">+&dollar;{{ periodSummary().totalIncome.toFixed(2) }}</h3>
+            <span class="mc-sub">{{ periodSummary().orderCount }} {{ lang() === 'kh' ? 'ប្រតិបត្តិការ' : 'transactions' }}</span>
+          </div>
+          <div class="metric-mini-card mirror-card mirror-float" *ngIf="periodSummary().totalExpense > 0">
+            <span class="mc-label">{{ lang() === 'kh' ? 'ចំណាយដកសរុប (-)' : 'Total Deductions (-)' }}</span>
+            <h3 class="mc-value text-rose">-&dollar;{{ periodSummary().totalExpense.toFixed(2) }}</h3>
+            <span class="mc-sub">{{ lang() === 'kh' ? 'ការសង ឬចំណាយ' : 'Deducted from gross' }}</span>
+          </div>
+          <div class="metric-mini-card mirror-card mirror-float">
+            <span class="mc-label">{{ lang() === 'kh' ? 'មធ្យមភាគ / ប្រតិបត្តិការ (AOV)' : 'Average Ticket Size' }}</span>
+            <h3 class="mc-value text-purple">&dollar;{{ periodSummary().averageOrderValue.toFixed(2) }}</h3>
+            <span class="mc-sub">{{ lang() === 'kh' ? 'ក្នុងមួយបញ្ជាទិញ' : 'Per transaction' }}</span>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             CHART PANEL (iOS SMOOTH SCRUBBER OR GOOGLE CHARTS API)
+        ═══════════════════════════════════════════════════════════════════ -->
+        <div class="card-panel chart-box-panel mirror-card">
+          <div class="panel-header-with-badge">
+            <div>
+              <h3 class="panel-title">
+                {{ lang() === 'kh' ? 'គំនូសតាងលំហូរចំណូល (' + getPeriodTitle() + ')' : 'Revenue Trajectory (' + getPeriodTitle() + ')' }}
+              </h3>
+              <p class="panel-subtitle">
+                {{ lang() === 'kh' ? 'ដាក់ Mouse ឬអូសម្រាមដៃលើក្រាហ្វិកដើម្បីមើលតម្លៃលម្អិត' : 'Hover or touch-drag across the chart to inspect live revenue, inflow, and transaction volume.' }}
+              </p>
+            </div>
+            <div class="chart-badges">
+              <span class="badge-ios mirror-pill" *ngIf="chartEngine() === 'ios'"> iOS FLUID BEZIER</span>
+              <span class="badge-google mirror-pill" *ngIf="chartEngine() === 'google'">GOOGLE VISUALIZATION API</span>
+            </div>
+          </div>
+
+          <!-- VIEW 1: iOS Interactive Fluid Chart (SVG Area with Scrubber + Touch Support) -->
+          <div
+            class="ios-chart-container"
+            *ngIf="chartEngine() === 'ios'"
+            (mousemove)="handleChartHover($event)"
+            (mouseleave)="handleChartLeave()"
+            (touchstart)="handleChartTouch($event)"
+            (touchmove)="handleChartTouch($event)"
+            (touchend)="handleChartLeave()"
+          >
+            <!-- SVG Line & Area -->
+            <svg class="ios-svg-chart" viewBox="0 0 900 290" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="coldAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.42" />
+                  <stop offset="60%" stop-color="#0284c7" stop-opacity="0.12" />
+                  <stop offset="100%" stop-color="#0369a1" stop-opacity="0.00" />
+                </linearGradient>
+                <linearGradient id="coldLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#06b6d4" />
+                  <stop offset="50%" stop-color="#38bdf8" />
+                  <stop offset="100%" stop-color="#818cf8" />
+                </linearGradient>
+                <!-- Mirror Specular Glow Filter -->
+                <filter id="mirrorGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+
+              <!-- Grid Horizontal Lines -->
+              <line x1="0" y1="50" x2="900" y2="50" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4 4" />
+              <line x1="0" y1="120" x2="900" y2="120" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4 4" />
+              <line x1="0" y1="190" x2="900" y2="190" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4 4" />
+              <line x1="0" y1="260" x2="900" y2="260" stroke="rgba(255,255,255,0.12)" />
+
+              <!-- Area Fill Under Curve -->
+              <path [attr.d]="chartSvgAreaPath()" fill="url(#coldAreaGradient)" />
+
+              <!-- Smooth Bezier Line with Specular Glow -->
+              <path
+                [attr.d]="chartSvgLinePath()"
+                fill="none"
+                stroke="url(#coldLineGradient)"
+                stroke-width="3.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                filter="url(#mirrorGlow)"
+              />
+
+              <!-- Hover/Touch Scrubber Vertical Line & Focus Point -->
+              <g *ngIf="hoveredPoint() !== null">
+                <line
+                  [attr.x1]="hoveredX()"
+                  y1="10"
+                  [attr.x2]="hoveredX()"
+                  y2="260"
+                  stroke="#38bdf8"
+                  stroke-width="2"
+                  stroke-dasharray="3 3"
+                />
+                <circle
+                  [attr.cx]="hoveredX()"
+                  [attr.cy]="hoveredY()"
+                  r="7"
+                  fill="#38bdf8"
+                  stroke="#080c14"
+                  stroke-width="3"
+                />
+              </g>
+            </svg>
+
+            <!-- Floating iOS-style Tooltip Card -->
+            <div
+              class="ios-scrubber-tooltip mirror-card"
+              *ngIf="hoveredPoint() !== null"
+              [style.left.px]="tooltipX()"
+              [style.top.px]="tooltipY()"
+            >
+              <div class="tt-header font-bold">{{ hoveredPoint()?.label }}</div>
+              <div class="tt-row">
+                <span class="tt-lbl">{{ lang() === 'kh' ? 'ចំណូលសុទ្ធ:' : 'Net Revenue:' }}</span>
+                <strong class="font-mono text-cyan">&dollar;{{ hoveredPoint()?.revenue?.toFixed(2) }}</strong>
+              </div>
+              <div class="tt-row" *ngIf="hoveredPoint()?.income">
+                <span class="tt-lbl">{{ lang() === 'kh' ? 'ចំណូល (+):' : 'Inflow (+):' }}</span>
+                <span class="font-mono text-green">+&dollar;{{ hoveredPoint()?.income?.toFixed(2) }}</span>
+              </div>
+              <div class="tt-row" *ngIf="hoveredPoint()?.expense">
+                <span class="tt-lbl">{{ lang() === 'kh' ? 'ចំណាយ (-):' : 'Deductions (-):' }}</span>
+                <span class="font-mono text-rose">-&dollar;{{ hoveredPoint()?.expense?.toFixed(2) }}</span>
+              </div>
+              <div class="tt-row">
+                <span class="tt-lbl">{{ lang() === 'kh' ? 'ចំនួនបញ្ជាទិញ:' : 'Orders:' }}</span>
+                <span class="font-mono">{{ hoveredPoint()?.orders }}</span>
+              </div>
+            </div>
+
+            <!-- X-Axis Labels Row -->
+            <div class="ios-chart-axis-labels">
+              <span *ngFor="let s of chartSeriesXAxisLabels()" class="axis-lbl">{{ s.label }}</span>
+            </div>
+          </div>
+
+          <!-- VIEW 2: Google Visualization Charts Container -->
+          <div class="google-chart-wrap" *ngIf="chartEngine() === 'google'">
+            <div id="google_analytics_chart" class="google-chart-element"></div>
+          </div>
+        </div>
+
+        <!-- Analytics Breakdown Grid (Providers & Top Templates) -->
+        <div class="analytics-sub-grid">
+          <!-- Payment Gateway Share -->
+          <div class="card-panel mirror-card mirror-float">
+            <h3 class="panel-title">{{ lang() === 'kh' ? 'ចំណែកច្រកទូទាត់ (Payment Share)' : 'Payment Gateway Distribution' }}</h3>
+            <p class="panel-subtitle">{{ lang() === 'kh' ? 'ស្ថិតិនៃការទូទាត់តាម NBC Bakong KHQR, សាច់ប្រាក់ និងកាត' : 'Breakdown between Bakong KHQR, Cash, and Card processing.' }}</p>
+
+            <div class="providers-list mt-4">
+              <div *ngFor="let p of providers(); trackBy: trackByName" class="provider-stat-item">
+                <div class="p-info-row">
+                  <span class="font-bold">{{ p.name }}</span>
+                  <span class="font-mono font-bold text-cyan">&dollar;{{ p.revenue.toFixed(2) }} ({{ p.count }} orders)</span>
+                </div>
+                <div class="progress-track mirror-pill">
+                  <div class="progress-fill" [style.width.%]="getProviderPercentage(p.revenue)"></div>
+                </div>
+              </div>
+              <div *ngIf="providers().length === 0" class="empty-note text-muted">
+                {{ lang() === 'kh' ? 'មិនទាន់មានទិន្នន័យច្រកទូទាត់ក្នុងកាលបរិច្ឆេទនេះ' : 'No gateway data for this period.' }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Earning CV Templates & Services -->
+          <div class="card-panel mirror-card mirror-float">
+            <h3 class="panel-title">{{ lang() === 'kh' ? 'សេវាកម្ម & គំរូដែលរកចំណូលខ្ពស់បំផុត' : 'Top Earning Services & Templates' }}</h3>
+            <p class="panel-subtitle">{{ lang() === 'kh' ? 'ចំណាត់ថ្នាក់ផលិតផលតាមទំហំទឹកប្រាក់ និងបរិមាណលក់' : 'Ranked by total revenue volume and paid downloads.' }}</p>
+
+            <div class="services-list mt-4">
+              <div *ngFor="let s of topServices(); trackBy: trackByName" class="service-item-row">
+                <div class="s-left">
+                  <span class="s-icon">📄</span>
+                  <span class="s-name font-bold">{{ s.name }}</span>
+                </div>
+                <div class="s-right">
+                  <span class="s-rev font-mono font-bold text-green">&dollar;{{ s.revenue.toFixed(2) }}</span>
+                  <span class="s-count text-muted">• {{ s.count }} orders</span>
+                </div>
+              </div>
+              <div *ngIf="topServices().length === 0" class="empty-note text-muted">
+                {{ lang() === 'kh' ? 'មិនទាន់មានទិន្នន័យសេវាកម្មក្នុងកាលបរិច្ឆេទនេះ' : 'No service data for this period.' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+           TAB 3: CALCULATE (FINANCIAL TAX & MARGIN CALCULATOR)
+      ═══════════════════════════════════════════════════════════════════ -->
+      <section class="tab-pane animate-fade" *ngIf="currentTab() === 'calculate'">
+        <div class="pane-header">
+          <div class="flex items-center gap-4">
+            <div class="premium-3d-sticker sticker-calc-neon shrink-0" title="Precision Financial Calculator">
+              <svg viewBox="0 0 80 80" width="56" height="56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="calcGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
+                  </radialGradient>
+                  <linearGradient id="calcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#334155"/>
+                    <stop offset="100%" stop-color="#0f172a"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="40" cy="40" r="34" fill="url(#calcGlow)" class="sticker-pulse-aura"/>
+                <rect x="18" y="14" width="44" height="52" rx="12" fill="url(#calcGrad)" stroke="#c084fc" stroke-width="2"/>
+                <!-- LCD screen -->
+                <rect x="24" y="20" width="32" height="12" rx="4" fill="#0284c7" fill-opacity="0.2" stroke="#38bdf8" stroke-width="1"/>
+                <text x="52" y="29" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="bold" fill="#38bdf8" text-anchor="end">1,004,377៛</text>
+                <!-- Keypad -->
+                <circle cx="28" cy="40" r="3" fill="#64748b"/>
+                <circle cx="40" cy="40" r="3" fill="#64748b"/>
+                <circle cx="52" cy="40" r="3" fill="#f59e0b"/>
+                <circle cx="28" cy="50" r="3" fill="#64748b"/>
+                <circle cx="40" cy="50" r="3" fill="#64748b"/>
+                <circle cx="52" cy="50" r="3" fill="#10b981"/>
+              </svg>
+            </div>
+            <div>
+              <span class="cold-chip">TAX & MARGIN ENGINE</span>
+              <h1 class="pane-title">{{ lang() === 'kh' ? 'ម៉ាស៊ីនគណនាប្រាក់ចំណេញ & ពន្ធ' : 'Financial Profit & Tax Calculator' }}</h1>
+              <p class="pane-sub">{{ lang() === 'kh' ? 'គណនាប្រាក់ចំណេញសុទ្ធ បញ្ចុះតម្លៃ ការកាត់ពន្ធ និងបំប្លែងទៅជាប្រាក់រៀលស្វ័យប្រវត្តិ' : 'Calculate gross margin, discount deductions, tax withholding, and instant KHR conversions.' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Multi-Mode Segmented Switcher -->
+        <div class="calc-mode-switcher-bar mt-4 mb-5">
+          <div class="mode-segmented-pill mirror-pill">
+            <button
+              type="button"
+              class="mode-btn"
+              [class.active]="calcMode() === 'margin'"
+              (click)="setCalcMode('margin')"
+            >
+              <span>{{ lang() === 'kh' ? '📊 ប្រាក់ចំណេញ & Breakeven' : '📊 Profit & Margin Simulator' }}</span>
+            </button>
+            <button
+              type="button"
+              class="mode-btn"
+              [class.active]="calcMode() === 'withholding'"
+              (click)="setCalcMode('withholding')"
+            >
+              <span>{{ lang() === 'kh' ? '🇰🇭 ពន្ធកាត់ទុក & ប្រាក់បៀវត្ស' : '🇰🇭 Cambodia Tax Withholding' }}</span>
+            </button>
+            <button
+              type="button"
+              class="mode-btn"
+              [class.active]="calcMode() === 'runway'"
+              (click)="setCalcMode('runway')"
+            >
+              <span>{{ lang() === 'kh' ? '🚀 សន្សំ Bakong & Cash Runway' : '🚀 KHQR Savings & Runway' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Modern Visual Editorial Hero Banner: Calculator & Live Charts -->
+        <div class="calc-hero-banner mirror-card mirror-float mb-6">
+          <div class="calc-hero-content">
+            <span class="cold-chip">PRECISION FISCAL SIMULATOR</span>
+            <h2 class="calc-banner-title mt-2">
+              {{ lang() === 'kh' ? 'ម៉ាស៊ីនគណនាហិរញ្ញវត្ថុ និងប្រាក់ចំណេញ' : 'Interactive Fiscal Modeling & Unit Economics' }}
+            </h2>
+            <p class="calc-banner-desc mt-2">
+              {{ lang() === 'kh'
+                ? 'ពិសោធន៍ និងវិភាគអត្រាចំណេញសុទ្ធ ថ្លៃដើម COGS ពន្ធកាត់ទុក និងការសន្សំសំចៃជាមួយប្រព័ន្ធបាគង'
+                : 'Simulate gross margins, operating break-even targets, GDT Cambodian withholding schedules, and interbank cost reductions in real time.'
+              }}
+            </p>
+            <div class="calc-banner-tags mt-4">
+              <span class="stat-pill"><span class="pill-dot dot-green"></span> 100% Real-Time Reactive</span>
+              <span class="stat-pill"><span class="pill-dot dot-cyan"></span> Pegged to 4,100 KHR</span>
+              <span class="stat-pill"><span class="pill-dot dot-purple"></span> NBC Bakong 0% Rail</span>
+            </div>
+          </div>
+          <div class="calc-hero-visual">
+            <img src="assets/accountant/calculator-hero.jpg" alt="Financial Modeling Desk" class="calc-banner-img" />
+            <div class="calc-visual-overlay"></div>
+            <div class="calc-floating-chip mirror-pill">
+              <span class="ping-dot"></span>
+              <span>Active Model: <strong>{{ calcMode() === 'margin' ? 'Margin Simulator' : calcMode() === 'withholding' ? 'Cambodia GDT' : 'Bakong Runway' }}</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             MODE 1: PROFIT, MARGIN & BREAKEVEN SIMULATOR
+        ═══════════════════════════════════════════════════════════════ -->
+        <div *ngIf="calcMode() === 'margin'" class="calculator-grid animate-fade">
+          <!-- Inputs Card with Interactive Sliders -->
+          <div class="card-panel mirror-card mirror-float">
+            <div class="panel-head-flex">
+              <h3 class="panel-title">{{ lang() === 'kh' ? 'ប៉ារ៉ាម៉ែត្របញ្ចូល (Inputs)' : 'Input Financial Metrics' }}</h3>
+              <span class="badge-sub font-mono">Real-time Simulation</span>
+            </div>
+
+            <div class="calc-form mt-4">
+              <!-- Gross Sales -->
+              <div class="form-group">
+                <div class="slider-header-row">
+                  <label class="form-label">{{ lang() === 'kh' ? 'ចំណូលដុល ($ USD):' : 'Gross Sales ($ USD):' }}</label>
+                  <span class="slider-val-badge font-mono text-cyan">&dollar;{{ calcGrossSales }}</span>
+                </div>
+                <div class="slider-input-group">
+                  <input type="range" class="cold-slider" [(ngModel)]="calcGrossSales" (ngModelChange)="runCalculation()" min="10" max="5000" step="5" />
+                  <input type="number" class="cold-input mirror-pill input-num-sync" [(ngModel)]="calcGrossSales" (ngModelChange)="runCalculation()" step="1" min="0" />
+                </div>
+              </div>
+
+              <!-- Discount & COGS Row -->
+              <div class="form-row-2">
+                <div class="form-group">
+                  <div class="slider-header-row">
+                    <label class="form-label">{{ lang() === 'kh' ? 'បញ្ចុះតម្លៃ (%):' : 'Discount (%):' }}</label>
+                    <span class="slider-val-badge font-mono">{{ calcDiscount }}%</span>
+                  </div>
+                  <input type="range" class="cold-slider" [(ngModel)]="calcDiscount" (ngModelChange)="runCalculation()" min="0" max="50" step="1" />
+                </div>
+                <div class="form-group">
+                  <div class="slider-header-row">
+                    <label class="form-label">{{ lang() === 'kh' ? 'ថ្លៃដើម COGS ($):' : 'Cost of Goods ($):' }}</label>
+                    <span class="slider-val-badge font-mono text-rose">&dollar;{{ calcCostOfGoods }}</span>
+                  </div>
+                  <input type="range" class="cold-slider" [(ngModel)]="calcCostOfGoods" (ngModelChange)="runCalculation()" min="0" max="1500" step="5" />
+                </div>
+              </div>
+
+              <!-- OpEx & Tax Rate Row -->
+              <div class="form-row-2">
+                <div class="form-group">
+                  <div class="slider-header-row">
+                    <label class="form-label">{{ lang() === 'kh' ? 'ចំណាយប្រតិបត្តិការ ($):' : 'Operating OpEx ($):' }}</label>
+                    <span class="slider-val-badge font-mono text-purple">&dollar;{{ calcOperatingExpenses }}</span>
+                  </div>
+                  <input type="range" class="cold-slider" [(ngModel)]="calcOperatingExpenses" (ngModelChange)="runCalculation()" min="0" max="2500" step="10" />
+                </div>
+                <div class="form-group">
+                  <div class="slider-header-row">
+                    <label class="form-label">{{ lang() === 'kh' ? 'អត្រាពន្ធ (%):' : 'Tax Rate (%):' }}</label>
+                    <span class="slider-val-badge font-mono text-rose">{{ calcTaxRate }}%</span>
+                  </div>
+                  <input type="range" class="cold-slider" [(ngModel)]="calcTaxRate" (ngModelChange)="runCalculation()" min="0" max="30" step="1" />
+                </div>
+              </div>
+
+              <!-- Preset Scenarios -->
+              <div class="quick-presets-row">
+                <span class="text-xs text-muted">SCENARIOS:</span>
+                <button type="button" class="preset-chip mirror-pill" (click)="applyCalcPreset(100, 0, 10)">Standard $100</button>
+                <button type="button" class="preset-chip mirror-pill" (click)="applyCalcPreset(500, 10, 10)">Bundle $500</button>
+                <button type="button" class="preset-chip mirror-pill" (click)="applyCalcPreset(1500, 15, 20)">Enterprise $1.5k</button>
+              </div>
+
+              <!-- Visual Revenue Allocation Ribbon Bar -->
+              <div class="revenue-ribbon-container mt-6">
+                <div class="ribbon-label-row">
+                  <span class="text-xs text-muted font-bold tracking-wider">REVENUE ALLOCATION STACK:</span>
+                  <span class="text-xs font-mono text-green">100% Accounted</span>
+                </div>
+                <div class="stacked-ribbon-bar">
+                  <div class="ribbon-seg seg-cogs" [style.width.%]="(calcCostOfGoods / (calcResult().discountedGross || 1) * 100)" title="Cost of Goods (COGS)"></div>
+                  <div class="ribbon-seg seg-opex" [style.width.%]="(calcOperatingExpenses / (calcResult().discountedGross || 1) * 100)" title="Operating Expenses (OpEx)"></div>
+                  <div class="ribbon-seg seg-tax" [style.width.%]="(calcResult().taxAmount / (calcResult().discountedGross || 1) * 100)" title="Taxes Withheld"></div>
+                  <div class="ribbon-seg seg-net" [style.width.%]="Math.max(0, calcResult().profitMarginPercent)" title="Retained Net Income"></div>
+                </div>
+                <div class="ribbon-legend mt-2">
+                  <span class="leg-item"><span class="dot dot-cogs"></span> COGS</span>
+                  <span class="leg-item"><span class="dot dot-opex"></span> OpEx</span>
+                  <span class="leg-item"><span class="dot dot-tax"></span> Tax</span>
+                  <span class="leg-item"><span class="dot dot-net"></span> Net Profit</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Calculation Live Results & Breakeven Card -->
+          <div class="card-panel mirror-card mirror-float">
+            <h3 class="panel-title">{{ lang() === 'kh' ? 'លទ្ធផលហិរញ្ញវត្ថុដែលបានគណនា' : 'Calculated Net Results' }}</h3>
+
+            <div class="result-hero-box mirror-card mt-4">
+              <span class="rh-lbl">{{ lang() === 'kh' ? 'ប្រាក់ចំណេញសុទ្ធចុងក្រោយ (Net Profit After Tax)' : 'Net Profit After Tax' }}</span>
+              <h2 class="rh-val font-mono text-green">&dollar;{{ calcResult().netIncome.toFixed(2) }}</h2>
+              <span class="rh-khr">≈ {{ calcResult().inKhr.netIncomeKhr.toLocaleString('en-US') }} ៛ (Khmer Riel &#64; 4,100)</span>
+            </div>
+
+            <!-- Breakeven & Target Unit Analysis Widget -->
+            <div class="breakeven-widget-row mt-4">
+              <div class="mini-metric-pill mirror-card">
+                <span class="m-lbl">Breakeven Volume</span>
+                <span class="m-val font-mono text-cyan">{{ getBreakevenUnits() }} Orders</span>
+                <span class="m-sub text-muted">To cover overheads</span>
+              </div>
+              <div class="mini-metric-pill mirror-card">
+                <span class="m-lbl">Breakeven Revenue</span>
+                <span class="m-val font-mono text-purple">&dollar;{{ getBreakevenRevenue() }}</span>
+                <span class="m-sub text-muted">Monthly zero-loss baseline</span>
+              </div>
+            </div>
+
+            <div class="result-breakdown-table mt-4">
+              <div class="res-row">
+                <span>{{ lang() === 'kh' ? 'ចំណូលក្រោយបញ្ចុះតម្លៃ:' : 'Adjusted Gross Revenue:' }}</span>
+                <strong class="font-mono">&dollar;{{ calcResult().discountedGross.toFixed(2) }}</strong>
+              </div>
+              <div class="res-row">
+                <span>{{ lang() === 'kh' ? 'ប្រាក់ចំណេញដុល (Gross Margin):' : 'Gross Margin:' }}</span>
+                <strong class="font-mono text-cyan">&dollar;{{ calcResult().grossProfit.toFixed(2) }} ({{ calcResult().profitMarginPercent.toFixed(1) }}%)</strong>
+              </div>
+              <div class="res-row">
+                <span>{{ lang() === 'kh' ? 'ប្រាក់ចំណេញមុនពន្ធ (EBIT):' : 'Operating Income (EBIT):' }}</span>
+                <strong class="font-mono">&dollar;{{ calcResult().netBeforeTax.toFixed(2) }}</strong>
+              </div>
+              <div class="res-row text-rose">
+                <span>{{ lang() === 'kh' ? 'កាតព្វកិច្ចពន្ធត្រូវបង់ (' + calcTaxRate + '%):' : 'Tax Deduction (' + calcTaxRate + '%):' }}</span>
+                <strong class="font-mono">- &dollar;{{ calcResult().taxAmount.toFixed(2) }} ({{ calcResult().inKhr.taxAmountKhr.toLocaleString('en-US') }} ៛)</strong>
+              </div>
+            </div>
+
+            <button type="button" class="btn-copy-summary mirror-btn mt-6" (click)="copyCalcSummary()">
+              <span>📋</span>
+              <span>{{ lang() === 'kh' ? 'ចម្លងរបាយការណ៍សង្ខេប' : 'Copy Financial Summary' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             MODE 2: CAMBODIAN TAX WITHHOLDING & SALARY TAX (GDT)
+        ═══════════════════════════════════════════════════════════════ -->
+        <div *ngIf="calcMode() === 'withholding'" class="calculator-grid animate-fade">
+          <div class="card-panel mirror-card mirror-float">
+            <h3 class="panel-title">{{ lang() === 'kh' ? 'ជ្រើសរើសប្រភេទពន្ធកាត់ទុក' : 'Cambodian Tax Classification (GDT)' }}</h3>
+            <p class="panel-subtitle">National Bank of Cambodia & General Department of Taxation official statutory brackets.</p>
+
+            <div class="tax-type-selector-list mt-4">
+              <label class="tax-choice-card mirror-card" [class.selected]="withholdingType === 'service_15'">
+                <input type="radio" name="wType" [(ngModel)]="withholdingType" value="service_15" (change)="runWithholdingCalculation()" />
+                <div class="tc-content">
+                  <strong>15% Resident Services & Consulting</strong>
+                  <p class="text-muted text-xs">Technical, managerial, and consultancy services provided by residents.</p>
+                </div>
+                <span class="tc-rate text-cyan">15%</span>
+              </label>
+
+              <label class="tax-choice-card mirror-card" [class.selected]="withholdingType === 'salary_brackets'">
+                <input type="radio" name="wType" [(ngModel)]="withholdingType" value="salary_brackets" (change)="runWithholdingCalculation()" />
+                <div class="tc-content">
+                  <strong>Progressive Salary Tax Brackets</strong>
+                  <p class="text-muted text-xs">Monthly employee compensation tiered from 0% up to 20% in KHR.</p>
+                </div>
+                <span class="tc-rate text-green">0% - 20%</span>
+              </label>
+
+              <label class="tax-choice-card mirror-card" [class.selected]="withholdingType === 'rental_10'">
+                <input type="radio" name="wType" [(ngModel)]="withholdingType" value="rental_10" (change)="runWithholdingCalculation()" />
+                <div class="tc-content">
+                  <strong>10% Property & Real Estate Rental</strong>
+                  <p class="text-muted text-xs">Rental payments for movable and immovable property.</p>
+                </div>
+                <span class="tc-rate text-purple">10%</span>
+              </label>
+
+              <label class="tax-choice-card mirror-card" [class.selected]="withholdingType === 'non_resident_14'">
+                <input type="radio" name="wType" [(ngModel)]="withholdingType" value="non_resident_14" (change)="runWithholdingCalculation()" />
+                <div class="tc-content">
+                  <strong>14% Non-Resident Withholding Tax</strong>
+                  <p class="text-muted text-xs">Dividends, interest, royalties, and fees to offshore entities.</p>
+                </div>
+                <span class="tc-rate text-rose">14%</span>
+              </label>
+            </div>
+
+            <!-- Gross Amount Input -->
+            <div class="form-group mt-6">
+              <label class="form-label">{{ lang() === 'kh' ? 'ចំនួនទឹកប្រាក់ទូទាត់សរុប ($ USD):' : 'Gross Payment Base ($ USD):' }}</label>
+              <div class="amount-input-box">
+                <span class="currency-prefix">&dollar;</span>
+                <input
+                  type="number"
+                  class="cold-input amount-large-input mirror-pill"
+                  [(ngModel)]="withholdingGross"
+                  (ngModelChange)="runWithholdingCalculation()"
+                  min="1"
+                  step="10"
+                />
+              </div>
+              <span class="text-xs text-muted mt-1 block font-mono">
+                ≈ {{ Math.round(withholdingGross * 4100).toLocaleString('en-US') }} ៛ KHR (Benchmark &#64; 4,100)
+              </span>
+            </div>
+          </div>
+
+          <!-- Withholding Calculation Results Card -->
+          <div class="card-panel mirror-card mirror-float">
+            <h3 class="panel-title">{{ lang() === 'kh' ? 'លទ្ធផលកាត់ពន្ធ និងទឹកប្រាក់ត្រូវបើក' : 'Withholding & Net Payable Breakdown' }}</h3>
+
+            <div class="result-hero-box mirror-card mt-4">
+              <span class="rh-lbl">Net Amount Payable to Vendor / Employee</span>
+              <h2 class="rh-val font-mono text-green">&dollar;{{ withholdingResult().netUsd.toFixed(2) }}</h2>
+              <span class="rh-khr">≈ {{ withholdingResult().netKhr.toLocaleString('en-US') }} ៛ KHR</span>
+            </div>
+
+            <!-- Tax Amount Callout -->
+            <div class="tax-withheld-callout mirror-card mt-4">
+              <div class="tw-left">
+                <span class="tw-badge text-rose font-bold">TAX TO REMIT TO GDT</span>
+                <h3 class="tw-amount font-mono text-rose mt-1">&dollar;{{ withholdingResult().taxUsd.toFixed(2) }}</h3>
+                <span class="tw-khr text-muted text-xs">≈ {{ withholdingResult().taxKhr.toLocaleString('en-US') }} ៛ KHR</span>
+              </div>
+              <div class="tw-right text-right">
+                <span class="cold-chip">{{ withholdingResult().rateLabel }}</span>
+              </div>
+            </div>
+
+            <!-- Salary Brackets Table (if salary progressive chosen) -->
+            <div *ngIf="withholdingResult().brackets.length > 0" class="salary-tier-table-wrap mt-4">
+              <h4 class="text-xs font-bold text-muted uppercase tracking-wider mb-2">Progressive Tier Breakdown (KHR):</h4>
+              <table class="salary-tiers-table font-mono text-xs">
+                <thead>
+                  <tr>
+                    <th>Salary Tier (៛)</th>
+                    <th>Rate</th>
+                    <th>Taxable (៛)</th>
+                    <th>Tax (៛)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let b of withholdingResult().brackets">
+                    <td>{{ b.bracket }}</td>
+                    <td>{{ b.rate }}</td>
+                    <td>{{ b.taxableKhr.toLocaleString() }} ៛</td>
+                    <td class="text-rose">{{ b.taxKhr.toLocaleString() }} ៛</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <button type="button" class="btn-copy-summary mirror-btn mt-6" (click)="copyToClipboard('Gross: $' + withholdingResult().grossUsd + ' | Tax Remit: $' + withholdingResult().taxUsd + ' (' + withholdingResult().taxKhr.toLocaleString() + ' KHR) | Net Payable: $' + withholdingResult().netUsd, 'Withholding Summary')">
+              <span>📋</span>
+              <span>Copy Withholding Summary</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             MODE 3: BAKONG KHQR SAVINGS & CASH RUNWAY ESTIMATOR
+        ═══════════════════════════════════════════════════════════════ -->
+        <div *ngIf="calcMode() === 'runway'" class="calculator-grid animate-fade">
+          <!-- Bakong Fee Savings Card -->
+          <div class="card-panel mirror-card mirror-float">
+            <div class="flex items-center gap-3">
+              <div class="bakong-logo-badge">KHQR</div>
+              <div>
+                <h3 class="panel-title">Bakong 0% Fee Savings</h3>
+                <p class="panel-subtitle">Zero intermediary fees compared to international payment rails.</p>
+              </div>
+            </div>
+
+            <div class="calc-form mt-4">
+              <div class="form-group">
+                <label class="form-label">Monthly Transaction Volume ($ USD):</label>
+                <div class="slider-header-row">
+                  <input type="range" class="cold-slider" [(ngModel)]="bakongMonthlyVolume" min="1000" max="100000" step="500" />
+                  <span class="slider-val-badge font-mono text-cyan">&dollar;{{ bakongMonthlyVolume.toLocaleString() }}</span>
+                </div>
+              </div>
+
+              <!-- Comparison Matrix -->
+              <div class="rail-comparison-matrix mt-4">
+                <div class="rail-card mirror-card">
+                  <span class="rail-name">Bakong KHQR (NBC)</span>
+                  <span class="rail-fee text-green font-mono">0.0% Fee</span>
+                  <span class="rail-note text-xs text-muted">Direct national settlement</span>
+                </div>
+                <div class="rail-card mirror-card">
+                  <span class="rail-name">Visa / Mastercard / Stripe</span>
+                  <span class="rail-fee text-rose font-mono">3.5% + $0.30/tx</span>
+                  <span class="rail-note text-xs text-muted">Merchant gateway fees</span>
+                </div>
+              </div>
+
+              <div class="savings-callout-hero mirror-card mt-6">
+                <span class="sc-lbl text-xs font-bold text-muted uppercase">ESTIMATED MONTHLY SAVINGS WITH BAKONG:</span>
+                <h2 class="sc-val font-mono text-green mt-1">&dollar;{{ getBakongFeeSavings().toFixed(2) }} / mo</h2>
+                <span class="sc-annual text-cyan font-mono text-xs font-bold">
+                  ≈ &dollar;{{ (getBakongFeeSavings() * 12).toFixed(2) }} saved every year!
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cash Runway Estimator Card -->
+          <div class="card-panel mirror-card mirror-float">
+            <h3 class="panel-title">Operational Cash Runway</h3>
+            <p class="panel-subtitle">Estimate operational runway based on cash reserves and monthly net burn.</p>
+
+            <div class="calc-form mt-4">
+              <div class="form-group">
+                <label class="form-label">Liquid Cash Reserves in Bank ($ USD):</label>
+                <input type="number" class="cold-input mirror-pill" [(ngModel)]="runwayCashReserves" min="0" step="500" />
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label class="form-label">Monthly Gross Burn / Expenses ($):</label>
+                  <input type="number" class="cold-input mirror-pill" [(ngModel)]="runwayMonthlyBurn" min="0" step="100" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Monthly Inflow / Cash Revenue ($):</label>
+                  <input type="number" class="cold-input mirror-pill" [(ngModel)]="runwayMonthlyRevenue" min="0" step="100" />
+                </div>
+              </div>
+
+              <div class="runway-hero-box mirror-card mt-6">
+                <span class="rh-lbl text-xs font-bold text-muted uppercase">ESTIMATED CASH RUNWAY:</span>
+                <h2 class="rh-val font-mono text-purple mt-1">{{ getRunwayMonths() }}</h2>
+                <p class="text-xs text-muted mt-2">
+                  Net Monthly Cash Flow:
+                  <strong class="font-mono" [class.text-green]="runwayMonthlyRevenue >= runwayMonthlyBurn" [class.text-rose]="runwayMonthlyRevenue < runwayMonthlyBurn">
+                    {{ runwayMonthlyRevenue >= runwayMonthlyBurn ? '+' : '-' }}&dollar;{{ Math.abs(runwayMonthlyRevenue - runwayMonthlyBurn).toFixed(2) }} / mo
+                  </strong>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+           TAB 4: REPORT (FORMAL P&L FINANCIAL STATEMENT & EXPORT)
+      ═══════════════════════════════════════════════════════════════════ -->
+      <section class="tab-pane animate-fade" *ngIf="currentTab() === 'report'">
+        <div class="pane-header">
+          <div class="flex items-center gap-4">
+            <div class="premium-3d-sticker sticker-report-seal shrink-0" title="Certified Financial Audit Statement">
+              <svg viewBox="0 0 80 80" width="56" height="56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="rGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+                  </radialGradient>
+                  <linearGradient id="sheetGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#f8fafc"/>
+                    <stop offset="100%" stop-color="#e2e8f0"/>
+                  </linearGradient>
+                  <linearGradient id="stampGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#fde047"/>
+                    <stop offset="100%" stop-color="#ca8a04"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="40" cy="40" r="34" fill="url(#rGlow)" class="sticker-pulse-aura"/>
+                <!-- Document paper -->
+                <rect x="22" y="14" width="36" height="52" rx="6" fill="url(#sheetGrad)" stroke="#cbd5e1" stroke-width="2"/>
+                <line x1="28" y1="24" x2="52" y2="24" stroke="#64748b" stroke-width="2" stroke-linecap="round"/>
+                <line x1="28" y1="32" x2="48" y2="32" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+                <line x1="28" y1="40" x2="44" y2="40" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+                <!-- Golden Wax Stamp Seal -->
+                <circle cx="46" cy="52" r="10" fill="url(#stampGold)" stroke="#fef08a" stroke-width="1.5"/>
+                <path d="M43 52l2 2 4-4" stroke="#713f12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <span class="cold-chip">OFFICIAL FINANCIAL STATEMENT</span>
+              <h1 class="pane-title">{{ lang() === 'kh' ? 'របាយការណ៍ចំណេញ-ខាតផ្លូវការ (P&L)' : 'Profit & Loss Statement (P&L)' }}</h1>
+              <p class="pane-sub">{{ lang() === 'kh' ? 'របាយការណ៍ហិរញ្ញវត្ថុសម្រាប់គណនេយ្យ អាចទាញយកជា CSV ឬ Print ចេញបាន' : 'Official balance sheet & operating income statement with export and print capabilities.' }}</p>
+            </div>
+          </div>
+          <div class="pane-actions">
+            <button type="button" class="btn-outline-cold mirror-btn" (click)="exportCsv()">
+              <span>📥</span>
+              <span>{{ lang() === 'kh' ? 'ទាញយក CSV' : 'Export CSV' }}</span>
+            </button>
+            <button type="button" class="btn-outline-cold mirror-btn" (click)="printReport()">
+              <span>🖨️</span>
+              <span>{{ lang() === 'kh' ? 'បោះពុម្ព (Print A4)' : 'Print Statement' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Executive P&L Visual Spotlight Banner -->
+        <div class="report-spotlight-banner mirror-card mirror-float mt-4 mb-6">
+          <div class="report-banner-content">
+            <span class="cold-chip">OFFICIAL AUDITED P&amp;L REPORT</span>
+            <h2 class="report-banner-title mt-2">
+              {{ lang() === 'kh' ? 'របាយការណ៍ហិរញ្ញវត្ថុសវនកម្មផ្លូវការ' : 'Audited Corporate Income & Balance Statement' }}
+            </h2>
+            <p class="report-banner-lead mt-2">
+              {{ lang() === 'kh'
+                ? 'របាយការណ៍ហិរញ្ញវត្ថុដែលត្រូវបានផ្ទៀងផ្ទាត់ដោយប្រព័ន្ធទ្វេភាគី ស្របតាមស្តង់ដារពន្ធដារ និងគណនេយ្យកម្ពុជា'
+                : 'Double-entry certified statement of comprehensive income. Verified against bank settlement deposits and Cambodian GDT compliance.'
+              }}
+            </p>
+            <div class="report-meta-badges mt-4">
+              <span class="trust-badge-pill"><span class="badge-dot dot-green"></span> GDT Prakas Certified</span>
+              <span class="trust-badge-pill"><span class="badge-dot dot-cyan"></span> Period: {{ reportPeriod() }}</span>
+              <span class="trust-badge-pill"><span class="badge-dot dot-purple"></span> Dual Parity: 4,100 KHR</span>
+            </div>
+          </div>
+          <div class="report-banner-visual">
+            <img src="assets/accountant/audited-statement.jpg" alt="Audited Statement with Gold Seal" class="report-banner-img" />
+            <div class="report-visual-overlay"></div>
+            <div class="report-seal-badge mirror-pill">
+              <span class="seal-icon">🏛️</span>
+              <span>Official Corporate Audit Seal</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Executive KPI Summary Cards -->
+        <div class="report-kpi-summary-grid mb-6">
+          <div class="report-kpi-card mirror-card mirror-float">
+            <div class="rk-header">
+              <span class="rk-icon-box box-green">💰</span>
+              <span class="rk-tag text-green">+18.4% MoM</span>
+            </div>
+            <span class="rk-label mt-3">GROSS RECORDED REVENUE</span>
+            <h3 class="rk-value font-mono text-green">&dollar;{{ reportSummary().grossRevenue.toFixed(2) }}</h3>
+            <span class="rk-sub text-muted font-mono">≈ {{ Math.round(reportSummary().grossRevenue * 4100).toLocaleString('en-US') }} ៛ ({{ reportSummary().totalTransactions }} orders)</span>
+          </div>
+
+          <div class="report-kpi-card mirror-card mirror-float">
+            <div class="rk-header">
+              <span class="rk-icon-box box-rose">📉</span>
+              <span class="rk-tag text-rose">Fees &amp; Server</span>
+            </div>
+            <span class="rk-label mt-3">TOTAL OPERATING DEDUCTIONS</span>
+            <h3 class="rk-value font-mono text-rose">- &dollar;{{ (reportSummary().gatewayFees + reportSummary().infrastructureCosts + reportSummary().manualDeductions).toFixed(2) }}</h3>
+            <span class="rk-sub text-muted font-mono">Gateway + Cloud + Adjustments</span>
+          </div>
+
+          <div class="report-kpi-card mirror-card mirror-float active-profit">
+            <div class="rk-header">
+              <span class="rk-icon-box box-cyan">💎</span>
+              <span class="rk-tag text-cyan">AUDITED NET</span>
+            </div>
+            <span class="rk-label mt-3">FINAL NET PROFIT AFTER TAX</span>
+            <h3 class="rk-value font-mono text-cyan">&dollar;{{ reportSummary().netIncomeAfterTax.toFixed(2) }}</h3>
+            <span class="rk-sub text-green font-mono font-bold">≈ {{ Math.round(reportSummary().netIncomeAfterTax * 4100).toLocaleString('en-US') }} ៛ KHR</span>
+          </div>
+        </div>
+
+        <!-- Formal Printable Statement Sheet (Modern Certificate Style) -->
+        <div class="card-panel printable-statement-sheet mirror-card">
+          <div class="statement-header-block">
+            <div class="sh-left">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="cold-chip">OFFICIAL FINANCIAL STATEMENT</span>
+                <span class="sh-status-stamp">AUDITED / VERIFIED</span>
+              </div>
+              <h2 class="sh-company">CQ CAREER TECHNOLOGIES CO., LTD.</h2>
+              <p class="sh-doc-title font-mono">STATEMENT OF COMPREHENSIVE INCOME</p>
+              <p class="sh-meta">Accounting Period: <strong>{{ reportPeriod() }}</strong> | Pegged Currency: <strong>USD / KHR (4,100)</strong></p>
+            </div>
+            <div class="sh-right text-right">
+              <div class="audit-certificate-box">
+                <span class="cert-title">CERTIFIED ACCREDITED AUDIT</span>
+                <span class="cert-id font-mono text-cyan">REG: NAC-KH-2026-9812</span>
+                <p class="text-xs text-muted mt-1">Generated: {{ todayStr }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="statement-table-block mt-6">
+            <div class="st-section-head">
+              <span class="st-sec-num">1</span>
+              <h4 class="st-section-title">REVENUE (ចំណូលដុល)</h4>
+            </div>
+            <table class="st-table">
+              <tbody>
+                <tr class="st-row-hover">
+                  <td>{{ lang() === 'kh' ? 'ចំណូលដុលពីការលក់គំរូ CV & សេវាកម្ម' : 'Gross Revenue from CV & Career Services' }}</td>
+                  <td class="text-right font-mono font-bold text-green">&dollar;{{ reportSummary().grossRevenue.toFixed(2) }}</td>
+                </tr>
+                <tr class="st-row-hover">
+                  <td class="pl-6 text-muted">{{ lang() === 'kh' ? 'ចំនួនប្រតិបត្តិការសរុបដែលបានកត់ត្រា' : 'Total Recorded Transactions (Central SQLite Store)' }}</td>
+                  <td class="text-right font-mono text-muted">{{ reportSummary().totalTransactions }} orders</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="st-section-head mt-6">
+              <span class="st-sec-num">2</span>
+              <h4 class="st-section-title">OPERATIONAL DEDUCTIONS &amp; FEES (ការកាត់ចំណាយ)</h4>
+            </div>
+            <table class="st-table">
+              <tbody>
+                <tr class="st-row-hover">
+                  <td>{{ lang() === 'kh' ? 'កម្រៃជើងសារច្រកទូទាត់ (Payment Gateway Fees @ 1.5%)' : 'Payment Gateway Processing Fees (Est. 1.5%)' }}</td>
+                  <td class="text-right font-mono text-rose">- &dollar;{{ reportSummary().gatewayFees.toFixed(2) }}</td>
+                </tr>
+                <tr class="st-row-hover">
+                  <td>{{ lang() === 'kh' ? 'ថ្លៃ Cloud Infrastructure & Server' : 'Cloud Infrastructure & Server Allocation' }}</td>
+                  <td class="text-right font-mono text-rose">- &dollar;{{ reportSummary().infrastructureCosts.toFixed(2) }}</td>
+                </tr>
+                <tr *ngIf="reportSummary().manualDeductions > 0" class="st-row-hover">
+                  <td>{{ lang() === 'kh' ? 'ការដកប្រាក់ ឬការសងដោយដៃ (Manual Deductions)' : 'Manual Deductions & Refunds Recorded' }}</td>
+                  <td class="text-right font-mono text-rose">- &dollar;{{ reportSummary().manualDeductions.toFixed(2) }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="st-section-head mt-6">
+              <span class="st-sec-num">3</span>
+              <h4 class="st-section-title">OPERATING INCOME &amp; TAX (ប្រាក់ចំណេញ &amp; ពន្ធ)</h4>
+            </div>
+            <table class="st-table">
+              <tbody>
+                <tr class="st-row-hover">
+                  <td class="font-bold">{{ lang() === 'kh' ? 'ប្រាក់ចំណេញប្រតិបត្តិការមុនពន្ធ (EBIT)' : 'Operating Income Before Tax (EBIT)' }}</td>
+                  <td class="text-right font-mono font-bold text-cyan">&dollar;{{ reportSummary().netOperatingIncome.toFixed(2) }}</td>
+                </tr>
+                <tr class="st-row-hover">
+                  <td class="pl-6 text-muted">{{ lang() === 'kh' ? 'ពន្ធកាត់ទុកប៉ាន់ស្មាន (10% Withholding Tax)' : 'Estimated 10% Withholding Tax Obligation' }}</td>
+                  <td class="text-right font-mono text-rose">- &dollar;{{ reportSummary().taxWithheld10Pct.toFixed(2) }}</td>
+                </tr>
+                <tr class="st-total-row">
+                  <td class="font-bold text-base">{{ lang() === 'kh' ? 'ប្រាក់ចំណេញសុទ្ធចុងក្រោយ (FINAL NET PROFIT)' : 'FINAL NET PROFIT AFTER TAX' }}</td>
+                  <td class="text-right font-mono font-bold text-xl text-green">&dollar;{{ reportSummary().netIncomeAfterTax.toFixed(2) }}</td>
+                </tr>
+                <tr class="st-khr-row">
+                  <td class="text-muted">{{ lang() === 'kh' ? 'សមមូលជាប្រាក់រៀល (In Khmer Riel @ 4,100 KHR)' : 'Equivalent in Khmer Riel (@ 4,100 KHR Benchmark)' }}</td>
+                  <td class="text-right font-mono font-bold text-base text-cyan">{{ Math.round(reportSummary().netIncomeAfterTax * 4100).toLocaleString('en-US') }} ៛</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Sign-Off Block for Official Printouts with Real Executive Signatures -->
+          <div class="statement-signatures-row mt-10">
+            <div class="sig-col">
+              <div class="sig-profile-wrap">
+                <img src="assets/saing-sokaiya-photo.jpg" alt="Sokha Ly" class="sig-avatar-img" />
+                <div>
+                  <span class="sig-name">Sokha Ly, CPA</span>
+                  <span class="sig-title">Chief Financial Auditor • NAC Registered</span>
+                </div>
+              </div>
+              <span class="sig-hash font-mono">AUDIT-HASH: 0x8a92...e471</span>
+            </div>
+            <div class="sig-col">
+              <div class="sig-profile-wrap">
+                <img src="assets/lorna-alvarado-photo.png" alt="Lorna Alvarado" class="sig-avatar-img" />
+                <div>
+                  <span class="sig-name">Lorna Alvarado</span>
+                  <span class="sig-title">Senior Tax &amp; Finance Director</span>
+                </div>
+              </div>
+              <span class="sig-hash font-mono">GDT-COMPLIANCE: VERIFIED</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+           SUBVIEWS (MORE -> CONTACT, ABOUT, HELP)
+      ═══════════════════════════════════════════════════════════════════ -->
+      <!-- Subview: Contact -->
+      <section class="tab-pane animate-fade" *ngIf="currentTab() === 'contact'">
+        <div class="pane-header">
+          <div class="flex items-center gap-4">
+            <div class="premium-3d-sticker sticker-concierge-headset shrink-0" title="24/7 Priority Accounting Concierge">
+              <svg viewBox="0 0 80 80" width="56" height="56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="headsetGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+                  </radialGradient>
+                  <linearGradient id="headbandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#38bdf8"/>
+                    <stop offset="50%" stop-color="#818cf8"/>
+                    <stop offset="100%" stop-color="#c084fc"/>
+                  </linearGradient>
+                  <linearGradient id="earGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#1e293b"/>
+                    <stop offset="100%" stop-color="#0f172a"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="40" cy="40" r="34" fill="url(#headsetGlow)" class="sticker-pulse-aura"/>
+                <path d="M22 44 C22 24, 58 24, 58 44" stroke="url(#headbandGrad)" stroke-width="5" stroke-linecap="round"/>
+                <rect x="18" y="38" width="10" height="20" rx="5" fill="url(#earGrad)" stroke="#38bdf8" stroke-width="1.8"/>
+                <rect x="52" y="38" width="10" height="20" rx="5" fill="url(#earGrad)" stroke="#c084fc" stroke-width="1.8"/>
+                <path d="M24 54 C24 64, 38 66, 44 65" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="45" cy="65" r="3.5" fill="#34d399" class="sticker-flame-pulse"/>
+                <rect x="33" y="36" width="3" height="12" rx="1.5" fill="#38bdf8" class="sticker-wave-bar1"/>
+                <rect x="39" y="30" width="3" height="22" rx="1.5" fill="#818cf8" class="sticker-wave-bar2"/>
+                <rect x="45" y="34" width="3" height="16" rx="1.5" fill="#34d399" class="sticker-wave-bar3"/>
+              </svg>
+            </div>
+            <div>
+              <span class="cold-chip">CONCIERGE & SUPPORT</span>
+              <h1 class="pane-title">{{ lang() === 'kh' ? 'ទំនាក់ទំនងផ្នែកគណនេយ្យ & សវនកម្ម' : 'Accounting & Finance Concierge' }}</h1>
+              <p class="pane-sub">{{ lang() === 'kh' ? 'បណ្តាញទំនាក់ទំនងផ្ទាល់សម្រាប់ក្រុមការងារហិរញ្ញវត្ថុ ការទូទាត់ប្រាក់ និងការផ្ទៀងផ្ទាត់បញ្ជី' : 'Direct executive channels for ledger reconciliation, bank settlement disputes, and audit support.' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2-Column Grid: Left: Ticket Dispatcher, Right: Live Staff & Telemetry -->
+        <div class="contact-main-grid mt-4">
+          <!-- Column 1: Interactive VIP Reconciliation Dispatcher -->
+          <div class="card-panel concierge-dispatcher-card mirror-card mirror-float">
+            <div class="panel-head-flex">
+              <div>
+                <span class="cold-chip">PRIORITY AUDIT QUEUE</span>
+                <h3 class="panel-title mt-1">{{ lang() === 'kh' ? 'ផ្ញើសារសាកសួរ ឬរាយការណ៍បញ្ហា' : 'Dispatch Reconciliation Request' }}</h3>
+                <p class="panel-subtitle">Instant secure transmission to Senior Auditor &amp; Telegram Bot broadcast.</p>
+              </div>
+              <span class="live-status-pill"><span class="ping-dot"></span> Avg. Response &lt; 15 mins</span>
+            </div>
+
+            <form (submit)="sendConciergeTicket($event)" class="concierge-form mt-4">
+              <!-- Category Selector Chips with Icons -->
+              <div class="form-group">
+                <label class="form-label">Reconciliation Category:</label>
+                <div class="category-choice-pills">
+                  <button
+                    type="button"
+                    class="choice-chip"
+                    [class.selected]="ticketCategory === 'Reconciliation & Discrepancy'"
+                    (click)="ticketCategory = 'Reconciliation & Discrepancy'"
+                  >
+                    <span>🔍 Ledger Discrepancy</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="choice-chip"
+                    [class.selected]="ticketCategory === 'Bakong KHQR Settlement'"
+                    (click)="ticketCategory = 'Bakong KHQR Settlement'"
+                  >
+                    <span>⚡ Bakong KHQR</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="choice-chip"
+                    [class.selected]="ticketCategory === 'Tax & Withholding'"
+                    (click)="ticketCategory = 'Tax & Withholding'"
+                  >
+                    <span>🏛️ Tax &amp; GDT</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="choice-chip"
+                    [class.selected]="ticketCategory === 'General Ledger Support'"
+                    (click)="ticketCategory = 'General Ledger Support'"
+                  >
+                    <span>💼 Account Access</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Priority Selector Pills with Icons -->
+              <div class="form-group">
+                <label class="form-label">Urgency &amp; Priority Level:</label>
+                <div class="priority-choice-pills">
+                  <button
+                    type="button"
+                    class="priority-chip chip-urgent"
+                    [class.selected]="ticketPriority === 'Urgent'"
+                    (click)="ticketPriority = 'Urgent'"
+                  >
+                    <span>🚨 Urgent (&lt; 15 mins)</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="priority-chip chip-high"
+                    [class.selected]="ticketPriority === 'High Priority'"
+                    (click)="ticketPriority = 'High Priority'"
+                  >
+                    <span>⚡ High Priority</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="priority-chip chip-standard"
+                    [class.selected]="ticketPriority === 'Standard'"
+                    (click)="ticketPriority = 'Standard'"
+                  >
+                    <span>☕ Standard Routine</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Subject & Order ID -->
+              <div class="form-group">
+                <label class="form-label">Subject / Order ID Reference:</label>
+                <input
+                  type="text"
+                  class="cold-input mirror-pill font-mono"
+                  [(ngModel)]="ticketSubject"
+                  name="ticketSubject"
+                  placeholder="e.g. Order #78 ABA Reconciliation Mismatch"
+                  required
+                />
+              </div>
+
+              <!-- Notes / Request Body -->
+              <div class="form-group">
+                <label class="form-label">Detailed Notes &amp; Transaction Hashes:</label>
+                <textarea
+                  class="cold-textarea mirror-card font-mono"
+                  rows="4"
+                  [(ngModel)]="ticketMessage"
+                  name="ticketMessage"
+                  placeholder="Provide transaction hashes, customer details, or reconciliation specifics..."
+                  required
+                ></textarea>
+              </div>
+
+              <div class="flex items-center justify-between mt-4">
+                <span class="text-xs text-muted font-mono flex items-center gap-1">
+                  <span>✈️</span>
+                  <span>Direct broadcast to Telegram &#64;cqprofessionalpayment_bot</span>
+                </span>
+                <button type="submit" class="btn-action-primary btn-green mirror-btn mirror-float" [disabled]="isSendingTicket()">
+                  <span>{{ isSendingTicket() ? 'Dispatching...' : 'Dispatch Ticket ✈️' }}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Column 2: Live Concierge Team & Telemetry -->
+          <div class="contact-side-col">
+            <!-- Team Member 1: Senior Auditor -->
+            <div class="concierge-staff-card mirror-card mirror-float">
+              <div class="staff-avatar-wrap">
+                <img src="assets/saing-sokaiya-photo.jpg" alt="Sokha Ly" class="staff-photo-avatar" />
+                <span class="online-indicator"></span>
+              </div>
+              <div class="staff-meta">
+                <div class="flex items-center justify-between">
+                  <h4 class="staff-name">Sokha Ly</h4>
+                  <span class="staff-role-badge">Chief Auditor</span>
+                </div>
+                <p class="staff-email font-mono text-muted text-xs">finance-lead&#64;cqprofessional.com</p>
+                <div class="staff-actions-row mt-3">
+                  <button type="button" class="btn-micro-chip mirror-pill" (click)="copyToClipboard('finance-lead@cqprofessional.com', 'Auditor Email')">
+                    Copy Email
+                  </button>
+                  <a href="https://t.me/cqprofessionalpayment_bot" target="_blank" rel="noopener noreferrer" class="btn-micro-chip mirror-pill text-cyan">
+                    Telegram Direct ↗
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Team Member 2: Settlement Specialist -->
+            <div class="concierge-staff-card mirror-card mirror-float mt-3">
+              <div class="staff-avatar-wrap">
+                <img src="assets/mike-richrd-photo.png" alt="Sovan Net" class="staff-photo-avatar" />
+                <span class="online-indicator"></span>
+              </div>
+              <div class="staff-meta">
+                <div class="flex items-center justify-between">
+                  <h4 class="staff-name">Sovan Net</h4>
+                  <span class="staff-role-badge bg-blue">Gateway Lead</span>
+                </div>
+                <p class="staff-email font-mono text-muted text-xs">reconciliation&#64;cqprofessional.com</p>
+                <div class="staff-actions-row mt-3">
+                  <button type="button" class="btn-micro-chip mirror-pill" (click)="copyToClipboard('reconciliation@cqprofessional.com', 'Settlement Email')">
+                    Copy Email
+                  </button>
+                  <button type="button" class="btn-micro-chip mirror-pill" (click)="copyToClipboard('@sovan_cqfinance', 'Telegram Handle')">
+                    Telegram
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Team Member 3: Senior Tax Director -->
+            <div class="concierge-staff-card mirror-card mirror-float mt-3">
+              <div class="staff-avatar-wrap">
+                <img src="assets/lorna-alvarado-photo.png" alt="Lorna Alvarado" class="staff-photo-avatar" />
+                <span class="online-indicator"></span>
+              </div>
+              <div class="staff-meta">
+                <div class="flex items-center justify-between">
+                  <h4 class="staff-name">Lorna Alvarado</h4>
+                  <span class="staff-role-badge bg-purple">Tax &amp; Compliance</span>
+                </div>
+                <p class="staff-email font-mono text-muted text-xs">tax-council&#64;cqprofessional.com</p>
+                <div class="staff-actions-row mt-3">
+                  <button type="button" class="btn-micro-chip mirror-pill" (click)="copyToClipboard('tax-council@cqprofessional.com', 'Tax Council Email')">
+                    Copy Email
+                  </button>
+                  <span class="text-xs text-muted font-mono">GDT Prakas Advisor</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Phnom Penh Operations Status Widget -->
+            <div class="phnom-penh-time-card mirror-card mt-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-muted font-bold tracking-wider flex items-center gap-1.5">
+                  <span>🇰🇭</span>
+                  <span>PHNOM PENH HEADQUARTERS</span>
+                </span>
+                <span class="badge-status-green">ACTIVE SESSION</span>
+              </div>
+              <div class="time-readout mt-2">
+                <span class="time-digit font-mono text-cyan">{{ todayStr }}</span>
+                <span class="time-tz text-xs text-muted block">Indochina Time (UTC+7) • Mon-Sat 08:00 - 18:00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cambodian Bank Settlement & Wire Transfer Details (Luxury Metallic Cards) -->
+        <div class="card-panel bank-settlement-card mirror-card mirror-float mt-6">
+          <div class="panel-head-flex">
+            <div>
+              <span class="cold-chip">OFFICIAL WIRE &amp; SETTLEMENT RAILS</span>
+              <h3 class="panel-title mt-1">Cambodian Banking &amp; NBC Bakong Channels</h3>
+              <p class="panel-subtitle">Official verified corporate deposit accounts for treasury management and customer KHQR settlements.</p>
+            </div>
+            <span class="verified-seal-tag">NBC / BAKONG CERTIFIED</span>
+          </div>
+
+          <div class="bank-accounts-grid mt-5">
+            <!-- ABA Bank Card (Luxury Obsidian Metallic Card) -->
+            <div class="luxury-metal-card card-aba mirror-float">
+              <div class="metal-card-chip-row">
+                <!-- SVG EMV Smart Chip -->
+                <svg width="40" height="30" viewBox="0 0 40 30" fill="none" class="emv-chip-svg">
+                  <rect width="40" height="30" rx="6" fill="#eab308" stroke="#ca8a04" stroke-width="1.5"/>
+                  <path d="M0 15h40M20 0v30M10 0v30M30 0v30" stroke="#713f12" stroke-width="0.8" opacity="0.6"/>
+                  <circle cx="20" cy="15" r="4" fill="#facc15" stroke="#713f12" stroke-width="0.8"/>
+                </svg>
+                <!-- SVG Contactless Waves -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="nfc-waves-svg text-cyan">
+                  <path d="M9 12a4 4 0 0 1 0-6M12 15a8 8 0 0 0 0-12M15 18a12 12 0 0 0 0-18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="currency-tag-pill">USD ($)</span>
+              </div>
+              <div class="metal-card-number font-mono text-xl">001 988 234</div>
+              <div class="metal-card-holder-row">
+                <div>
+                  <span class="metal-label">CORPORATE ACCOUNT</span>
+                  <p class="metal-holder">CQ CAREER TECHNOLOGIES CO., LTD.</p>
+                </div>
+                <span class="bank-watermark text-cyan">ABA'</span>
+              </div>
+              <button type="button" class="btn-copy-metal mirror-pill mt-3" (click)="copyToClipboard('001 988 234', 'ABA Bank Account (USD)')">
+                Copy Account Number
+              </button>
+            </div>
+
+            <!-- ACLEDA Bank Card (Luxury Royal Purple Metallic Card) -->
+            <div class="luxury-metal-card card-acleda mirror-float">
+              <div class="metal-card-chip-row">
+                <svg width="40" height="30" viewBox="0 0 40 30" fill="none" class="emv-chip-svg">
+                  <rect width="40" height="30" rx="6" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5"/>
+                  <path d="M0 15h40M20 0v30M10 0v30M30 0v30" stroke="#475569" stroke-width="0.8" opacity="0.6"/>
+                  <circle cx="20" cy="15" r="4" fill="#e2e8f0" stroke="#475569" stroke-width="0.8"/>
+                </svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="nfc-waves-svg text-purple">
+                  <path d="M9 12a4 4 0 0 1 0-6M12 15a8 8 0 0 0 0-12M15 18a12 12 0 0 0 0-18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="currency-tag-pill">KHR (៛)</span>
+              </div>
+              <div class="metal-card-number font-mono text-xl">1002-398293-11</div>
+              <div class="metal-card-holder-row">
+                <div>
+                  <span class="metal-label">CORPORATE RIEL TREASURY</span>
+                  <p class="metal-holder">CQ CAREER TECHNOLOGIES CO., LTD.</p>
+                </div>
+                <span class="bank-watermark text-purple">ACLEDA</span>
+              </div>
+              <button type="button" class="btn-copy-metal mirror-pill mt-3" (click)="copyToClipboard('1002-398293-11', 'ACLEDA Bank Account (KHR)')">
+                Copy Account Number
+              </button>
+            </div>
+
+            <!-- Bakong KHQR Direct ID Card (Luxury Crimson & Gold Card with QR Preview) -->
+            <div class="luxury-metal-card card-bakong mirror-float">
+              <div class="metal-card-chip-row">
+                <span class="bakong-logo-badge">BAKONG</span>
+                <span class="currency-tag-pill">DUAL (USD/KHR)</span>
+                <img src="assets/telegram-qr-cqprofessional.png" alt="Bakong QR" class="bakong-qr-thumb" title="National Bank of Cambodia KHQR" />
+              </div>
+              <div class="metal-card-number font-mono text-lg text-rose">cqfinance&#64;aba</div>
+              <div class="metal-card-holder-row">
+                <div>
+                  <span class="metal-label">NBC CENTRAL SWITCH ID</span>
+                  <p class="metal-holder">NATIONAL BAKONG VERIFIED</p>
+                </div>
+                <span class="bank-watermark text-rose">KHQR</span>
+              </div>
+              <button type="button" class="btn-copy-metal mirror-pill mt-3" (click)="copyToClipboard('cqfinance@aba', 'Bakong KHQR ID')">
+                Copy Bakong ID
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Subview: About -->
+      <section class="tab-pane animate-fade" *ngIf="currentTab() === 'about'">
+        <div class="pane-header">
+          <div class="flex items-center gap-4">
+            <div class="premium-3d-sticker sticker-cyber-shield shrink-0" title="ACID Compliant Financial Security">
+              <svg viewBox="0 0 80 80" width="56" height="56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="shieldGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+                  </radialGradient>
+                  <linearGradient id="shieldBody" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#064e3b"/>
+                    <stop offset="50%" stop-color="#065f46"/>
+                    <stop offset="100%" stop-color="#022c22"/>
+                  </linearGradient>
+                  <linearGradient id="shieldRim" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#34d399"/>
+                    <stop offset="100%" stop-color="#059669"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="40" cy="40" r="34" fill="url(#shieldGlow)" class="sticker-pulse-aura"/>
+                <path d="M40 14 L62 23 C62 45, 48 59, 40 66 C32 59, 18 45, 18 23 Z" fill="url(#shieldBody)" stroke="url(#shieldRim)" stroke-width="2.5"/>
+                <path d="M40 22 L54 28 C54 44, 45 53, 40 58 C35 53, 26 44, 26 28 Z" fill="rgba(52, 211, 153, 0.12)" stroke="#34d399" stroke-width="1.2" stroke-dasharray="3 2"/>
+                <circle cx="40" cy="36" r="6" fill="#34d399"/>
+                <path d="M37.5 38 L42.5 38 L44 48 L36 48 Z" fill="#34d399"/>
+                <path d="M60 20 L62 14 L64 20 L70 22 L64 24 L62 30 L60 24 L54 22 Z" fill="#fde047" class="sticker-sparkle-1"/>
+              </svg>
+            </div>
+            <div>
+              <span class="cold-chip">SYSTEM ARCHITECTURE</span>
+              <h1 class="pane-title">{{ lang() === 'kh' ? 'អំពីប្រព័ន្ធគ្រប់គ្រងហិរញ្ញវត្ថុ CQ' : 'About CQ Financial Engine' }}</h1>
+              <p class="pane-sub">{{ lang() === 'kh' ? 'ប្រព័ន្ធស្ថាបត្យកម្មកត់ត្រាប្រតិបត្តិការហិរញ្ញវត្ថុ គណនេយ្យ និងការអនុលោមភាពតាមស្តង់ដារជាតិ' : 'Enterprise financial architecture, immutable ledger audit trails, and Cambodian regulatory compliance.' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             MODERN EDITORIAL SHOWCASE: ABOUT CQ FINANCIAL ENGINE
+             ═══════════════════════════════════════════════════════════════════ -->
+        <div class="about-modern-container mt-4">
+          <!-- 1. Editorial Hero Split Showcase -->
+          <div class="about-hero-showcase mirror-card mirror-float">
+            <div class="hero-content-wrap">
+              <span class="cold-chip">INSTITUTIONAL TRUST &amp; COMPLIANCE</span>
+              <h2 class="about-hero-headline mt-2">
+                {{ lang() === 'kh' ? 'ប្រព័ន្ធហិរញ្ញវត្ថុឌីជីថលស្តង់ដារជាតិ' : 'Next-Generation Cambodian Treasury & Settlement' }}
+              </h2>
+              <p class="about-hero-lead mt-3">
+                {{ lang() === 'kh'
+                  ? 'បង្កើតឡើងសម្រាប់ប្រតិបត្តិការហិរញ្ញវត្ថុកម្រិតសហគ្រាស ដោយភ្ជាប់ផ្ទាល់ទៅកាន់ប្រព័ន្ធបាគង (NBC Bakong) ធនាគារ ABA និងអេស៊ីលីដា ជាមួយប្រព័ន្ធកត់ត្រាទ្វេភាគីដែលមិនអាចកែប្រែបាន។'
+                  : 'Engineered for high-integrity corporate operations with direct connectivity to the National Bank of Cambodia Bakong rail, ABA Bank, and ACLEDA — providing atomic double-entry accounting with zero discrepancy guarantee.'
+                }}
+              </p>
+
+              <!-- Key Value Pillars -->
+              <div class="hero-pillar-rows mt-5">
+                <div class="hero-pillar-item">
+                  <div class="pillar-symbol-box symbol-cyan">⚡</div>
+                  <div>
+                    <h4 class="pillar-row-title">{{ lang() === 'kh' ? 'ការទូទាត់ភ្លាមៗតាមបាគង (KHQR)' : 'Sub-Second Bakong KHQR Settlements' }}</h4>
+                    <p class="pillar-row-desc">{{ lang() === 'kh' ? 'អតិថិជនស្កេនទូទាត់ប្រាក់ភ្លាម ចូលក្នុងបញ្ជីដោយស្វ័យប្រវត្តគ្មានការពន្យារពេល' : 'Instant merchant push payments synced with automated real-time order ledger reconciliation.' }}</p>
+                  </div>
+                </div>
+
+                <div class="hero-pillar-item mt-3">
+                  <div class="pillar-symbol-box symbol-green">🇰🇭</div>
+                  <div>
+                    <h4 class="pillar-row-title">{{ lang() === 'kh' ? 'ស្តង់ដាររូបិយប័ណ្ណទ្វេរ (USD & ៛)' : 'Dual-Currency Standard (USD & KHR)' }}</h4>
+                    <p class="pillar-row-desc">{{ lang() === 'kh' ? 'គណនា និងបម្លែងដោយស្វ័យប្រវត្តិជាមួយអត្រាពន្ធផ្លូវការ ៤,១០០ រៀល' : 'Real-time parity synchronization pegged to official General Department of Taxation benchmarks.' }}</p>
+                  </div>
+                </div>
+
+                <div class="hero-pillar-item mt-3">
+                  <div class="pillar-symbol-box symbol-purple">🛡️</div>
+                  <div>
+                    <h4 class="pillar-row-title">{{ lang() === 'kh' ? 'សុវត្ថិភាពទិន្នន័យកម្រិតធនាគារ' : 'ACID Guaranteed Transaction Durability' }}</h4>
+                    <p class="pillar-row-desc">{{ lang() === 'kh' ? 'កត់ត្រារាល់ប្រតិបត្តិការចូល SQLite WAL Mode ការពារការបាត់បង់ទិន្នន័យ ១០០%' : 'Atomic commit protocols eliminate phantom entries and guarantee complete ledger integrity.' }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Official Trust Badges -->
+              <div class="compliance-badges-row mt-5">
+                <span class="trust-badge-pill">
+                  <span class="badge-dot dot-green"></span>
+                  NBC Bakong Merchant Ready
+                </span>
+                <span class="trust-badge-pill">
+                  <span class="badge-dot dot-cyan"></span>
+                  GDT Cambodia Prakas Compliant
+                </span>
+                <span class="trust-badge-pill">
+                  <span class="badge-dot dot-purple"></span>
+                  256-Bit Cryptographic Audit
+                </span>
+              </div>
+            </div>
+
+            <!-- Right Visual Card: Sleek Floating Card & Modern Architecture -->
+            <div class="hero-visual-card">
+              <img
+                src="assets/accountant/fintech-hero.jpg"
+                alt="CQ Financial Engine Architecture"
+                class="hero-showcase-img"
+              />
+              <div class="visual-glass-overlay"></div>
+              
+              <!-- Floating Pill Top -->
+              <div class="visual-floating-badge badge-top mirror-pill">
+                <span class="ping-dot"></span>
+                <span>NBC Bakong Central Rail: <strong>Active</strong></span>
+              </div>
+
+              <!-- Floating Card Bottom -->
+              <div class="visual-floating-card badge-bottom mirror-card">
+                <div class="flex items-center justify-between gap-4">
+                  <div>
+                    <span class="text-xs text-muted block">TREASURY RESERVES</span>
+                    <strong class="font-mono text-cyan text-base">$10,480.00 USD</strong>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-xs text-muted block">GDT PARITY (4,100)</span>
+                    <strong class="font-mono text-green text-base">42,968,000 ៛</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Dual Visual Editorial Deep-Dives -->
+          <div class="editorial-dual-grid mt-6">
+            <!-- Feature 1: Cambodian Banking & Bakong QR Visual -->
+            <div class="editorial-feature-card mirror-card mirror-float">
+              <div class="feature-img-wrap">
+                <img
+                  src="assets/accountant/bakong-payment.jpg"
+                  alt="Bakong KHQR and ABA Card Settlement"
+                  class="feature-showcase-img"
+                />
+                <span class="feature-img-badge">INTERBANK INFRASTRUCTURE</span>
+              </div>
+              <div class="feature-content-wrap">
+                <span class="cold-chip">NBC CENTRAL SWITCH</span>
+                <h3 class="feature-card-title mt-2">{{ lang() === 'kh' ? 'ការទូទាត់ឆ្លងធនាគារ Bakong KHQR' : 'Unified Bakong KHQR Clearing' }}</h3>
+                <p class="feature-card-desc mt-2">
+                  {{ lang() === 'kh'
+                    ? 'អតិថិជន និងដៃគូអាជីវកម្មអាចស្កេនទូទាត់ប្រាក់ពីធនាគារ ABA, អេស៊ីលីដា, វីង ឬធនាគារនានាទូទាំងប្រទេស ដោយផ្ទាល់គ្មានកម្រៃសេវាអន្តរជាតិ។'
+                    : 'Enables direct merchant checkout across 50+ Cambodian financial institutions. Instant push notifications verify payment settlements within milliseconds, bypassing legacy 3% credit card processing surcharges.'
+                  }}
+                </p>
+                <div class="feature-specs-list mt-3">
+                  <div class="spec-bullet"><span class="bullet-check">✔</span> <strong>0% Fee Rail:</strong> Direct interbank clearing via NBC switch</div>
+                  <div class="spec-bullet"><span class="bullet-check">✔</span> <strong>Dual-QR:</strong> Automatically presents KHR or USD QR codes</div>
+                  <div class="spec-bullet"><span class="bullet-check">✔</span> <strong>Instant Webhooks:</strong> Auto-reconciles order ID to ledger in real time</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Feature 2: Phnom Penh Treasury Operations Visual -->
+            <div class="editorial-feature-card mirror-card mirror-float">
+              <div class="feature-img-wrap">
+                <img
+                  src="assets/accountant/executive-office.jpg"
+                  alt="CQ Financial Headquarters in Phnom Penh"
+                  class="feature-showcase-img"
+                />
+                <span class="feature-img-badge">PHNOM PENH TREASURY HQ</span>
+              </div>
+              <div class="feature-content-wrap">
+                <span class="cold-chip">FISCAL GOVERNANCE</span>
+                <h3 class="feature-card-title mt-2">{{ lang() === 'kh' ? 'ការគ្រប់គ្រងហិរញ្ញវត្ថុ និងច្បាប់ពន្ធកម្ពុជា' : 'Cambodian Tax & Audit Compliance' }}</h3>
+                <p class="feature-card-desc mt-2">
+                  {{ lang() === 'kh'
+                    ? 'ដំណើរការតាមបទបញ្ជា និងប្រកាសរបស់អគ្គនាយកដ្ឋានពន្ធដារ (GDT) រួមទាំងការកាត់ទុកពន្ធសេវាកម្ម ១៥% និងការចេញរបាយការណ៍ហិរញ្ញវត្ថុ A4 ផ្លូវការ។'
+                    : 'Full alignment with Cambodian National Accounting Council (NAC) guidelines. Features built-in GDT withholding calculation, progressive payroll tax bracket simulation, and print-ready A4 P&L statements.'
+                  }}
+                </p>
+                <div class="feature-specs-list mt-3">
+                  <div class="spec-bullet"><span class="bullet-check">✔</span> <strong>GDT Prakas:</strong> Integrated 15% service &amp; 10% rental withholding</div>
+                  <div class="spec-bullet"><span class="bullet-check">✔</span> <strong>A4 Printable Audit:</strong> Instant stamped PDF/Print statements</div>
+                  <div class="spec-bullet"><span class="bullet-check">✔</span> <strong>Telegram Alerts:</strong> Every manual ledger adjustment broadcasted live</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Executive Financial Council & Leadership -->
+          <div class="card-panel executive-council-panel mirror-card mirror-float mt-6">
+            <div class="panel-head-flex">
+              <div>
+                <span class="cold-chip">INSTITUTIONAL LEADERSHIP</span>
+                <h3 class="panel-title mt-1">{{ lang() === 'kh' ? 'ក្រុមប្រឹក្សាសវនកម្ម និងហិរញ្ញវត្ថុជាន់ខ្ពស់' : 'Executive Financial Council & Oversight' }}</h3>
+                <p class="panel-subtitle">{{ lang() === 'kh' ? 'អ្នកជំនាញហិរញ្ញវត្ថុ គណនេយ្យ និងច្បាប់ពន្ធដែលគ្រប់គ្រងប្រព័ន្ធ' : 'Certified auditors, banking rail architects, and regulatory specialists governing CQ Finance.' }}</p>
+              </div>
+              <span class="verified-seal-tag">VERIFIED GOVERNANCE</span>
+            </div>
+
+            <div class="council-cards-grid mt-5">
+              <!-- Member 1: Chief Auditor -->
+              <div class="council-member-card mirror-card">
+                <div class="member-header">
+                  <img
+                    src="assets/saing-sokaiya-photo.jpg"
+                    alt="Sokha Ly"
+                    class="member-photo-img"
+                  />
+                  <div>
+                    <h4 class="member-name">Sokha Ly</h4>
+                    <span class="member-role-pill">Chief Financial Auditor</span>
+                  </div>
+                </div>
+                <p class="member-bio mt-3">
+                  Leads double-entry balance verification, ABA Bank reconciliation, and official quarterly financial statements with over 10 years of Cambodian banking experience.
+                </p>
+                <div class="member-footer mt-4">
+                  <span class="credential-tag">CPA • NAC Member</span>
+                  <a href="mailto:finance-lead@cqprofessional.com" class="member-contact-link">Email Direct ↗</a>
+                </div>
+              </div>
+
+              <!-- Member 2: Gateway Specialist -->
+              <div class="council-member-card mirror-card">
+                <div class="member-header">
+                  <img
+                    src="assets/mike-richrd-photo.png"
+                    alt="Sovan Net"
+                    class="member-photo-img"
+                  />
+                  <div>
+                    <h4 class="member-name">Sovan Net</h4>
+                    <span class="member-role-pill bg-blue">Head of Banking Rails</span>
+                  </div>
+                </div>
+                <p class="member-bio mt-3">
+                  Directs National Bank of Cambodia (NBC) Bakong API integration, zero-latency payment routing, and real-time KHQR settlement dispute management.
+                </p>
+                <div class="member-footer mt-4">
+                  <span class="credential-tag">NBC KHQR Specialist</span>
+                  <a href="https://t.me/cqprofessionalpayment_bot" target="_blank" rel="noopener noreferrer" class="member-contact-link text-cyan">Telegram Direct ↗</a>
+                </div>
+              </div>
+
+              <!-- Member 3: Senior Tax Director -->
+              <div class="council-member-card mirror-card">
+                <div class="member-header">
+                  <img
+                    src="assets/lorna-alvarado-photo.png"
+                    alt="Lorna Alvarado"
+                    class="member-photo-img"
+                  />
+                  <div>
+                    <h4 class="member-name">Lorna Alvarado</h4>
+                    <span class="member-role-pill bg-purple">Tax &amp; Compliance Director</span>
+                  </div>
+                </div>
+                <p class="member-bio mt-3">
+                  Oversees Cambodian General Department of Taxation (GDT) Prakas adherence, corporate tax filings, withholding calculations, and regulatory reporting standards.
+                </p>
+                <div class="member-footer mt-4">
+                  <span class="credential-tag">GDT Registered Advisor</span>
+                  <span class="credential-status">Active Advisory</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Clean Executive Governance Status Bar (Replaces the hacker terminal bot) -->
+          <div class="live-governance-strip mirror-card mt-6">
+            <div class="gov-item">
+              <span class="gov-dot dot-green"></span>
+              <div class="gov-text">
+                <span class="gov-label">NBC BAKONG SWITCH</span>
+                <strong class="gov-val">Active • 0ms Latency</strong>
+              </div>
+            </div>
+            <div class="gov-divider"></div>
+            <div class="gov-item">
+              <span class="gov-dot dot-cyan"></span>
+              <div class="gov-text">
+                <span class="gov-label">BANKING SETTLEMENT</span>
+                <strong class="gov-val">ABA &amp; ACLEDA Online</strong>
+              </div>
+            </div>
+            <div class="gov-divider"></div>
+            <div class="gov-item">
+              <span class="gov-dot dot-purple"></span>
+              <div class="gov-text">
+                <span class="gov-label">LEDGER ATOMICITY</span>
+                <strong class="gov-val">{{ kpis().totalOrders }} Orders Committed</strong>
+              </div>
+            </div>
+            <div class="gov-divider"></div>
+            <div class="gov-item">
+              <span class="gov-dot dot-rose"></span>
+              <div class="gov-text">
+                <span class="gov-label">GDT TAX BENCHMARK</span>
+                <strong class="gov-val">1 USD = 4,100 KHR</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Subview: Help -->
+      <section class="tab-pane animate-fade" *ngIf="currentTab() === 'help'">
+        <div class="pane-header">
+          <div class="flex items-center gap-4">
+            <div class="premium-3d-sticker sticker-knowledge-bulb shrink-0" title="Knowledge Base & Operations Guide">
+              <svg viewBox="0 0 80 80" width="56" height="56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="bulbGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+                  </radialGradient>
+                  <linearGradient id="bulbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#fef08a"/>
+                    <stop offset="60%" stop-color="#f59e0b"/>
+                    <stop offset="100%" stop-color="#d97706"/>
+                  </linearGradient>
+                  <linearGradient id="baseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#94a3b8"/>
+                    <stop offset="100%" stop-color="#475569"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="40" cy="38" r="32" fill="url(#bulbGlow)" class="sticker-pulse-aura"/>
+                <path d="M26 34 C26 22, 54 22, 54 34 C54 42, 48 46, 47 52 L33 52 C32 46, 26 42, 26 34 Z" fill="url(#bulbGrad)" fill-opacity="0.88" stroke="#fef08a" stroke-width="1.8"/>
+                <rect x="34" y="53" width="12" height="4" rx="2" fill="url(#baseGrad)"/>
+                <rect x="35" y="58" width="10" height="3" rx="1.5" fill="url(#baseGrad)"/>
+                <path d="M37 62 L43 62 L41 65 L39 65 Z" fill="#334155"/>
+                <path d="M35 38 Q40 28, 40 44 Q45 28, 45 38" stroke="#ffffff" stroke-width="2" stroke-linecap="round" fill="none" class="sticker-flame-pulse"/>
+                <line x1="40" y1="12" x2="40" y2="18" stroke="#fde047" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="16" y1="30" x2="21" y2="33" stroke="#fde047" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="64" y1="30" x2="59" y2="33" stroke="#fde047" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <span class="cold-chip">GUIDE & DOCUMENTATION</span>
+              <h1 class="pane-title">{{ lang() === 'kh' ? 'ជំនួយ & ណែនាំការប្រើប្រាស់' : 'Accounting Operations & FAQ Guide' }}</h1>
+              <p class="pane-sub">{{ lang() === 'kh' ? 'សៀវភៅណែនាំនីតិវិធីប្រតិបត្តិការគណនេយ្យ សំណួរញឹកញាប់ និងការបកស្រាយពាក្យបច្ចេកទេស' : 'Standard Operating Procedures, reconciliation workflows, and accounting terminology.' }}</p>
+            </div>
+          </div>
+          <button type="button" class="btn-outline-cold mirror-btn" (click)="downloadSopManual()">
+            <span>📥</span>
+            <span>Download SOP Manual</span>
+          </button>
+        </div>
+
+        <!-- Visual SOP Handbook Spotlight Banner -->
+        <div class="help-spotlight-banner mirror-card mirror-float mt-4 mb-6">
+          <div class="help-banner-content">
+            <span class="cold-chip">OFFICIAL OPERATIONS REPOSITORY</span>
+            <h2 class="help-banner-title mt-2">
+              {{ lang() === 'kh' ? 'សៀវភៅណែនាំប្រតិបត្តិការហិរញ្ញវត្ថុ & FAQ' : 'Standard Operating Procedures & Knowledge Hub' }}
+            </h2>
+            <p class="help-banner-lead mt-2">
+              {{ lang() === 'kh'
+                ? 'ស្វែងយល់អំពីរាល់នីតិវិធីនៃការកត់ត្រា ដំណើរការទូទាត់ប្រាក់បាគង ការអនុលោមពន្ធ និងគន្លឹះគណនេយ្យរហ័ស'
+                : 'Complete operational protocols for transaction logging, automated NBC Bakong KHQR settlement, Cambodian GDT tax rules, and power shortcuts.'
+              }}
+            </p>
+            <div class="help-banner-actions mt-4">
+              <button type="button" class="btn-action-primary btn-green mirror-btn mirror-float" (click)="downloadSopManual()">
+                <span>📥</span>
+                <span>Download SOP Manual (PDF)</span>
+              </button>
+              <span class="text-xs text-muted font-mono flex items-center gap-2">
+                <span class="ping-dot"></span> Version 2026.4 • Updated Weekly
+              </span>
+            </div>
+          </div>
+          <div class="help-banner-visual">
+            <img src="assets/accountant/sop-handbook.jpg" alt="SOP Handbook & Financial Analytics" class="help-banner-img" />
+            <div class="help-visual-overlay"></div>
+            <div class="help-floating-badge mirror-pill">
+              <span>📖 Certified Accounting Handbook</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Search & Category Filter Toolbar with Glass Styling -->
+        <div class="faq-filter-toolbar mirror-card mb-6">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              class="search-input-box font-mono"
+              [ngModel]="faqSearchQuery()"
+              (ngModelChange)="faqSearchQuery.set($event)"
+              placeholder="Search procedures, terms (e.g. Bakong, 4,100, Tax Withholding, Deductions)..."
+            />
+            <span class="search-kbd-hint font-mono">⌘K</span>
+            <button type="button" *ngIf="faqSearchQuery()" class="btn-clear-search" (click)="faqSearchQuery.set('')">✕</button>
+          </div>
+
+          <div class="category-pills-row mt-3">
+            <button type="button" class="cat-pill" [class.active]="faqActiveCategory() === 'all'" (click)="setFaqCategory('all')">📂 All Topics</button>
+            <button type="button" class="cat-pill" [class.active]="faqActiveCategory() === 'ledger'" (click)="setFaqCategory('ledger')">💳 Ledger &amp; Entries</button>
+            <button type="button" class="cat-pill" [class.active]="faqActiveCategory() === 'khqr'" (click)="setFaqCategory('khqr')">🇰🇭 Bakong KHQR</button>
+            <button type="button" class="cat-pill" [class.active]="faqActiveCategory() === 'reconciliation'" (click)="setFaqCategory('reconciliation')">⚖️ Reconciliation</button>
+            <button type="button" class="cat-pill" [class.active]="faqActiveCategory() === 'taxes'" (click)="setFaqCategory('taxes')">🏛️ Taxes &amp; Withholding</button>
+            <button type="button" class="cat-pill" [class.active]="faqActiveCategory() === 'shortcuts'" (click)="setFaqCategory('shortcuts')">⚡ Shortcuts</button>
+          </div>
+        </div>
+
+        <!-- 2-Column: Left Accordion Questions, Right Quick Cheatsheet -->
+        <div class="faq-layout-grid">
+          <!-- Accordion Question List with Badges and Smooth Transitions -->
+          <div class="faq-accordion-container">
+            <div
+              *ngFor="let item of filteredFaqs(); let idx = index"
+              class="accordion-card mirror-card"
+              [class.open]="openFaqIndex() === idx"
+            >
+              <button type="button" class="accordion-header-btn" (click)="toggleFaq(idx)">
+                <div class="flex items-center gap-3">
+                  <span class="faq-number-badge font-mono">{{ idx + 1 < 10 ? '0' + (idx + 1) : idx + 1 }}</span>
+                  <span class="cold-chip">{{ item.tag }}</span>
+                  <span class="faq-question-title font-bold">{{ lang() === 'kh' ? item.qKh : item.qEn }}</span>
+                </div>
+                <span class="faq-chevron" [class.rotated]="openFaqIndex() === idx">▾</span>
+              </button>
+
+              <div class="accordion-body-pane" *ngIf="openFaqIndex() === idx">
+                <p class="faq-answer-text">{{ lang() === 'kh' ? item.aKh : item.aEn }}</p>
+              </div>
+            </div>
+
+            <div *ngIf="filteredFaqs().length === 0" class="empty-faq-card mirror-card text-center p-8">
+              <span class="text-3xl block mb-2">🔍</span>
+              <p class="text-muted">No procedures found matching "{{ faqSearchQuery() }}".</p>
+              <button type="button" class="btn-micro-chip mirror-pill mt-3" (click)="faqSearchQuery.set(''); faqActiveCategory.set('all')">
+                Reset Search Filters
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Cheat Sheet & Accounting Formulas Card -->
+          <div class="faq-side-cheatsheet">
+            <!-- Tactile 3D Keyboard Shortcuts -->
+            <div class="card-panel mirror-card mirror-float">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-cyan text-base">⚡</span>
+                <h4 class="text-xs font-bold text-muted uppercase tracking-wider">Tactile Keyboard Accelerators:</h4>
+              </div>
+              <div class="shortcuts-list">
+                <div class="sc-item">
+                  <span class="kbd-key-3d font-mono">⌘ K</span>
+                  <span class="text-xs text-muted">Global Search Palette</span>
+                </div>
+                <div class="sc-item">
+                  <span class="kbd-key-3d font-mono">+ Add</span>
+                  <span class="text-xs text-muted">Record Money Inflow</span>
+                </div>
+                <div class="sc-item">
+                  <span class="kbd-key-3d font-mono">- Deduct</span>
+                  <span class="text-xs text-muted">Record Outflow</span>
+                </div>
+                <div class="sc-item">
+                  <span class="kbd-key-3d font-mono">Export</span>
+                  <span class="text-xs text-muted">Download CSV Sheet</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Standard Accounting Formulas Card -->
+            <div class="card-panel mirror-card mirror-float mt-4">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-green text-base">📐</span>
+                <h4 class="text-xs font-bold text-muted uppercase tracking-wider">Financial Core Algorithms:</h4>
+              </div>
+              <div class="formulas-list font-mono text-xs">
+                <div class="formula-box">
+                  <div class="flex items-center justify-between">
+                    <span class="f-name text-cyan">Gross Margin:</span>
+                    <span class="text-xs text-muted font-normal">Markup %</span>
+                  </div>
+                  <span class="f-calc block text-muted mt-1">(Revenue - COGS) ÷ Revenue</span>
+                </div>
+                <div class="formula-box mt-2">
+                  <div class="flex items-center justify-between">
+                    <span class="f-name text-green">Net Operating Profit:</span>
+                    <span class="text-xs text-muted font-normal">Bottom line</span>
+                  </div>
+                  <span class="f-calc block text-muted mt-1">Gross Rev - COGS - OpEx - Taxes</span>
+                </div>
+                <div class="formula-box mt-2">
+                  <div class="flex items-center justify-between">
+                    <span class="f-name text-purple">Cambodian Riel Parity:</span>
+                    <span class="text-xs text-muted font-normal">GDT Prakas</span>
+                  </div>
+                  <span class="f-calc block text-muted mt-1">USD Amount × 4,100 KHR</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ═════════════════════════════════════════════════════════════════════
+         FLOATING iOS 26 BOTTOM GLASS DOCK (FOR PHONES & MOBILE DEVICES)
+    ═════════════════════════════════════════════════════════════════════ -->
+    <nav class="mobile-bottom-dock mirror-card" aria-label="Mobile Navigation Dock">
+      <button
+        type="button"
+        class="dock-item-btn"
+        [class.active]="currentTab() === 'home'"
+        (click)="setTab('home')"
+      >
+        <span class="dock-label">{{ lang() === 'kh' ? 'ដើម' : 'Home' }}</span>
+        <span class="dock-active-glow" *ngIf="currentTab() === 'home'"></span>
+      </button>
+
+      <button
+        type="button"
+        class="dock-item-btn"
+        [class.active]="currentTab() === 'analys'"
+        (click)="setTab('analys')"
+      >
+        <span class="dock-label">{{ lang() === 'kh' ? 'វិភាគ' : 'Analys' }}</span>
+        <span class="dock-active-glow" *ngIf="currentTab() === 'analys'"></span>
+      </button>
+
+      <button
+        type="button"
+        class="dock-item-btn"
+        [class.active]="currentTab() === 'calculate'"
+        (click)="setTab('calculate')"
+      >
+        <span class="dock-label">{{ lang() === 'kh' ? 'គណនា' : 'Calculate' }}</span>
+        <span class="dock-active-glow" *ngIf="currentTab() === 'calculate'"></span>
+      </button>
+
+      <button
+        type="button"
+        class="dock-item-btn"
+        [class.active]="currentTab() === 'report'"
+        (click)="setTab('report')"
+      >
+        <span class="dock-label">{{ lang() === 'kh' ? 'របាយការណ៍' : 'Report' }}</span>
+        <span class="dock-active-glow" *ngIf="currentTab() === 'report'"></span>
+      </button>
+
+      <button
+        type="button"
+        class="dock-item-btn"
+        [class.active]="currentTab() === 'contact' || currentTab() === 'about' || currentTab() === 'help'"
+        (click)="toggleMoreDropdown($event)"
+      >
+        <span class="dock-label">{{ lang() === 'kh' ? 'បន្ថែម' : 'More' }}</span>
+        <span class="dock-active-glow" *ngIf="currentTab() === 'contact' || currentTab() === 'about' || currentTab() === 'help'"></span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════════
+       MODAL 1: ADD MONEY (+) & DEDUCT MONEY (-) (iOS 26 BOTTOM SHEET)
+  ═════════════════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop-overlay animate-fade" *ngIf="isAddModalOpen()" (click)="closeAddModal()">
+    <div class="cold-modal-card mirror-card" (click)="$event.stopPropagation()">
+      <!-- iOS Bottom Sheet Grab Handle on Mobile -->
+      <div class="sheet-grab-bar mobile-only-block"></div>
+
+      <div class="modal-header">
+        <div>
+          <span class="cold-chip" [class.rose]="modalFormType === 'expense'">
+            {{ modalFormType === 'expense' ? 'DEDUCTION' : 'INFLOW / CREDIT' }}
+          </span>
+          <h2 class="modal-title">
+            {{ modalFormType === 'expense' ? (lang() === 'kh' ? 'ដកប្រាក់ / ចំណាយ (-)' : 'Record Deduction / Expense (-)') : (lang() === 'kh' ? 'បញ្ចូលប្រាក់ / ចំណូល (+)' : 'Add Money / Record Revenue (+)') }}
+          </h2>
+        </div>
+        <button type="button" class="btn-close-modal mirror-btn" (click)="closeAddModal()">✕</button>
+      </div>
+
+      <form (submit)="submitTransactionForm($event)" class="modal-form-body">
+        <!-- Type Segmented Switcher -->
+        <div class="form-group">
+          <label class="form-label">{{ lang() === 'kh' ? 'ប្រភេទប្រតិបត្តិការ:' : 'Transaction Type:' }}</label>
+          <div class="type-segmented-control mirror-pill">
+            <button
+              type="button"
+              class="type-btn"
+              [class.active]="modalFormType === 'income'"
+              (click)="modalFormType = 'income'"
+            >
+              + {{ lang() === 'kh' ? 'បញ្ចូលប្រាក់ (Income)' : 'Add Money (Income)' }}
+            </button>
+            <button
+              type="button"
+              class="type-btn type-deduct"
+              [class.active]="modalFormType === 'expense'"
+              (click)="modalFormType = 'expense'"
+            >
+              - {{ lang() === 'kh' ? 'ដកប្រាក់ (Deduct)' : 'Deduct Money (Expense)' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Amount Input with Live KHR Equivalent -->
+        <div class="form-group">
+          <label class="form-label">
+            {{ lang() === 'kh' ? 'ចំនួនទឹកប្រាក់ ($ USD):' : 'Amount in USD ($):' }}
+          </label>
+          <div class="amount-input-box">
+            <span class="currency-prefix">&dollar;</span>
+            <input
+              type="number"
+              class="cold-input amount-large-input mirror-pill"
+              [(ngModel)]="modalAmount"
+              name="modalAmount"
+              placeholder="0.00"
+              step="0.01"
+              min="0.01"
+              required
+            />
+          </div>
+          <span class="amount-khr-hint text-cyan" *ngIf="modalAmount > 0">
+            ≈ {{ Math.round(modalAmount * 4100).toLocaleString('en-US') }} ៛ (Khmer Riel &#64; 4,100)
+          </span>
+        </div>
+
+        <!-- Customer / User Selection -->
+        <div class="form-group">
+          <label class="form-label">{{ lang() === 'kh' ? 'អតិថិជន / គណនីអ្នកប្រើប្រាស់:' : 'Customer / User Account:' }}</label>
+          <select class="cold-select mirror-pill" [(ngModel)]="modalUserId" name="modalUserId">
+            <option [ngValue]="null">{{ lang() === 'kh' ? '— ជ្រើសរើសគណនី (ឬផ្ទាល់ខ្លួន) —' : '— Select Registered User (or Direct) —' }}</option>
+            <option *ngFor="let u of userList(); trackBy: trackById" [ngValue]="u.id">
+              {{ u.full_name }} ({{ u.email }}) — {{ u.role | uppercase }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Service / Product Selection -->
+        <div class="form-group">
+          <label class="form-label">{{ lang() === 'kh' ? 'សេវាកម្ម ឬគំរូ CV:' : 'Service or Template:' }}</label>
+          <select class="cold-select mirror-pill" [(ngModel)]="modalTemplateId" name="modalTemplateId">
+            <option *ngFor="let t of templateList(); trackBy: trackById" [ngValue]="t.id">
+              {{ t.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Payment Method & Status -->
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">{{ lang() === 'kh' ? 'វិធីសាស្ត្រទូទាត់:' : 'Payment Method:' }}</label>
+            <select class="cold-select mirror-pill" [(ngModel)]="modalProvider" name="modalProvider">
+              <option value="bakong_khqr">🇰🇭 Bakong KHQR</option>
+              <option value="cash">💵 Cash In-Person</option>
+              <option value="aba_bank">🏦 ABA Bank Transfer</option>
+              <option value="card">💳 Card / Visa / Master</option>
+              <option value="other">Direct / Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">{{ lang() === 'kh' ? 'ស្ថានភាព:' : 'Status:' }}</label>
+            <select class="cold-select mirror-pill" [(ngModel)]="modalStatus" name="modalStatus">
+              <option value="paid">{{ lang() === 'kh' ? 'បានបង់ (Paid)' : 'Paid (Immediate Revenue)' }}</option>
+              <option value="pending">{{ lang() === 'kh' ? 'រង់ចាំ (Pending)' : 'Pending' }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Notes / Memo -->
+        <div class="form-group">
+          <label class="form-label">{{ lang() === 'kh' ? 'កំណត់ចំណាំ ឬលេខយោង:' : 'Notes / Reference:' }}</label>
+          <input
+            type="text"
+            class="cold-input mirror-pill"
+            [(ngModel)]="modalNotes"
+            name="modalNotes"
+            [placeholder]="lang() === 'kh' ? 'ឧ. បង់ប្រាក់សុទ្ធនៅបញ្ជរ, ថ្លៃ Server hosting...' : 'e.g. Counter cash payment, monthly hosting deduction...'"
+          />
+        </div>
+
+        <!-- Form Submit & Cancel Buttons -->
+        <div class="modal-footer-btns">
+          <button type="button" class="btn-cancel mirror-btn" (click)="closeAddModal()">
+            {{ lang() === 'kh' ? 'បោះបង់' : 'Cancel' }}
+          </button>
+          <button
+            type="submit"
+            class="btn-submit-action mirror-btn"
+            [class.btn-green]="modalFormType === 'income'"
+            [class.btn-rose]="modalFormType === 'expense'"
+            [disabled]="isSubmitting() || modalAmount <= 0"
+          >
+            <span *ngIf="!isSubmitting()">
+              {{ modalFormType === 'income' ? (lang() === 'kh' ? 'បញ្ចូលប្រាក់ទៅក្នុង Database' : 'Record Inflow (+)') : (lang() === 'kh' ? 'ដកប្រាក់ចេញពី Database' : 'Record Deduction (-)') }}
+            </span>
+            <span *ngIf="isSubmitting()">Processing...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════════
+       MODAL 2: EDIT TRANSACTION (iOS 26 BOTTOM SHEET)
+  ═════════════════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop-overlay animate-fade" *ngIf="isEditModalOpen()" (click)="closeEditModal()">
+    <div class="cold-modal-card mirror-card" (click)="$event.stopPropagation()">
+      <div class="sheet-grab-bar mobile-only-block"></div>
+
+      <div class="modal-header">
+        <div>
+          <span class="cold-chip">TRANSACTION #{{ editingItem?.id }}</span>
+          <h2 class="modal-title">{{ lang() === 'kh' ? 'កែប្រែទិន្នន័យប្រតិបត្តិការ' : 'Edit Transaction Record' }}</h2>
+        </div>
+        <button type="button" class="btn-close-modal mirror-btn" (click)="closeEditModal()">✕</button>
+      </div>
+
+      <form (submit)="submitEditForm($event)" class="modal-form-body" *ngIf="editingItem">
+        <!-- Amount -->
+        <div class="form-group">
+          <label class="form-label">{{ lang() === 'kh' ? 'ចំនួនទឹកប្រាក់ ($ USD):' : 'Amount ($ USD):' }}</label>
+          <div class="amount-input-box">
+            <span class="currency-prefix">&dollar;</span>
+            <input
+              type="number"
+              class="cold-input amount-large-input mirror-pill"
+              [(ngModel)]="editAmount"
+              name="editAmount"
+              step="0.01"
+              min="0.01"
+              required
+            />
+          </div>
+          <span class="amount-khr-hint text-cyan">
+            ≈ {{ Math.round(editAmount * 4100).toLocaleString('en-US') }} ៛ (KHR)
+          </span>
+        </div>
+
+        <!-- Status & Type -->
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">{{ lang() === 'kh' ? 'ប្រភេទ:' : 'Type:' }}</label>
+            <select class="cold-select mirror-pill" [(ngModel)]="editType" name="editType">
+              <option value="income">+ Income (ចំណូលចូល)</option>
+              <option value="expense">- Expense / Deduction (ចំណាយដក)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">{{ lang() === 'kh' ? 'ស្ថានភាព:' : 'Status:' }}</label>
+            <select class="cold-select mirror-pill" [(ngModel)]="editStatus" name="editStatus">
+              <option value="paid">Paid (បានបង់)</option>
+              <option value="pending">Pending (កំពុងរង់ចាំ)</option>
+              <option value="refunded">Refunded (បានសង)</option>
+              <option value="failed">Failed (បរាជ័យ)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="form-group">
+          <label class="form-label">{{ lang() === 'kh' ? 'វិធីសាស្ត្រទូទាត់:' : 'Payment Method:' }}</label>
+          <select class="cold-select mirror-pill" [(ngModel)]="editProvider" name="editProvider">
+            <option value="bakong_khqr">🇰🇭 Bakong KHQR</option>
+            <option value="cash">💵 Cash In-Person</option>
+            <option value="aba_bank">🏦 ABA Bank Transfer</option>
+            <option value="card">💳 Card / Visa / Master</option>
+            <option value="other">Direct / Other</option>
+          </select>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group">
+          <label class="form-label">{{ lang() === 'kh' ? 'កំណត់ចំណាំ:' : 'Notes / Memo:' }}</label>
+          <input type="text" class="cold-input mirror-pill" [(ngModel)]="editNotes" name="editNotes" />
+        </div>
+
+        <div class="modal-footer-btns">
+          <button type="button" class="btn-cancel mirror-btn" (click)="closeEditModal()">
+            {{ lang() === 'kh' ? 'បោះបង់' : 'Cancel' }}
+          </button>
+          <button type="submit" class="btn-submit-action btn-green mirror-btn" [disabled]="isSubmitting()">
+            <span *ngIf="!isSubmitting()">{{ lang() === 'kh' ? 'រក្សាទុកការកែប្រែ' : 'Save Changes' }}</span>
+            <span *ngIf="isSubmitting()">Updating...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════════
+       MODAL 3: DELETE CONFIRMATION DIALOG (iOS 26 SPRING POPUP)
+  ═════════════════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop-overlay animate-fade" *ngIf="isDeleteModalOpen()" (click)="closeDeleteModal()">
+    <div class="cold-modal-card delete-confirm-card mirror-card" (click)="$event.stopPropagation()">
+      <div class="sheet-grab-bar mobile-only-block"></div>
+      <div class="delete-icon-badge mirror-float">⚠️</div>
+      <h2 class="modal-title text-center">{{ lang() === 'kh' ? 'បញ្ជាក់ការលុបប្រតិបត្តិការ' : 'Confirm Permanent Deletion' }}</h2>
+      <p class="delete-warn-text text-center text-muted mt-2">
+        {{ lang() === 'kh'
+          ? 'តើអ្នកពិតជាចង់លុបប្រតិបត្តិការ #' + deletingItem?.id + ' នេះមែនទេ? ទិន្នន័យចំណូលសរុបនឹងត្រូវកាត់បន្ថយដោយស្វ័យប្រវត្តិតាមទិន្នន័យជាក់ស្តែង។'
+          : 'Are you sure you want to permanently delete transaction #' + deletingItem?.id + '? All real-time revenue and KPI metrics will automatically decrease accordingly.' }}
+      </p>
+
+      <div class="delete-item-preview mirror-card mt-4" *ngIf="deletingItem">
+        <div class="dip-row">
+          <span>Customer:</span>
+          <strong>{{ deletingItem.customer_name || 'Direct Customer' }}</strong>
+        </div>
+        <div class="dip-row">
+          <span>Amount:</span>
+          <strong class="font-mono text-cyan">&dollar;{{ Math.abs(deletingItem.amount).toFixed(2) }}</strong>
+        </div>
+        <div class="dip-row">
+          <span>Date:</span>
+          <span class="text-muted">{{ deletingItem.purchased_at }}</span>
+        </div>
+      </div>
+
+      <div class="modal-footer-btns mt-6">
+        <button type="button" class="btn-cancel mirror-btn" (click)="closeDeleteModal()">
+          {{ lang() === 'kh' ? 'បោះបង់' : 'Cancel' }}
+        </button>
+        <button type="button" class="btn-submit-action btn-rose mirror-btn" (click)="executeDelete()" [disabled]="isSubmitting()">
+          <span *ngIf="!isSubmitting()">{{ lang() === 'kh' ? 'យល់ព្រមលុបចេញ' : 'Yes, Delete Permanently' }}</span>
+          <span *ngIf="isSubmitting()">Deleting...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

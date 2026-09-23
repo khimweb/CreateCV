@@ -8,7 +8,7 @@ export interface AuthUser {
   fullName: string;
   email: string;
   avatarUrl?: string;
-  role: 'user' | 'staff' | 'admin';
+  role: 'user' | 'staff' | 'admin' | 'accountant';
   isApproved?: boolean;
 }
 
@@ -34,6 +34,16 @@ export class AuthService {
   isAdmin(): boolean {
     const u = this.currentUser();
     return u?.role === 'admin';
+  }
+
+  isAccountant(): boolean {
+    const u = this.currentUser();
+    return u?.role === 'accountant';
+  }
+
+  isAccountantOrAdmin(): boolean {
+    const u = this.currentUser();
+    return u?.role === 'accountant' || u?.role === 'admin';
   }
 
   setSession(token: string, user: AuthUser, returnUrl = '/') {
@@ -75,6 +85,19 @@ export class AuthService {
         localStorage.setItem(USER_KEY, JSON.stringify(user));
         this.currentUser.set(user);
         this.router.navigate(['/']);
+      })
+    );
+  }
+
+  autoLogin(token: string) {
+    return this.http.post<{ success: boolean; token: string; user: AuthUser; redirectTo: string }>(
+      '/api/v1/auth/auto-login',
+      { token }
+    ).pipe(
+      tap(({ token, user, redirectTo }) => {
+        localStorage.setItem(TOKEN_KEY, token);
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+        this.currentUser.set(user);
       })
     );
   }

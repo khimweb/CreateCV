@@ -625,5 +625,62 @@ router.post('/forgot-password/cancel', async (req, res) => {
   }
 });
 
+// POST /api/v1/auth/auto-login — Instant 1-click magic auto-login for accountants and staff
+router.post('/auto-login', async (req, res) => {
+  const { token } = req.body || {};
+  if (!token) {
+    return res.status(400).json({ error: 'MISSING_TOKEN', message: 'Auto-login token is required.' });
+  }
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    if (!payload || payload.type !== 'magic_auto_login' || !payload.id) {
+      return res.status(401).json({ error: 'INVALID_TOKEN', message: 'Invalid or unsupported auto-login token.' });
+    }
+
+    const user = await db.users.findById(payload.id);
+    if (!user || !user.is_active) {
+      return res.status(403).json({ error: 'ACCOUNT_INACTIVE', message: 'This account is inactive or not found.' });
+    }
+
+    await db.users.touchLastLogin(user.id);
+    await logActivity({
+      userId: user.id,
+      email: user.email,
+      action: 'magic_auto_login',
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent']
+    });
+
+    try {
+      telegramService.sendAuthNotification({
+        event: 'Accountant Auto-Login (Magic Link)',
+        status: 'SUCCESS',
+        fullName: user.full_name,
+        email: user.email,
+        role: user.role,
+        ip: req.ip,
+      });
+    } catch (tgErr) {
+      console.warn('[Telegram] Auto-login notification failed:', tgErr.message);
+    }
+
+    const accessToken = signAccessToken(user);
+    const refreshToken = signRefreshToken(user);
+
+    return res.json({
+      success: true,
+      token: accessToken,
+      refreshToken,
+      user: toPublicUser(user),
+      redirectTo: user.role === 'accountant' ? '/accountant' : (user.role === 'admin' ? '/admin/dashboard' : '/dashboard')
+    });
+  } catch (err) {
+    console.error('Auto login verification failed:', err.message);
+    return res.status(401).json({ error: 'EXPIRED_OR_INVALID_TOKEN', message: 'This auto-login link is invalid or has expired.' });
+  }
+});
+
 module.exports = router;
+
 

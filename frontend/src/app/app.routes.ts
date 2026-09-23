@@ -66,6 +66,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/forgot-password.component').then(m => m.ForgotPasswordComponent),
   },
   {
+    path: 'auth/auto-login',
+    loadComponent: () => import('./features/auth/auto-login.component').then(m => m.AutoLoginComponent),
+  },
+  {
     path: 'about',
     loadComponent: () => import('./features/about/about.component').then(m => m.AboutComponent),
   },
@@ -90,6 +94,10 @@ export const routes: Routes = [
   {
     path: 'admin',
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes),
+  },
+  {
+    path: 'accountant',
+    loadChildren: () => import('./features/accountant/accountant.routes').then(m => m.accountantRoutes),
   },
   { path: '**', redirectTo: '' },
 ];

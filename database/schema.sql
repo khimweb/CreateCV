@@ -12,7 +12,7 @@ CREATE TABLE users (
   password_hash     TEXT              NOT NULL,
   avatar_url        TEXT,
   role              TEXT              NOT NULL DEFAULT 'user'
-                      CHECK (role IN ('user', 'admin')),
+                      CHECK (role IN ('user', 'admin', 'accountant')),
   theme_preference  TEXT              NOT NULL DEFAULT 'light'
                       CHECK (theme_preference IN ('light', 'dark')),
   is_active         INTEGER           NOT NULL DEFAULT 1,

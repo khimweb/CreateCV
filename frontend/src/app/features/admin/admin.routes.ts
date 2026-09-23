@@ -14,6 +14,15 @@ export const adminRoutes: Routes = [
         loadComponent: () => import('./dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
       },
       {
+        path: 'accounting',
+        loadComponent: () => import('./accounting/admin-accounting.component').then(m => m.AdminAccountingComponent),
+      },
+      {
+        path: 'account',
+        redirectTo: 'accounting',
+        pathMatch: 'full',
+      },
+      {
         path: 'customers',
         loadComponent: () => import('./customers/admin-customers.component').then(m => m.AdminCustomersComponent),
       },

@@ -1,0 +1,1023 @@
+<div class="space-y-8 pb-16 font-sans">
+
+  <!-- ======================================================== -->
+  <!-- 1. Header & Quick Controls -->
+  <!-- ======================================================== -->
+  <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-6 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] transition-all">
+    <div class="space-y-1.5">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-emerald-500/25">
+          <lucide-icon [img]="DollarSign" [size]="22"></lucide-icon>
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Accounting & Financial Management
+          </h1>
+        </div>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Live Real-Time Ledger
+        </span>
+      </div>
+      <p class="text-sm text-slate-500 dark:text-slate-400 max-w-3xl">
+        Central financial control center. Track real gross and net cashflow, manage staff accountants with 1-click magic auto-login links, and record income (+) and deductions (-).
+      </p>
+    </div>
+
+    <!-- Header Actions -->
+    <div class="flex flex-wrap items-center gap-2.5">
+      <!-- Add Money (+) -->
+      <button (click)="openAddMoneyModal()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+        <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
+        <span>Add Money (+)</span>
+      </button>
+
+      <!-- Deduct Money (-) -->
+      <button (click)="openDeductMoneyModal()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-sm shadow-lg shadow-rose-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+        <lucide-icon [img]="Minus" [size]="16"></lucide-icon>
+        <span>Deduct Money (-)</span>
+      </button>
+
+      <!-- Add New Accountant -->
+      <button (click)="openAddAccountantModal()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/25 transition-all hover:scale-[1.02] active:scale-[0.98]">
+        <lucide-icon [img]="UserPlus" [size]="16"></lucide-icon>
+        <span>+ Add New Accountant</span>
+      </button>
+
+      <!-- Export Report -->
+      <button (click)="exportTransactionsCsv()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm border border-slate-200 dark:border-slate-700 transition-all">
+        <lucide-icon [img]="Download" [size]="16"></lucide-icon>
+        <span>Export CSV</span>
+      </button>
+
+      <!-- Jump to Accountant Portal -->
+      <a routerLink="/accountant" target="_blank"
+         class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-semibold text-sm shadow-md transition-all hover:opacity-90">
+        <span>Accountant Portal</span>
+        <lucide-icon [img]="ExternalLink" [size]="14"></lucide-icon>
+      </a>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 2. Financial Overview & Total Money KPI Cards -->
+  <!-- ======================================================== -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <!-- Total Real Revenue / Net Balance -->
+    <div class="relative p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-[0_15px_30px_-15px_rgba(0,0,0,0.06)] overflow-hidden group hover:border-emerald-500/50 transition-all">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:scale-125 transition-transform"></div>
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Net Revenue</span>
+        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+          <lucide-icon [img]="Wallet" [size]="18"></lucide-icon>
+        </div>
+      </div>
+      <div class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+        ${{ kpis().totalRevenue | number:'1.2-2' }}
+      </div>
+      <div class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+        ≈ {{ (kpis().totalRevenue * 4100) | number:'1.0-0' }} ៛ KHR
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+        <span>Paid Orders: <strong class="text-slate-800 dark:text-slate-200">{{ kpis().paidOrders }}</strong></span>
+        <span class="text-emerald-600 dark:text-emerald-400 font-semibold">Active Ledger</span>
+      </div>
+    </div>
+
+    <!-- Total Inflow (+) -->
+    <div class="relative p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-[0_15px_30px_-15px_rgba(0,0,0,0.06)] overflow-hidden group hover:border-teal-500/50 transition-all">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl group-hover:scale-125 transition-transform"></div>
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Gross Inflow (+)</span>
+        <div class="w-9 h-9 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+          <lucide-icon [img]="ArrowUpRight" [size]="18"></lucide-icon>
+        </div>
+      </div>
+      <div class="text-3xl font-extrabold text-teal-600 dark:text-teal-400 tracking-tight">
+        +${{ kpis().totalIncome | number:'1.2-2' }}
+      </div>
+      <div class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+        Total Sales & Credit Deposits
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+        <span>All time inbound</span>
+        <span class="text-teal-600 dark:text-teal-400 font-semibold">Positive Flow</span>
+      </div>
+    </div>
+
+    <!-- Total Deductions / Outflow (-) -->
+    <div class="relative p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-[0_15px_30px_-15px_rgba(0,0,0,0.06)] overflow-hidden group hover:border-rose-500/50 transition-all">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl group-hover:scale-125 transition-transform"></div>
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Deductions (-)</span>
+        <div class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+          <lucide-icon [img]="ArrowDownRight" [size]="18"></lucide-icon>
+        </div>
+      </div>
+      <div class="text-3xl font-extrabold text-rose-600 dark:text-rose-400 tracking-tight">
+        -${{ kpis().totalExpense | number:'1.2-2' }}
+      </div>
+      <div class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+        Refunds & Recorded Debits
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+        <span>Refunds: <strong class="text-rose-600">{{ kpis().refundedOrders }}</strong></span>
+        <span class="text-rose-600 dark:text-rose-400 font-semibold">Controlled</span>
+      </div>
+    </div>
+
+    <!-- Today's Activity -->
+    <div class="relative p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-[0_15px_30px_-15px_rgba(0,0,0,0.06)] overflow-hidden group hover:border-indigo-500/50 transition-all">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:scale-125 transition-transform"></div>
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Today's Net Cash</span>
+        <div class="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+          <lucide-icon [img]="Clock" [size]="18"></lucide-icon>
+        </div>
+      </div>
+      <div class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+        ${{ kpis().todayRevenue | number:'1.2-2' }}
+      </div>
+      <div class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+        Today's Inflow: +${{ kpis().todayIncome | number:'1.2-2' }}
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+        <span>Transactions: <strong>{{ kpis().todayOrders }}</strong></span>
+        <span class="text-indigo-600 dark:text-indigo-400 font-semibold">Today</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 3. Accountant Team & Magic Auto-Login Generator Section -->
+  <!-- ======================================================== -->
+  <div class="rounded-3xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] overflow-hidden">
+    <!-- Section Header -->
+    <div class="p-6 sm:p-7 border-b border-slate-200/80 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+            <lucide-icon [img]="Users" [size]="18"></lucide-icon>
+          </div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">Accountant Team & 1-Click Magic Login Links</h2>
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
+            {{ accountants().length }} Staff
+          </span>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+          Generate secure 1-click magic auto-login links. When clicked, anyone holding this link is automatically authenticated as that accountant and smoothly redirected to <strong>/accountant</strong> without entering any password.
+        </p>
+      </div>
+
+      <button (click)="openAddAccountantModal()"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-sm shadow-md shadow-cyan-600/20 transition-all shrink-0">
+        <lucide-icon [img]="UserPlus" [size]="15"></lucide-icon>
+        <span>+ Add New Accountant</span>
+      </button>
+    </div>
+
+    <!-- Accountants List -->
+    <div class="p-6">
+      @if (accountants().length === 0) {
+        <div class="py-12 text-center flex flex-col items-center">
+          <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-4">
+            <lucide-icon [img]="Users" [size]="28"></lucide-icon>
+          </div>
+          <h3 class="text-base font-semibold text-slate-800 dark:text-slate-200">No Accountant Users Created Yet</h3>
+          <p class="text-xs text-slate-500 max-w-sm mt-1 mb-4">
+            Create your first accountant to generate an instant 1-click Magic Auto-Login link.
+          </p>
+          <button (click)="openAddAccountantModal()"
+                  class="px-4 py-2 rounded-xl bg-cyan-600 text-white text-xs font-semibold hover:bg-cyan-500 transition-all">
+            + Create First Accountant
+          </button>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          @for (acc of accountants(); track acc.id) {
+            <div class="relative p-5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60 flex flex-col justify-between hover:border-cyan-500/40 transition-all">
+              <div>
+                <div class="flex items-start justify-between gap-3 mb-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white font-bold text-base flex items-center justify-center shadow-md shadow-cyan-500/20">
+                      {{ acc.fullName.charAt(0).toUpperCase() }}
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-slate-900 dark:text-white text-sm">{{ acc.fullName }}</h4>
+                      <p class="text-xs text-slate-500 dark:text-slate-400">{{ acc.email }}</p>
+                    </div>
+                  </div>
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Active
+                  </span>
+                </div>
+
+                <div class="space-y-1 text-[11px] text-slate-500 dark:text-slate-400 mb-4 bg-white/60 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800">
+                  <div class="flex items-center justify-between">
+                    <span>Role:</span>
+                    <span class="font-semibold text-slate-700 dark:text-slate-300 capitalize">{{ acc.role }}</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span>Created:</span>
+                    <span>{{ formatDate(acc.createdAt) }}</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span>Last Login:</span>
+                    <span>{{ acc.lastLoginAt ? formatDate(acc.lastLoginAt) : 'Never' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Bar for this Accountant -->
+              <div class="pt-3 border-t border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between gap-2">
+                <!-- Copy Magic Link Button -->
+                <button (click)="copyAccountantLink(acc)"
+                        [class.bg-emerald-600]="copiedLinkIds().has(acc.id)"
+                        [class.bg-cyan-600]="!copiedLinkIds().has(acc.id)"
+                        class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-white text-xs font-semibold hover:opacity-90 shadow-sm transition-all">
+                  <lucide-icon [img]="copiedLinkIds().has(acc.id) ? Check : Copy" [size]="14"></lucide-icon>
+                  <span>{{ copiedLinkIds().has(acc.id) ? 'Link Copied!' : 'Copy Magic Link' }}</span>
+                </button>
+
+                <!-- Open in new tab -->
+                <a [href]="acc.magicLink" target="_blank"
+                   title="Open Magic Link in new tab"
+                   class="p-1.5 rounded-xl bg-slate-200/70 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-all">
+                  <lucide-icon [img]="ExternalLink" [size]="15"></lucide-icon>
+                </a>
+
+                <!-- Regenerate link -->
+                <button (click)="regenerateLink(acc)"
+                        title="Regenerate Magic Link"
+                        class="p-1.5 rounded-xl bg-slate-200/70 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-all">
+                  <lucide-icon [img]="RefreshCw" [size]="15"></lucide-icon>
+                </button>
+
+                <!-- Remove accountant -->
+                <button (click)="deleteAccountant(acc)"
+                        title="Delete Accountant"
+                        class="p-1.5 rounded-xl bg-rose-100 hover:bg-rose-200 dark:bg-rose-900/30 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 transition-all">
+                  <lucide-icon [img]="Trash2" [size]="15"></lucide-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 4. All Transactions Ledger (Central Live Database) -->
+  <!-- ======================================================== -->
+  <div class="rounded-3xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] overflow-hidden">
+    <!-- Ledger Toolbar -->
+    <div class="p-6 sm:p-7 border-b border-slate-200/80 dark:border-slate-800 space-y-4">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <span>Central Transactions Ledger</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold">
+              {{ filteredTransactions().length }} of {{ transactions().length }}
+            </span>
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            Full ledger of customer orders, payments, credits (+), and deductions (-). Real-time database integration.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <!-- Refresh -->
+          <button (click)="loadAllData()"
+                  class="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all"
+                  title="Reload ledger">
+            <lucide-icon [img]="RefreshCw" [size]="16" [class.animate-spin]="loading()"></lucide-icon>
+          </button>
+
+          <!-- Add Money (+) -->
+          <button (click)="openAddMoneyModal()"
+                  class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-all shadow-sm">
+            <lucide-icon [img]="Plus" [size]="14"></lucide-icon>
+            <span>+ Add Money</span>
+          </button>
+
+          <!-- Deduct Money (-) -->
+          <button (click)="openDeductMoneyModal()"
+                  class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition-all shadow-sm">
+            <lucide-icon [img]="Minus" [size]="14"></lucide-icon>
+            <span>- Deduct Money</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters Row -->
+      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-2">
+        <!-- Search bar -->
+        <div class="relative flex-1 max-w-md">
+          <lucide-icon [img]="Search" [size]="16" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></lucide-icon>
+          <input type="text"
+                 [ngModel]="searchQuery()"
+                 (ngModelChange)="searchQuery.set($event)"
+                 placeholder="Search by customer, email, payment provider, notes..."
+                 class="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+        </div>
+
+        <!-- Filter Pills -->
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Flow Type Filter -->
+          <div class="inline-flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 border border-slate-200 dark:border-slate-700 text-xs">
+            <button (click)="selectedType.set('all')"
+                    [class.bg-white]="selectedType() === 'all'"
+                    [class.dark:bg-slate-700]="selectedType() === 'all'"
+                    [class.shadow-xs]="selectedType() === 'all'"
+                    [class.text-slate-900]="selectedType() === 'all'"
+                    [class.dark:text-white]="selectedType() === 'all'"
+                    class="px-2.5 py-1 rounded-lg font-medium text-slate-600 dark:text-slate-400 transition-all">
+              All Types
+            </button>
+            <button (click)="selectedType.set('income')"
+                    [class.bg-white]="selectedType() === 'income'"
+                    [class.dark:bg-slate-700]="selectedType() === 'income'"
+                    [class.shadow-xs]="selectedType() === 'income'"
+                    [class.text-emerald-600]="selectedType() === 'income'"
+                    class="px-2.5 py-1 rounded-lg font-medium text-slate-600 dark:text-slate-400 transition-all">
+              + Inflow
+            </button>
+            <button (click)="selectedType.set('expense')"
+                    [class.bg-white]="selectedType() === 'expense'"
+                    [class.dark:bg-slate-700]="selectedType() === 'expense'"
+                    [class.shadow-xs]="selectedType() === 'expense'"
+                    [class.text-rose-600]="selectedType() === 'expense'"
+                    class="px-2.5 py-1 rounded-lg font-medium text-slate-600 dark:text-slate-400 transition-all">
+              - Deductions
+            </button>
+          </div>
+
+          <!-- Status Filter -->
+          <div class="inline-flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 border border-slate-200 dark:border-slate-700 text-xs">
+            <button (click)="selectedStatus.set('all')"
+                    [class.bg-white]="selectedStatus() === 'all'"
+                    [class.dark:bg-slate-700]="selectedStatus() === 'all'"
+                    [class.text-slate-900]="selectedStatus() === 'all'"
+                    [class.dark:text-white]="selectedStatus() === 'all'"
+                    class="px-2.5 py-1 rounded-lg font-medium text-slate-600 dark:text-slate-400 transition-all">
+              All Status
+            </button>
+            <button (click)="selectedStatus.set('paid')"
+                    [class.bg-white]="selectedStatus() === 'paid'"
+                    [class.dark:bg-slate-700]="selectedStatus() === 'paid'"
+                    [class.text-emerald-600]="selectedStatus() === 'paid'"
+                    class="px-2.5 py-1 rounded-lg font-medium text-slate-600 dark:text-slate-400 transition-all">
+              Paid
+            </button>
+            <button (click)="selectedStatus.set('pending')"
+                    [class.bg-white]="selectedStatus() === 'pending'"
+                    [class.dark:bg-slate-700]="selectedStatus() === 'pending'"
+                    [class.text-amber-600]="selectedStatus() === 'pending'"
+                    class="px-2.5 py-1 rounded-lg font-medium text-slate-600 dark:text-slate-400 transition-all">
+              Pending
+            </button>
+            <button (click)="selectedStatus.set('refunded')"
+                    [class.bg-white]="selectedStatus() === 'refunded'"
+                    [class.dark:bg-slate-700]="selectedStatus() === 'refunded'"
+                    [class.text-rose-600]="selectedStatus() === 'refunded'"
+                    class="px-2.5 py-1 rounded-lg font-medium text-slate-600 dark:text-slate-400 transition-all">
+              Refunded
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+        <thead class="bg-slate-50/80 dark:bg-slate-800/60 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+          <tr>
+            <th class="py-3.5 px-6">ID & Date</th>
+            <th class="py-3.5 px-4">Flow</th>
+            <th class="py-3.5 px-4">Customer & Service</th>
+            <th class="py-3.5 px-4">Channel / Provider</th>
+            <th class="py-3.5 px-4">Status</th>
+            <th class="py-3.5 px-6 text-right">Amount</th>
+            <th class="py-3.5 px-6 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          @if (filteredTransactions().length === 0) {
+            <tr>
+              <td colspan="7" class="py-12 text-center text-slate-400 text-sm">
+                No transactions match the selected filters.
+              </td>
+            </tr>
+          } @else {
+            @for (t of filteredTransactions(); track t.id) {
+              <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group">
+                <!-- ID & Date -->
+                <td class="py-3.5 px-6">
+                  <div class="font-bold text-slate-900 dark:text-white">#{{ t.id }}</div>
+                  <div class="text-[11px] text-slate-400">{{ formatDate(t.purchased_at) }} {{ formatTime(t.purchased_at) }}</div>
+                </td>
+
+                <!-- Flow -->
+                <td class="py-3.5 px-4">
+                  @if (t.amount < 0 || t.entry_type === 'expense') {
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                      <lucide-icon [img]="ArrowDownRight" [size]="13"></lucide-icon>
+                      Debit (-)
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      <lucide-icon [img]="ArrowUpRight" [size]="13"></lucide-icon>
+                      Credit (+)
+                    </span>
+                  }
+                </td>
+
+                <!-- Customer & Service -->
+                <td class="py-3.5 px-4">
+                  <div class="font-semibold text-slate-900 dark:text-white">
+                    {{ t.customer_name || 'Standard User' }}
+                  </div>
+                  <div class="text-xs text-slate-400 flex items-center gap-1">
+                    <span>{{ t.customer_email || t.template_name || 'Digital CV Service' }}</span>
+                  </div>
+                  @if (t.notes) {
+                    <div class="text-[11px] text-slate-500 italic mt-0.5 line-clamp-1">
+                      "{{ t.notes }}"
+                    </div>
+                  }
+                </td>
+
+                <!-- Channel / Provider -->
+                <td class="py-3.5 px-4">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
+                    {{ t.payment_provider || 'Online Payment' }}
+                  </span>
+                </td>
+
+                <!-- Status -->
+                <td class="py-3.5 px-4">
+                  @if (t.status === 'paid') {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      Paid
+                    </span>
+                  } @else if (t.status === 'pending') {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                      <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                      Pending
+                    </span>
+                  } @else if (t.status === 'refunded') {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                      <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                      Refunded
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20">
+                      {{ t.status }}
+                    </span>
+                  }
+                </td>
+
+                <!-- Amount -->
+                <td class="py-3.5 px-6 text-right font-mono font-bold">
+                  @if (t.amount < 0 || t.entry_type === 'expense') {
+                    <span class="text-rose-600 dark:text-rose-400 text-base">
+                      -${{ (t.amount < 0 ? -t.amount : t.amount) | number:'1.2-2' }}
+                    </span>
+                  } @else {
+                    <span class="text-emerald-600 dark:text-emerald-400 text-base">
+                      +${{ t.amount | number:'1.2-2' }}
+                    </span>
+                  }
+                </td>
+
+                <!-- Actions -->
+                <td class="py-3.5 px-6 text-center">
+                  <div class="inline-flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
+                    <!-- Edit -->
+                    <button (click)="openEditModal(t)"
+                            class="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all"
+                            title="Edit transaction">
+                      <lucide-icon [img]="Edit3" [size]="14"></lucide-icon>
+                    </button>
+
+                    <!-- Delete -->
+                    <button (click)="confirmDelete(t)"
+                            class="p-1.5 rounded-xl bg-rose-100 hover:bg-rose-200 dark:bg-rose-900/30 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 transition-all"
+                            title="Delete transaction">
+                      <lucide-icon [img]="Trash2" [size]="14"></lucide-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: Add New Accountant -->
+  <!-- ======================================================== -->
+  @if (showAddAccountantModal()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+      <div class="relative w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-cyan-500/10 text-cyan-500 flex items-center justify-center">
+              <lucide-icon [img]="UserPlus" [size]="20"></lucide-icon>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-900 dark:text-white">Add New Accountant</h3>
+              <p class="text-xs text-slate-500">Auto-generates a 1-click Magic Login Link</p>
+            </div>
+          </div>
+          <button (click)="showAddAccountantModal.set(false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+            <lucide-icon [img]="X" [size]="20"></lucide-icon>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Full Name -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Full Name</label>
+            <input type="text"
+                   [(ngModel)]="newAccountantForm.fullName"
+                   placeholder="e.g. Sokha Accountant"
+                   class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Email Address</label>
+            <input type="email"
+                   [(ngModel)]="newAccountantForm.email"
+                   placeholder="e.g. accountant&#64;createcv.com"
+                   class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+          </div>
+
+          <!-- Password -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Temporary Password</label>
+              <button (click)="newAccountantForm.password = generateRandomPassword()"
+                      type="button"
+                      class="text-[11px] text-cyan-600 dark:text-cyan-400 font-semibold hover:underline">
+                Generate Random
+              </button>
+            </div>
+            <input type="text"
+                   [(ngModel)]="newAccountantForm.password"
+                   class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+          </div>
+
+          <div class="p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-700 dark:text-cyan-300 flex items-start gap-2">
+            <lucide-icon [img]="Sparkles" [size]="16" class="shrink-0 mt-0.5"></lucide-icon>
+            <span>Once submitted, a 30-day <strong>Magic Auto-Login Link</strong> will be generated immediately so you can copy and send it to your accountant!</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button (click)="showAddAccountantModal.set(false)"
+                  class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold transition-all">
+            Cancel
+          </button>
+          <button (click)="submitNewAccountant()"
+                  [disabled]="isSubmittingAccountant()"
+                  class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-sm font-semibold shadow-lg shadow-cyan-600/20 transition-all disabled:opacity-50">
+            <lucide-icon *ngIf="!isSubmittingAccountant()" [img]="Check" [size]="16"></lucide-icon>
+            <lucide-icon *ngIf="isSubmittingAccountant()" [img]="RefreshCw" [size]="16" class="animate-spin"></lucide-icon>
+            <span>{{ isSubmittingAccountant() ? 'Creating...' : 'Create & Generate Link' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- MODAL: Magic Auto-Login Link Ready (Post Accountant Creation) -->
+  <!-- ======================================================== -->
+  @if (showMagicLinkReadyModal() && createdAccountantInfo()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
+      <div class="relative w-full max-w-lg rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6">
+        
+        <!-- Header Celebration -->
+        <div class="text-center space-y-2">
+          <div class="mx-auto w-16 h-16 rounded-3xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30 animate-bounce" style="animation-duration: 2s;">
+            <lucide-icon [img]="CheckCircle2" [size]="32"></lucide-icon>
+          </div>
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Accountant Created Successfully!</h3>
+          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+            The account is active and their <strong>1-Click Magic Auto-Login Link</strong> is generated and ready to share.
+          </p>
+        </div>
+
+        <!-- Credentials summary box -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">Name:</span>
+            <span class="font-bold text-slate-900 dark:text-white">{{ createdAccountantInfo()?.user?.fullName }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">Email:</span>
+            <span class="font-mono text-slate-900 dark:text-white">{{ createdAccountantInfo()?.user?.email }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">Temporary Password:</span>
+            <span class="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{{ createdAccountantInfo()?.rawPassword }}</span>
+          </div>
+        </div>
+
+        <!-- Magic Link Copy Box -->
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+            <lucide-icon [img]="Sparkles" [size]="14" class="text-cyan-500"></lucide-icon>
+            <span>One-Click Magic Auto-Login Link</span>
+          </label>
+          <div class="relative">
+            <input type="text"
+                   readonly
+                   [value]="createdAccountantInfo()?.magicLink"
+                   class="w-full pr-12 pl-3 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-mono text-slate-800 dark:text-slate-200 select-all focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Explanatory card -->
+        <div class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-800 dark:text-emerald-300 flex items-start gap-2.5 leading-relaxed">
+          <lucide-icon [img]="ShieldCheck" [size]="18" class="shrink-0 mt-0.5"></lucide-icon>
+          <div>
+            <strong>Instant Seamless Access:</strong> When someone opens this link, they are automatically logged in as this accountant and smoothly redirected straight to the Accountant Portal without needing a password.
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
+          <button (click)="copyCreatedMagicLink()"
+                  class="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition-all">
+            <lucide-icon [img]="createdAccountantInfo()?.copied ? Check : Copy" [size]="18"></lucide-icon>
+            <span>{{ createdAccountantInfo()?.copied ? 'Copied to Clipboard!' : 'Copy Magic Link' }}</span>
+          </button>
+
+          <a [href]="createdAccountantInfo()?.magicLink"
+             target="_blank"
+             class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold transition-all">
+            <span>Test / Open</span>
+            <lucide-icon [img]="ExternalLink" [size]="15"></lucide-icon>
+          </a>
+
+          <button (click)="showMagicLinkReadyModal.set(false)"
+                  class="w-full sm:w-auto px-4 py-3 rounded-2xl text-slate-500 hover:text-slate-800 dark:hover:text-white text-sm font-medium transition-all">
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- MODAL: Add Money (+) / Credit -->
+  <!-- ======================================================== -->
+  @if (showAddMoneyModal()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+      <div class="relative w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+              <lucide-icon [img]="Plus" [size]="20"></lucide-icon>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-900 dark:text-white">Add Money (+ Income)</h3>
+              <p class="text-xs text-slate-500">Record cash deposit, client payment or credit</p>
+            </div>
+          </div>
+          <button (click)="showAddMoneyModal.set(false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+            <lucide-icon [img]="X" [size]="20"></lucide-icon>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Amount -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Amount (USD $)</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+              <input type="number"
+                     step="0.01"
+                     [(ngModel)]="moneyForm.amount"
+                     placeholder="0.00"
+                     class="w-full pl-8 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-lg font-bold text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
+          </div>
+
+          <!-- Customer Name -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Customer / Depositor Name</label>
+            <input type="text"
+                   [(ngModel)]="moneyForm.customerName"
+                   placeholder="e.g. Sokha Chan"
+                   class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          </div>
+
+          <!-- Channel / Payment Provider -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Payment Method</label>
+            <select [(ngModel)]="moneyForm.paymentProvider"
+                    class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="ABA Pay">ABA Pay</option>
+              <option value="Bakong KHQR">Bakong KHQR</option>
+              <option value="Wing Bank">Wing Bank</option>
+              <option value="ACLEDA Mobile">ACLEDA Mobile</option>
+              <option value="Cash Deposit">Cash Deposit</option>
+              <option value="Admin Manual Credit">Admin Manual Credit</option>
+            </select>
+          </div>
+
+          <!-- Status -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Status</label>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button type="button"
+                      (click)="moneyForm.status = 'paid'"
+                      [class.bg-emerald-600]="moneyForm.status === 'paid'"
+                      [class.text-white]="moneyForm.status === 'paid'"
+                      [class.bg-slate-100]="moneyForm.status !== 'paid'"
+                      [class.dark:bg-slate-800]="moneyForm.status !== 'paid'"
+                      class="py-2 rounded-xl font-semibold transition-all">
+                Paid (Instant)
+              </button>
+              <button type="button"
+                      (click)="moneyForm.status = 'pending'"
+                      [class.bg-amber-600]="moneyForm.status === 'pending'"
+                      [class.text-white]="moneyForm.status === 'pending'"
+                      [class.bg-slate-100]="moneyForm.status !== 'pending'"
+                      [class.dark:bg-slate-800]="moneyForm.status !== 'pending'"
+                      class="py-2 rounded-xl font-semibold transition-all">
+                Pending
+              </button>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Notes / Memo</label>
+            <textarea [(ngModel)]="moneyForm.notes"
+                      rows="2"
+                      placeholder="Optional details or payment reference..."
+                      class="w-full px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button (click)="showAddMoneyModal.set(false)"
+                  class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold transition-all">
+            Cancel
+          </button>
+          <button (click)="submitMoneyForm(false)"
+                  [disabled]="isSubmittingMoney()"
+                  class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold shadow-lg shadow-emerald-600/20 transition-all disabled:opacity-50">
+            <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
+            <span>{{ isSubmittingMoney() ? 'Recording...' : 'Add Income (+)' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- MODAL: Deduct Money (-) / Debit -->
+  <!-- ======================================================== -->
+  @if (showDeductMoneyModal()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+      <div class="relative w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+              <lucide-icon [img]="Minus" [size]="20"></lucide-icon>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-900 dark:text-white">Deduct Money (- Expense)</h3>
+              <p class="text-xs text-slate-500">Record customer refund, expense or fee deduction</p>
+            </div>
+          </div>
+          <button (click)="showDeductMoneyModal.set(false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+            <lucide-icon [img]="X" [size]="20"></lucide-icon>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Amount -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Deduction Amount (USD $)</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+              <input type="number"
+                     step="0.01"
+                     [(ngModel)]="moneyForm.amount"
+                     placeholder="0.00"
+                     class="w-full pl-8 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-lg font-bold text-rose-600 dark:text-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-500">
+            </div>
+          </div>
+
+          <!-- Reason / Category -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Deduction Reason / Category</label>
+            <select [(ngModel)]="moneyForm.paymentProvider"
+                    class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="Customer Refund">Customer Refund</option>
+              <option value="Operational Expense">Operational Expense</option>
+              <option value="Server & Infrastructure">Server & Infrastructure</option>
+              <option value="Payment Gateway Fees">Payment Gateway Fees</option>
+              <option value="Accounting Correction">Accounting Correction</option>
+            </select>
+          </div>
+
+          <!-- Beneficiary / Name -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Recipient / Note Name</label>
+            <input type="text"
+                   [(ngModel)]="moneyForm.customerName"
+                   placeholder="e.g. Cloud Host / Refund to Customer"
+                   class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500">
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Explanation</label>
+            <textarea [(ngModel)]="moneyForm.notes"
+                      rows="2"
+                      placeholder="Why is this deduction being made..."
+                      class="w-full px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"></textarea>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button (click)="showDeductMoneyModal.set(false)"
+                  class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold transition-all">
+            Cancel
+          </button>
+          <button (click)="submitMoneyForm(true)"
+                  [disabled]="isSubmittingMoney()"
+                  class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold shadow-lg shadow-rose-600/20 transition-all disabled:opacity-50">
+            <lucide-icon [img]="Minus" [size]="16"></lucide-icon>
+            <span>{{ isSubmittingMoney() ? 'Deducting...' : 'Deduct Money (-)' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- MODAL: Edit Transaction -->
+  <!-- ======================================================== -->
+  @if (showEditTransactionModal() && editingTransaction()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+      <div class="relative w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+              <lucide-icon [img]="Edit3" [size]="20"></lucide-icon>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-900 dark:text-white">Edit Transaction #{{ editingTransaction()?.id }}</h3>
+              <p class="text-xs text-slate-500">Update ledger record details</p>
+            </div>
+          </div>
+          <button (click)="showEditTransactionModal.set(false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+            <lucide-icon [img]="X" [size]="20"></lucide-icon>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Flow Type -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Flow Direction</label>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button type="button"
+                      (click)="editForm.entryType = 'income'"
+                      [class.bg-emerald-600]="editForm.entryType === 'income'"
+                      [class.text-white]="editForm.entryType === 'income'"
+                      [class.bg-slate-100]="editForm.entryType !== 'income'"
+                      [class.dark:bg-slate-800]="editForm.entryType !== 'income'"
+                      class="py-2 rounded-xl font-semibold transition-all">
+                + Income / Inflow
+              </button>
+              <button type="button"
+                      (click)="editForm.entryType = 'expense'"
+                      [class.bg-rose-600]="editForm.entryType === 'expense'"
+                      [class.text-white]="editForm.entryType === 'expense'"
+                      [class.bg-slate-100]="editForm.entryType !== 'expense'"
+                      [class.dark:bg-slate-800]="editForm.entryType !== 'expense'"
+                      class="py-2 rounded-xl font-semibold transition-all">
+                - Expense / Deduction
+              </button>
+            </div>
+          </div>
+
+          <!-- Amount -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Amount (USD $)</label>
+            <input type="number"
+                   step="0.01"
+                   [(ngModel)]="editForm.amount"
+                   class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-base font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+
+          <!-- Customer Name -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Customer / Entity Name</label>
+            <input type="text"
+                   [(ngModel)]="editForm.customerName"
+                   class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+
+          <!-- Provider -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Payment Provider</label>
+            <input type="text"
+                   [(ngModel)]="editForm.paymentProvider"
+                   class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+
+          <!-- Status -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Status</label>
+            <select [(ngModel)]="editForm.status"
+                    class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="paid">Paid</option>
+              <option value="pending">Pending</option>
+              <option value="refunded">Refunded</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Notes</label>
+            <textarea [(ngModel)]="editForm.notes"
+                      rows="2"
+                      class="w-full px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button (click)="showEditTransactionModal.set(false)"
+                  class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold transition-all">
+            Cancel
+          </button>
+          <button (click)="submitEditTransaction()"
+                  [disabled]="isSubmittingEdit()"
+                  class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold shadow-lg shadow-indigo-600/20 transition-all disabled:opacity-50">
+            <lucide-icon [img]="Check" [size]="16"></lucide-icon>
+            <span>{{ isSubmittingEdit() ? 'Saving...' : 'Save Changes' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- MODAL: Delete Transaction Confirmation -->
+  <!-- ======================================================== -->
+  @if (showDeleteConfirmModal() && deletingTransaction()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+      <div class="relative w-full max-w-sm rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-2xl text-center space-y-4">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
+          <lucide-icon [img]="Trash2" [size]="28"></lucide-icon>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Delete Transaction #{{ deletingTransaction()?.id }}?</h3>
+          <p class="text-xs text-slate-500 mt-1">
+            This will permanently remove this transaction from the database and adjust the total balance and reports accordingly.
+          </p>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 text-xs font-mono text-slate-700 dark:text-slate-300">
+          Amount: ${{ deletingTransaction()?.amount | number:'1.2-2' }} ({{ deletingTransaction()?.status }})
+        </div>
+
+        <div class="flex items-center justify-center gap-3 pt-2">
+          <button (click)="showDeleteConfirmModal.set(false)"
+                  class="flex-1 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold transition-all">
+            Cancel
+          </button>
+          <button (click)="executeDelete()"
+                  [disabled]="isDeleting()"
+                  class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold shadow-lg shadow-rose-600/20 transition-all disabled:opacity-50">
+            <lucide-icon [img]="Trash2" [size]="15"></lucide-icon>
+            <span>{{ isDeleting() ? 'Deleting...' : 'Delete' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

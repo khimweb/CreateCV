@@ -645,6 +645,7 @@ export class AdminShellComponent {
 
   readonly mainNav = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: '' },
+    { path: '/admin/accounting', label: 'Accounting', icon: DollarSign, badge: 'Finance' },
     { path: '/admin/analytics', label: 'Analytics', icon: TrendingUp, badge: 'Live' },
     { path: '/admin/reports', label: 'Reports', icon: FileSpreadsheet, badge: 'Export' },
     { path: '/admin/customers', label: 'Users', icon: Users, badge: '' },
@@ -663,6 +664,7 @@ export class AdminShellComponent {
   // All searchable options across the admin platform
   readonly searchOptions: SearchOption[] = [
     { path: '/admin/dashboard', label: 'Dashboard Overview', icon: LayoutDashboard, category: 'Pages', hint: 'Platform metrics, KPIs & quick stats' },
+    { path: '/admin/accounting', label: 'Accounting & Ledger', icon: DollarSign, category: 'Finance', hint: 'Ledger, + / - money, P&L reports & accountant magic links' },
     { path: '/admin/analytics', label: 'Live Financial Analytics', icon: TrendingUp, category: 'Analytics', hint: 'Real-time iOS charts, morning/evening money' },
     { path: '/admin/reports', label: 'Financial Reports & Exports', icon: FileSpreadsheet, category: 'Reports', hint: 'Export all PDF, PowerPoint PPTX & Excel' },
     { path: '/admin/pricing', label: 'Homepage Pricing Control', icon: DollarSign, category: 'Settings', hint: 'Edit Cover Letter ($1), CV ($4), Bundle ($8)' },

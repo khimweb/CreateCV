@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 const db = require('../db');
 const { query } = require('../db/pool');
@@ -993,4 +995,142 @@ router.delete('/drafts/:id', async (req, res) => {
   }
 });
 
+// ---------- Accountant Team & Magic Auto-Login Links ----------
+
+function generateAccountantMagicLink(user, req) {
+  const token = jwt.sign(
+    { id: user.id, email: user.email, role: 'accountant', type: 'magic_auto_login' },
+    process.env.JWT_SECRET,
+    { expiresIn: '30d' }
+  );
+
+  let origin = req.headers.origin || req.headers.referer;
+  if (origin) {
+    try {
+      const u = new URL(origin);
+      origin = `${u.protocol}//${u.host}`;
+    } catch (e) {
+      origin = 'http://localhost:4200';
+    }
+  } else {
+    origin = 'http://localhost:4200';
+  }
+  const magicLink = `${origin}/auth/auto-login?token=${token}`;
+  return { token, magicLink };
+}
+
+// GET /api/v1/admin/accountants — list all accountant team members
+router.get('/accountants', async (req, res) => {
+  try {
+    const { rows } = await query(
+      `SELECT id, full_name, email, role, is_active, is_approved, last_login_at, created_at 
+       FROM users 
+       WHERE role = 'accountant' 
+       ORDER BY created_at DESC`
+    );
+    const accountants = rows.map(acc => {
+      const { token, magicLink } = generateAccountantMagicLink(acc, req);
+      return {
+        id: acc.id,
+        fullName: acc.full_name,
+        email: acc.email,
+        role: acc.role,
+        isActive: Boolean(acc.is_active),
+        isApproved: Boolean(acc.is_approved),
+        lastLoginAt: acc.last_login_at,
+        createdAt: acc.created_at,
+        magicToken: token,
+        magicLink,
+      };
+    });
+    res.json({ accountants });
+  } catch (err) {
+    res.status(500).json({ error: 'FETCH_ACCOUNTANTS_FAILED', message: err.message });
+  }
+});
+
+// POST /api/v1/admin/accountants — create new accountant and generate instant magic auto-login link
+router.post('/accountants', async (req, res) => {
+  try {
+    const { fullName, email, password } = req.body || {};
+    if (!fullName || !email) {
+      return res.status(400).json({ error: 'INVALID_INPUT', message: 'Full name and email are required.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const existing = await db.users.findByEmail(cleanEmail);
+    if (existing) {
+      return res.status(409).json({ error: 'EMAIL_TAKEN', message: 'An account with this email address already exists.' });
+    }
+
+    const rawPassword = password && password.trim().length >= 6 
+      ? password.trim() 
+      : 'Acc' + Math.random().toString(36).slice(-6) + '!9';
+    const passwordHash = await bcrypt.hash(rawPassword, 4);
+
+    const result = await query(
+      `INSERT INTO users (full_name, email, password_hash, role, is_approved, is_active, created_at, updated_at)
+       VALUES (?, ?, ?, 'accountant', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+      [fullName.trim(), cleanEmail, passwordHash]
+    );
+
+    const newUser = await db.users.findById(result.lastID);
+    const { token, magicLink } = generateAccountantMagicLink(newUser, req);
+
+    res.status(201).json({
+      success: true,
+      message: 'Accountant profile created successfully with Magic Auto-Login link!',
+      user: {
+        id: newUser.id,
+        fullName: newUser.full_name,
+        email: newUser.email,
+        role: newUser.role,
+        isActive: Boolean(newUser.is_active),
+        isApproved: Boolean(newUser.is_approved),
+        createdAt: newUser.created_at,
+      },
+      rawPassword,
+      magicToken: token,
+      magicLink,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'CREATE_ACCOUNTANT_FAILED', message: err.message });
+  }
+});
+
+// POST /api/v1/admin/accountants/:id/magic-link — regenerate magic link
+router.post('/accountants/:id/magic-link', async (req, res) => {
+  try {
+    const user = await db.users.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'USER_NOT_FOUND', message: 'User not found.' });
+    }
+    const { token, magicLink } = generateAccountantMagicLink(user, req);
+    res.json({
+      success: true,
+      user: { id: user.id, fullName: user.full_name, email: user.email },
+      magicToken: token,
+      magicLink,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'GENERATE_LINK_FAILED', message: err.message });
+  }
+});
+
+// DELETE /api/v1/admin/accountants/:id — remove accountant
+router.delete('/accountants/:id', async (req, res) => {
+  try {
+    const user = await db.users.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'NOT_FOUND' });
+    if (user.role !== 'accountant') {
+      return res.status(400).json({ error: 'INVALID_ROLE', message: 'Only accountant users can be deleted via this endpoint.' });
+    }
+    await query('DELETE FROM users WHERE id = ?', [req.params.id]);
+    res.json({ success: true, message: 'Accountant deleted successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: 'DELETE_FAILED', message: err.message });
+  }
+});
+
 module.exports = router;
+
