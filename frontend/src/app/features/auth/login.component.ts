@@ -1,177 +1,689 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, AfterViewInit, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormGroup } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../shared/components/toast/toast.service';
-import { LoaderComponent } from '../../shared/components/loader/loader.component';
 import { GoogleSignInComponent } from '../../shared/components/auth/google-sign-in.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, LoaderComponent, GoogleSignInComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, GoogleSignInComponent],
   template: `
-    <section class="auth-page">
-      <!-- Desktop -->
-      <div class="desktop-only">
-        <div class="glow glow-one" aria-hidden="true"></div>
-        <div class="glow glow-two" aria-hidden="true"></div>
-        <div class="glow glow-three" aria-hidden="true"></div>
-        <div class="auth-layout">
-          <aside class="auth-showcase">
-            <div class="s-shape s-shape--1"></div><div class="s-shape s-shape--2"></div>
-            <div class="s-ball s-ball--1"></div><div class="s-ball s-ball--2"></div><div class="s-ball s-ball--3"></div>
-            <div class="s-copy"><span class="s-eyebrow">CV CREATOR</span><h1>Welcome back!</h1><p>Pick up where you left off and build a CV that opens doors.</p></div>
-            <a routerLink="/register" class="s-switch">New here? <strong>Sign up</strong></a>
-          </aside>
-          <main class="auth-card">
-            <a routerLink="/" class="back-link"><span>‹</span> Back to home</a>
-            <div class="heading"><p class="s-eyebrow">WELCOME BACK</p><h2>Sign in to your account</h2><p class="sub">Enter your details to continue creating.</p></div>
-            <form [formGroup]="form" (ngSubmit)="submit()">
-              <label>Email address<input formControlName="email" type="email" placeholder="you@example.com" /></label>
-              <label>Password<div class="pw-wrap"><input formControlName="password" [type]="showPw()?'text':'password'" placeholder="••••••••" /><button type="button" class="eye" (click)="showPw.set(!showPw())">@if(showPw()){<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><line x1="1" y1="1" x2="23" y2="23"/></svg>}@else{<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>}</button></div></label>
-              <div class="opts"><label class="chk"><input type="checkbox" /><span>Remember me</span></label><a routerLink="/forgot-password">Forgot password?</a></div>
-              @if(error()){<p class="err">{{error()}}</p>}
-              <button type="submit" class="btn-primary" [disabled]="form.invalid||loading()">Sign in <span>→</span></button>
-              <app-loader [show]="loading()" [inline]="true" text="Signing in..." />
-            </form>
-            <div class="divider"><span>or continue with</span></div>
-            <div class="socials"><app-google-sign-in (credential)="signInWithGoogle($event)" /></div>
-            <p class="switch-link">Don't have an account? <a routerLink="/register">Sign up</a></p>
-          </main>
-        </div>
-      </div>
+    <section class="auth-root" [class.ready]="ready()">
+      <!-- Animated background orbs -->
+      <div class="orb orb-1" aria-hidden="true"></div>
+      <div class="orb orb-2" aria-hidden="true"></div>
+      <div class="orb orb-3" aria-hidden="true"></div>
+      <div class="orb orb-4" aria-hidden="true"></div>
 
-      <!-- Mobile -->
-      <div class="mobile-only">
-        @if (mobileView() === 'welcome') {
-          <div class="m-welcome">
-            <div class="m-bg">
-              <div class="m-blob m-blob--1"></div><div class="m-blob m-blob--2"></div><div class="m-blob m-blob--3"></div>
-              <div class="m-ball m-ball--1"></div><div class="m-ball m-ball--2"></div><div class="m-ball m-ball--3"></div>
+      <!-- Grid noise overlay -->
+      <div class="noise" aria-hidden="true"></div>
+
+      <div class="auth-wrapper">
+        <!-- LEFT PANEL -->
+        <aside class="panel-left">
+          <div class="panel-inner">
+            <div class="brand-badge">
+              <span class="brand-dot"></span>
+              <span>CQ-Professional</span>
             </div>
-            <div class="m-welcome-content">
-              <h1>Welcome Back!</h1>
-              <p>Enter personal details to your employee account</p>
+            <h1 class="panel-headline">
+              Welcome<br/>back<span class="accent">.</span>
+            </h1>
+            <p class="panel-sub">Pick up where you left off — build a CV that opens every door you knock on.</p>
+
+            <div class="feature-list">
+              <div class="feature-item">
+                <span class="feature-icon">✦</span>
+                <span>20+ professional templates</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">✦</span>
+                <span>AI-powered content suggestions</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">✦</span>
+                <span>Export to PDF instantly</span>
+              </div>
             </div>
-            <div class="m-welcome-btns">
-              <button type="button" class="m-btn-text" (click)="mobileView.set('login')">Sign in</button>
-              <button type="button" class="m-btn-pill" routerLink="/register">Sign up</button>
-            </div>
+
+            <a routerLink="/register" class="panel-switch">
+              New here? <strong>Create account →</strong>
+            </a>
           </div>
-        } @else {
-          <div class="m-form-page">
-            <div class="m-header">
-              <div class="m-ball m-ball--1"></div><div class="m-ball m-ball--2"></div>
-              <button type="button" class="m-back" (click)="mobileView.set('welcome')">‹ Back</button>
+
+          <!-- Decorative floating shapes -->
+          <div class="shape shape-ring"></div>
+          <div class="shape shape-blob"></div>
+          <div class="shape shape-dot-grid"></div>
+        </aside>
+
+        <!-- RIGHT PANEL — FORM -->
+        <main class="panel-right">
+          <a routerLink="/" class="back-home">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M5 12l7-7M5 12l7 7"/></svg>
+            Home
+          </a>
+
+          <div class="form-card">
+            <div class="form-header">
+              <p class="eyebrow">SIGN IN</p>
+              <h2>Sign in to your account</h2>
+              <p class="sub-heading">Enter your credentials to continue creating.</p>
             </div>
-            <div class="m-card">
-              <h2>Welcome back</h2>
-              <form [formGroup]="form" (ngSubmit)="submit()">
-                <label>Email<input formControlName="email" type="email" placeholder="kristin.watson@example.com" /></label>
-                <label>Password<div class="pw-wrap"><input formControlName="password" [type]="showPw()?'text':'password'" placeholder="••••••••" /><button type="button" class="eye" (click)="showPw.set(!showPw())">@if(showPw()){<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><line x1="1" y1="1" x2="23" y2="23"/></svg>}@else{<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>}</button></div></label>
-                <div class="opts"><label class="chk"><input type="checkbox" /><span>Remember me</span></label><a routerLink="/forgot-password">Forgot password?</a></div>
-                @if(error()){<p class="err">{{error()}}</p>}
-                <button type="submit" class="m-submit" [disabled]="form.invalid||loading()">Sign in</button>
-                <app-loader [show]="loading()" [inline]="true" text="Signing in..." />
-              </form>
-              <div class="divider"><span>Sign in with</span></div>
+
+            <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+              <!-- Email -->
+              <div class="field-group" [class.focused]="emailFocused()" [class.filled]="form.get('email')?.value">
+                <label for="email">Email address</label>
+                <div class="input-wrap">
+                  <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 7 10-7"/></svg>
+                  <input id="email" formControlName="email" type="email" placeholder="you@example.com"
+                    (focus)="emailFocused.set(true)" (blur)="emailFocused.set(false)" autocomplete="email" />
+                  <div class="focus-ring"></div>
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div class="field-group" [class.focused]="pwFocused()" [class.filled]="form.get('password')?.value">
+                <label for="password">Password</label>
+                <div class="input-wrap">
+                  <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <input id="password" formControlName="password" [type]="showPw() ? 'text' : 'password'" placeholder="••••••••"
+                    (focus)="pwFocused.set(true)" (blur)="pwFocused.set(false)" autocomplete="current-password" />
+                  <button type="button" class="eye-btn" (click)="showPw.set(!showPw())" [attr.aria-label]="showPw() ? 'Hide password' : 'Show password'">
+                    @if (showPw()) {
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    } @else {
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    }
+                  </button>
+                  <div class="focus-ring"></div>
+                </div>
+              </div>
+
+              <div class="row-opts">
+                <label class="remember">
+                  <input type="checkbox" />
+                  <span class="custom-check"></span>
+                  <span>Remember me</span>
+                </label>
+                <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+              </div>
+
+              <!-- Error message -->
+              @if (error()) {
+                <div class="error-msg" role="alert">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  {{ error() }}
+                </div>
+              }
+
+              <!-- Submit button -->
+              <button type="submit" class="btn-submit" [class.loading]="loading()" [disabled]="form.invalid || loading()">
+                @if (loading()) {
+                  <span class="glow-loader">
+                    <span class="gl-dot"></span>
+                    <span class="gl-dot"></span>
+                    <span class="gl-dot"></span>
+                    <span class="gl-dot"></span>
+                    <span class="gl-dot"></span>
+                  </span>
+                  <span>Signing in...</span>
+                } @else {
+                  <span>Sign in</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                }
+                <span class="btn-shimmer"></span>
+              </button>
+            </form>
+
+            <div class="divider"><span>or continue with</span></div>
+
+            <div class="social-row">
               <app-google-sign-in (credential)="signInWithGoogle($event)" />
-              <div class="m-socials"><button type="button"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></button><button type="button"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#1DA1F2" d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg></button><button type="button"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#EA4335" d="M5.266 9.765A7.077 7.077 0 0112 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.27 0 3.198 2.698 1.24 6.65l4.026 3.115z"/><path fill="#34A853" d="M16.04 18.013c-1.09.703-2.474 1.078-4.04 1.078a7.077 7.077 0 01-6.723-4.823l-4.04 3.067C3.151 21.39 7.241 24 12 24c2.933 0 5.735-1.043 7.834-3l-3.793-2.987z"/><path fill="#4A90D9" d="M19.834 21c2.195-2.048 3.62-5.096 3.62-9 0-.71-.109-1.473-.272-2.182H12v4.637h6.436c-.317 1.559-1.17 2.766-2.395 3.558L19.834 21z"/><path fill="#FBBC05" d="M5.277 14.268A7.12 7.12 0 014.909 12c0-.782.125-1.533.357-2.235L1.24 6.65A11.934 11.934 0 000 12c0 1.92.445 3.73 1.237 5.335l4.04-3.067z"/></svg></button><button type="button"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#000" d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></button></div>
-              <p class="m-switch">Don't have an account? <a routerLink="/register">Sign up</a></p>
             </div>
+
+            <p class="switch-text">Don't have an account? <a routerLink="/register">Sign up free</a></p>
           </div>
-        }
+        </main>
       </div>
     </section>
   `,
   styles: [`
-    .auth-page{min-height:100vh;font-family:Inter,system-ui,sans-serif;color:#162344}
-    .desktop-only{display:block}.mobile-only{display:none}
-    @media(max-width:760px){.desktop-only{display:none!important}.mobile-only{display:block}}
+    :host { display: block; }
 
-    /* DESKTOP */
-    .desktop-only{min-height:100vh;display:grid;place-items:center;padding:32px;background:linear-gradient(150deg,#f8faff 0%,#eef3ff 45%,#f4f8ff 100%);position:relative;overflow:hidden}
-    :host-context(.dark) .desktop-only{background:linear-gradient(145deg,#0d1527 0%,#111b32 50%,#111a2c 100%)}
-    .glow{position:absolute;border-radius:50%;pointer-events:none;filter:blur(80px);z-index:0}
-    .glow-one{width:550px;height:550px;right:-150px;top:50px;background:rgba(99,102,241,0.18)}
-    .glow-two{width:480px;height:480px;left:-180px;top:600px;background:rgba(14,165,233,0.16)}
-    .glow-three{width:600px;height:600px;right:-200px;top:1000px;background:rgba(168,85,247,0.14)}
-    :host-context(.dark) .glow-one{background:#4d3f9866}
-    :host-context(.dark) .glow-two{background:#1d5b8d55}
-    :host-context(.dark) .glow-three{background:#5d388f44}
-    .auth-layout{position:relative;z-index:1;width:min(1120px,100%);min-height:650px;display:grid;grid-template-columns:1.08fr .92fr;border-radius:28px;overflow:hidden;box-shadow:0 30px 80px rgba(50,70,130,.25)}
-    .auth-showcase{position:relative;overflow:hidden;padding:56px;background:linear-gradient(145deg,#5378d7,#2d4c9f 80%);color:#fff}
-    .auth-showcase:before{content:"";position:absolute;width:620px;height:620px;border-radius:43% 57% 58% 42%;background:linear-gradient(135deg,#9db4fb,#6f8ee6 60%,transparent 61%);right:-200px;top:-230px;opacity:.85}
-    .s-shape,.s-ball{position:absolute;border-radius:50%;z-index:1}.s-shape--1{width:270px;height:270px;right:-25px;top:-72px;border:44px solid rgba(255,255,255,.62);border-left-color:transparent;transform:rotate(-32deg)}.s-shape--2{width:300px;height:220px;left:-80px;top:120px;border-radius:48%;background:rgba(36,66,157,.36);transform:rotate(28deg)}.s-ball--1{width:96px;height:96px;top:36px;left:-35px;background:radial-gradient(circle at 30% 25%,#5277db,#102257 72%);box-shadow:15px 20px 30px #15317177}.s-ball--2{width:82px;height:82px;right:95px;top:162px;background:radial-gradient(circle at 32% 22%,#e1edff,#6e99e8 62%);box-shadow:8px 12px 22px #26418b88}.s-ball--3{width:118px;height:118px;left:82px;bottom:55px;background:radial-gradient(circle at 30% 25%,#537be0,#152b69 70%);box-shadow:15px 18px 25px #172a6288}
-    .s-copy{position:absolute;z-index:2;left:56px;bottom:146px;max-width:320px}.s-eyebrow{font-size:.69rem;letter-spacing:.14em;font-weight:800;color:#5679dd}.s-copy .s-eyebrow{color:#d8e4ff}.s-copy h1{font-size:2.5rem;line-height:1.1;margin:0 0 15px}.s-copy p{margin:0;line-height:1.6;color:#e2eaff}.s-switch{position:absolute;z-index:2;left:56px;bottom:54px;color:#fff;text-decoration:none;font-size:.9rem}.s-switch strong{margin-left:7px;border-bottom:1px solid #fff}
-    .auth-card{background:#fff;padding:52px 58px;display:flex;flex-direction:column;justify-content:center}.back-link{color:#63718e;text-decoration:none;font-size:.8rem;font-weight:600;margin-bottom:20px}.back-link span{font-size:1.3rem;margin-right:5px}.heading h2{font-size:2rem;margin:0 0 9px;color:#1a2e66}.heading .sub{font-size:.9rem;color:#7b869d;margin:0 0 27px}
-    form label:not(.chk){display:block;font-size:.76rem;font-weight:700;color:#45516a;margin:0 0 15px}input:not([type=checkbox]){box-sizing:border-box;display:block;width:100%;padding:12px 13px;margin-top:7px;border:1px solid #dfe4ef;border-radius:9px;font:inherit;font-size:.87rem;outline:none;transition:.2s;color:#1d2b4d}input:not([type=checkbox]):focus{border-color:#4c70d5;box-shadow:0 0 0 3px #dce6ff}
-    .pw-wrap{position:relative}.pw-wrap input{padding-right:42px!important}.eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#7b869d;padding:4px;display:flex}.eye:hover{color:#4167ca}
-    .opts{display:flex;justify-content:space-between;align-items:center;margin:2px 0 22px;font-size:.73rem}.chk{display:flex;gap:7px;align-items:center;color:#788397}.chk input{accent-color:#4268ca}.opts a{color:#4167cc;text-decoration:none;font-weight:700}.err{font-size:.8rem;color:#c1354d;margin:-8px 0 15px}
-    .btn-primary{width:100%;border:0;border-radius:9px;padding:13px;background:#4167ca;color:#fff;font-weight:700;box-shadow:0 8px 16px #4167ca42;cursor:pointer;transition:.2s}.btn-primary:hover:not(:disabled){background:#3158bb;transform:translateY(-1px)}.btn-primary:disabled{opacity:.5}.btn-primary span{margin-left:7px;font-size:1.1rem}
-    .divider{display:flex;align-items:center;gap:12px;color:#a2aabc;font-size:.72rem;margin:25px 0 17px}.divider:before,.divider:after{content:"";height:1px;background:#edf0f5;flex:1}
-    .socials{display:flex;justify-content:center;gap:13px}.socials button{width:36px;height:36px;border:1px solid #e2e7f0;background:#fff;border-radius:50%;cursor:pointer;font-weight:800;color:#4167ca;font-size:1rem}.socials button:first-child{color:#dd4b39}.socials button:last-child{color:#1f2937;font-size:.72rem}
-    .switch-link{text-align:center;color:#7b869d;font-size:.8rem;margin:20px 0 0}.switch-link a{color:#4167ca;font-weight:800;text-decoration:none}
+    /* ── ROOT ──────────────────────────────────────── */
+    .auth-root {
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #060c1a;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .auth-root.ready { opacity: 1; }
 
-    /* MOBILE WELCOME */
-    .m-welcome{min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
-    .m-bg{position:absolute;inset:0;background:linear-gradient(160deg,#5b7de3 0%,#3b5cc4 30%,#1e3a8a 70%,#2c4a94 100%);z-index:0}
-    .m-blob{position:absolute;border-radius:50%}.m-blob--1{width:300px;height:300px;top:-80px;right:-60px;background:radial-gradient(circle,#7b9ef0 0%,#4a6fd8 50%,transparent 70%);opacity:.6}.m-blob--2{width:400px;height:250px;bottom:-50px;left:-100px;background:radial-gradient(ellipse,#1e3a7a,#2850a8 60%,transparent 80%);opacity:.8;border-radius:40% 60% 50% 50%}.m-blob--3{width:200px;height:300px;top:30%;left:50%;background:radial-gradient(ellipse,#3858ad 0%,transparent 70%);opacity:.5;border-radius:30% 70% 60% 40%}
-    .m-ball{position:absolute;border-radius:50%;z-index:1}.m-ball--1{width:100px;height:100px;top:40px;left:-20px;background:radial-gradient(circle at 30% 25%,#4a6fd8,#152b69 70%);box-shadow:10px 15px 25px rgba(20,40,80,.4)}.m-ball--2{width:70px;height:70px;top:80px;right:40px;background:radial-gradient(circle at 30% 25%,#e1edff,#6e99e8 62%,#3154ad);box-shadow:8px 10px 20px rgba(30,60,120,.3)}.m-ball--3{width:90px;height:90px;bottom:140px;left:30px;background:radial-gradient(circle at 30% 25%,#537be0,#152b69 70%);box-shadow:12px 15px 20px rgba(20,40,80,.4)}
-    .m-welcome-content{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:60px 32px;position:relative;z-index:2}
-    .m-welcome-content h1{color:#fff;font-size:2.2rem;font-weight:800;margin:0 0 12px}.m-welcome-content p{color:rgba(255,255,255,.75);font-size:.95rem;max-width:260px;line-height:1.5}
-    .m-welcome-btns{display:flex;position:relative;z-index:2;border-top:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);backdrop-filter:blur(10px)}
-    .m-btn-text,.m-btn-pill{flex:1;padding:18px;border:none;font-size:.9rem;font-weight:700;cursor:pointer;transition:.2s}
-    .m-btn-text{background:transparent;color:rgba(255,255,255,.8)}.m-btn-text:hover{color:#fff}
-    .m-btn-pill{background:#fff;color:#3b5cc4;border-radius:14px;margin:8px;box-shadow:0 4px 15px rgba(0,0,0,.15)}.m-btn-pill:hover{transform:scale(1.02)}
+    /* ── ANIMATED ORBS ─────────────────────────────── */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      animation: orbFloat 12s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 600px; height: 600px; top: -200px; left: -200px; background: radial-gradient(circle, rgba(79,70,229,0.45) 0%, transparent 70%); animation-delay: 0s; }
+    .orb-2 { width: 500px; height: 500px; bottom: -150px; right: -150px; background: radial-gradient(circle, rgba(14,165,233,0.4) 0%, transparent 70%); animation-delay: -4s; }
+    .orb-3 { width: 400px; height: 400px; top: 40%; left: 35%; background: radial-gradient(circle, rgba(168,85,247,0.3) 0%, transparent 70%); animation-delay: -8s; }
+    .orb-4 { width: 300px; height: 300px; top: 10%; right: 30%; background: radial-gradient(circle, rgba(6,182,212,0.25) 0%, transparent 70%); animation-delay: -2s; }
 
-    /* MOBILE FORM */
-    .m-form-page{min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(150deg,#f8faff 0%,#eef3ff 45%,#f4f8ff 100%)}
-    :host-context(.dark) .m-form-page{background:linear-gradient(145deg,#0d1527 0%,#111b32 50%,#111a2c 100%)}
-    .m-header{position:relative;height:160px;background:linear-gradient(135deg,#6b8ceb,#4a6fd8 50%,#3b5cc4);border-radius:0 0 28px 28px;overflow:hidden}
-    .m-header .m-ball--1{width:120px;height:120px;top:-30px;right:-20px;background:radial-gradient(circle at 30% 25%,#7b9ef0,#4a6fd8 70%);opacity:.5}
-    .m-header .m-ball--2{width:70px;height:70px;top:20px;left:-15px;background:radial-gradient(circle at 30% 25%,#e1edff,#6e99e8 62%);opacity:.5}
-    .m-back{position:absolute;top:16px;left:16px;color:#fff;text-decoration:none;font-size:.85rem;font-weight:600;z-index:2;padding:8px 14px;background:rgba(0,0,0,.15);border-radius:10px;border:none;cursor:pointer}
-    .m-card{flex:1;background:#fff;margin:-30px 16px 16px;border-radius:24px;padding:32px 24px;box-shadow:0 10px 40px rgba(30,60,120,.1);position:relative;z-index:3;animation:slideUp .3s cubic-bezier(.32,.72,0,1)}
-    .m-card h2{text-align:center;font-size:1.5rem;color:#3b5cc4;margin:0 0 24px;font-weight:800}
-    .m-card form label:not(.chk){display:block;font-size:.75rem;font-weight:700;color:#45516a;margin:0 0 16px}
-    .m-card input:not([type=checkbox]){box-sizing:border-box;display:block;width:100%;padding:14px 16px;margin-top:6px;border:1.5px solid #e2e8f0;border-radius:12px;background:#fafcff;font:inherit;font-size:.85rem;outline:none;transition:.2s;color:#1d2b4d}
-    .m-card input:not([type=checkbox]):focus{border-color:#4167ca;box-shadow:0 0 0 3px #e3eaff;background:#fff}
-    .m-submit{width:100%;border:0;border-radius:12px;padding:15px;background:#3b5cc4;color:#fff;font-weight:700;font-size:.9rem;box-shadow:0 8px 24px #3b5cc435;cursor:pointer;transition:.2s;margin-top:8px}.m-submit:hover:not(:disabled){background:#2d4c9f}.m-submit:disabled{opacity:.5}
-    .m-socials{display:none}.m-socials button{width:44px;height:44px;border:1px solid #e5eaf3;background:#fff;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}.m-socials button:active{transform:scale(.92)}
-    .m-switch{text-align:center;color:#7b869d;font-size:.82rem;margin:20px 0 0}.m-switch a{color:#3b5cc4;font-weight:800;text-decoration:none}
-    @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes orbFloat {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(30px, -20px) scale(1.08); }
+      100% { transform: translate(-20px, 30px) scale(0.95); }
+    }
+
+    /* ── NOISE OVERLAY ─────────────────────────────── */
+    .noise {
+      position: absolute;
+      inset: 0;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    /* ── WRAPPER ───────────────────────────────────── */
+    .auth-wrapper {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    /* ── LEFT PANEL ────────────────────────────────── */
+    .panel-left {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 56px;
+      background: linear-gradient(145deg, rgba(79,70,229,0.15) 0%, rgba(30,27,75,0.3) 100%);
+      border-right: 1px solid rgba(255,255,255,0.06);
+      overflow: hidden;
+      animation: slideInLeft 0.7s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes slideInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+
+    .panel-inner { position: relative; z-index: 2; max-width: 400px; }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(79,70,229,0.2);
+      border: 1px solid rgba(99,102,241,0.4);
+      color: #a5b4fc;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 32px;
+    }
+    .brand-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 3px rgba(16,185,129,0.3);
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 3px rgba(16,185,129,0.3); } 50% { box-shadow: 0 0 0 6px rgba(16,185,129,0.1); } }
+
+    .panel-headline {
+      font-size: clamp(2.8rem, 5vw, 4.5rem);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin: 0 0 20px;
+    }
+    .accent { color: #818cf8; }
+
+    .panel-sub {
+      color: rgba(255,255,255,0.55);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin: 0 0 36px;
+      max-width: 320px;
+    }
+
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 48px; }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+    .feature-icon { color: #818cf8; font-size: 0.75rem; }
+
+    .panel-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s;
+    }
+    .panel-switch:hover { color: #a5b4fc; }
+    .panel-switch strong { color: #818cf8; }
+
+    /* Decorative shapes */
+    .shape { position: absolute; pointer-events: none; }
+    .shape-ring {
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(99,102,241,0.15);
+      top: -100px; right: -150px;
+      animation: spin 40s linear infinite;
+    }
+    .shape-ring::after {
+      content: '';
+      position: absolute;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      border: 1px solid rgba(99,102,241,0.1);
+      top: 60px; left: 60px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .shape-blob {
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.12), transparent 70%);
+      bottom: -80px; left: -60px;
+    }
+
+    /* ── RIGHT PANEL ───────────────────────────────── */
+    .panel-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 60px;
+      animation: slideInRight 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+    }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+    .back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.4);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      align-self: flex-start;
+      margin-bottom: 32px;
+      transition: color 0.2s;
+    }
+    .back-home:hover { color: rgba(255,255,255,0.8); }
+
+    .form-card {
+      width: 100%;
+      max-width: 440px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 40px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .form-header { margin-bottom: 28px; }
+    .eyebrow {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: #818cf8;
+      margin: 0 0 10px;
+    }
+    .form-header h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 0 0 8px;
+      letter-spacing: -0.03em;
+    }
+    .sub-heading {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.45);
+      margin: 0;
+    }
+
+    /* ── FIELDS ────────────────────────────────────── */
+    .field-group { margin-bottom: 18px; }
+    .field-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+    }
+    .field-group.focused label { color: #a5b4fc; }
+
+    .input-wrap { position: relative; }
+    .field-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.25);
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+    .field-group.focused .field-icon { color: #818cf8; }
+
+    .input-wrap input {
+      width: 100%;
+      box-sizing: border-box;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 13px 44px 13px 42px;
+      font: inherit;
+      font-size: 0.9rem;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+    }
+    .input-wrap input::placeholder { color: rgba(255,255,255,0.2); }
+    .input-wrap input:focus {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(129,140,248,0.6);
+    }
+
+    .focus-ring {
+      position: absolute;
+      inset: -2px;
+      border-radius: 14px;
+      border: 2px solid transparent;
+      background: linear-gradient(135deg, #6366f1, #06b6d4) border-box;
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: destination-out;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.25s;
+      pointer-events: none;
+    }
+    .field-group.focused .focus-ring { opacity: 1; }
+
+    .eye-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(255,255,255,0.3);
+      padding: 4px;
+      display: flex;
+      transition: color 0.2s;
+    }
+    .eye-btn:hover { color: rgba(255,255,255,0.7); }
+
+    /* ── OPTS ROW ──────────────────────────────────── */
+    .row-opts {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 4px 0 22px;
+    }
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.5);
+    }
+    .remember input[type=checkbox] { display: none; }
+    .custom-check {
+      width: 16px; height: 16px;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .remember input:checked ~ .custom-check {
+      background: #6366f1;
+      border-color: #6366f1;
+    }
+    .remember input:checked ~ .custom-check::after {
+      content: '';
+      width: 4px; height: 7px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translateY(-1px);
+    }
+    .forgot-link {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #818cf8;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .forgot-link:hover { color: #a5b4fc; }
+
+    /* ── ERROR ─────────────────────────────────────── */
+    .error-msg {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.25);
+      color: #fca5a5;
+      font-size: 0.8rem;
+      margin-bottom: 16px;
+      animation: shake 0.4s cubic-bezier(0.36,0.07,0.19,0.97) both;
+    }
+    @keyframes shake {
+      10%, 90% { transform: translateX(-2px); }
+      20%, 80% { transform: translateX(4px); }
+      30%, 50%, 70% { transform: translateX(-4px); }
+      40%, 60% { transform: translateX(4px); }
+    }
+
+    /* ── SUBMIT BUTTON ─────────────────────────────── */
+    .btn-submit {
+      position: relative;
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #7c3aed 100%);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.93rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+      box-shadow: 0 8px 24px rgba(99,102,241,0.35);
+    }
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 32px rgba(99,102,241,0.5);
+    }
+    .btn-submit:active:not(:disabled) { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    /* Shimmer effect */
+    .btn-shimmer {
+      position: absolute;
+      top: 0; left: -120%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      skewX: -15deg;
+      transition: none;
+    }
+    .btn-submit:not(:disabled):hover .btn-shimmer {
+      animation: shimmer 0.65s ease forwards;
+    }
+    @keyframes shimmer { to { left: 120%; } }
+
+    /* ── GLOWING LOADER ────────────────────────────── */
+    .glow-loader {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .gl-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      animation: glowPulse 1.4s ease-in-out infinite;
+    }
+    .gl-dot:nth-child(1) { animation-delay: 0s; }
+    .gl-dot:nth-child(2) { animation-delay: 0.15s; }
+    .gl-dot:nth-child(3) { animation-delay: 0.3s; }
+    .gl-dot:nth-child(4) { animation-delay: 0.45s; }
+    .gl-dot:nth-child(5) { animation-delay: 0.6s; }
+
+    @keyframes glowPulse {
+      0%, 100% {
+        transform: scale(0.5);
+        opacity: 0.3;
+        box-shadow: 0 0 4px rgba(255,255,255,0.2);
+      }
+      50% {
+        transform: scale(1.3);
+        opacity: 1;
+        box-shadow: 0 0 12px rgba(255,255,255,0.9), 0 0 24px rgba(129,140,248,0.8);
+      }
+    }
+
+    /* ── DIVIDER ───────────────────────────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0 18px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+    .divider span {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.3);
+      white-space: nowrap;
+    }
+
+    .social-row { display: flex; justify-content: center; margin-bottom: 4px; }
+
+    .switch-text {
+      text-align: center;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.35);
+      margin: 18px 0 0;
+    }
+    .switch-text a {
+      color: #818cf8;
+      font-weight: 700;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .switch-text a:hover { color: #a5b4fc; }
+
+    /* ── RESPONSIVE ────────────────────────────────── */
+    @media (max-width: 900px) {
+      .auth-wrapper { grid-template-columns: 1fr; }
+      .panel-left { display: none; }
+      .panel-right {
+        padding: 40px 24px;
+        background: linear-gradient(160deg, #0a0f2e 0%, #0d1440 60%, #0c0e22 100%);
+      }
+      .form-card { padding: 32px 24px; }
+    }
+    @media (max-width: 480px) {
+      .form-card { padding: 28px 20px; border-radius: 20px; }
+      .form-header h2 { font-size: 1.55rem; }
+    }
   `],
 })
 export class LoginComponent {
-  form: FormGroup; error = signal<string | null>(null); returnUrl = signal('/'); showPw = signal(false); loading = signal(false);
-  mobileView = signal<'welcome' | 'login'>('welcome');
+  form: FormGroup;
+  error = signal<string | null>(null);
+  returnUrl = signal('/');
+  showPw = signal(false);
+  loading = signal(false);
+  emailFocused = signal(false);
+  pwFocused = signal(false);
+  ready = signal(false);
 
-  constructor(private fb: FormBuilder, private route: ActivatedRoute, private auth: AuthService, private toast: ToastService, private router: Router) {
-    this.form = this.fb.group({ email: ['', [Validators.required, Validators.email]], password: ['', Validators.required] });
+  constructor(
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private auth: AuthService,
+    private toast: ToastService,
+    private router: Router
+  ) {
+    this.form = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required],
+    });
     this.returnUrl.set(this.route.snapshot.queryParamMap.get('returnUrl') || '/');
+    setTimeout(() => this.ready.set(true), 50);
   }
 
   submit() {
     if (this.form.invalid) return;
-    this.loading.set(true); this.error.set(null);
+    this.loading.set(true);
+    this.error.set(null);
     const { email, password } = this.form.getRawValue();
     const returnUrl = this.returnUrl();
     const safeUrl = returnUrl.startsWith('/login') || returnUrl.startsWith('/register') ? '/' : returnUrl;
     this.auth.login(email!, password!, safeUrl).subscribe({
       next: () => {
-        this.loading.set(false); this.toast.success('Welcome back!');
+        this.loading.set(false);
+        this.toast.success('Welcome back!');
         const user = this.auth.currentUser();
         if (user?.role === 'admin' && safeUrl === '/') this.router.navigate(['/admin']);
       },
-      error: () => { this.loading.set(false); this.error.set('Incorrect email or password.'); },
+      error: () => {
+        this.loading.set(false);
+        this.error.set('Incorrect email or password. Please try again.');
+      },
     });
   }
 
   signInWithGoogle(credential: string) {
-    this.loading.set(true); this.error.set(null);
+    this.loading.set(true);
+    this.error.set(null);
     this.auth.loginWithGoogle(credential).subscribe({
       next: () => { this.loading.set(false); this.toast.success('Signed in with Google.'); },
       error: (error) => {
